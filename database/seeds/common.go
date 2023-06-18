@@ -4,9 +4,14 @@
 
 package seeds
 
-import "github.com/kristijorgji/goseeder"
+import "github.com/baeriswyln/goseeder"
 
 func init() {
 	goseeder.SetDataPath("database/seeds/data")
 	goseeder.Register(countriesSeeder)
+	goseeder.Register(statesSeeder)
+	goseeder.Register(placesSeeder)
+	goseeder.Register(sportsSeeder)
+	goseeder.Register(clubsSeeder)
+	goseeder.Register(usersSeeder)
 }

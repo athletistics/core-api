@@ -4,8 +4,8 @@
 
 package seeds
 
-import "github.com/kristijorgji/goseeder"
+import "github.com/baeriswyln/goseeder"
 
 func placesSeeder(s goseeder.Seeder) {
-
+	s.FromJson("places")
 }

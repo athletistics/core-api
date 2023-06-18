@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/baeriswyln/goseeder"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
-	"github.com/kristijorgji/goseeder"
 	http_mw "github.com/zitadel/zitadel-go/v2/pkg/api/middleware/http"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
