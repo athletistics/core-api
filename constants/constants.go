@@ -1,0 +1,11 @@
+// Brief   :
+// Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
+// Created : 18.06.2023
+
+package constants
+
+const (
+	LocalsUserId         = "userId"
+	LocalsHasVerified2FA = "is2faOk"
+	DB_PORT_DEFAULT      = 5432
+)

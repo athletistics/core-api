@@ -1,13 +1,101 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
+	"github.com/kristijorgji/goseeder"
+	http_mw "github.com/zitadel/zitadel-go/v2/pkg/api/middleware/http"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/jwtclaim"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/totpverify"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/router"
+	"log"
+	"os"
 
+	"github.com/zitadel/zitadel-go/v2/pkg/client/middleware"
+
+	_ "gitlab.forge.hefr.ch/tb-athletistics/backend/database/seeds"
+	_ "gitlab.forge.hefr.ch/tb-athletistics/backend/docs"
+)
+
+// @title Core Athletistics API
+// @version 1.0
+// @description API that manages TOTPs and
+
+// @contact.name API Support
+// @contact.email nicolasfabrice.baeriswyl@edu.hefr.ch
+
+// @license.name GPL-3.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host athletistics.kube.isc.heia-fr.ch
+// @schemes https
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey Zitadel JWT token
+// @in header
+// @name Authorization
 func main() {
-	app := fiber.New()
+	database.ConnectDb()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, Core!")
+	goseeder.WithSeeder(database.GetSqlDB, func() {
+		fiberSetup()
 	})
+}
 
-	app.Listen(":3000")
+func fiberSetup() {
+	// write the API Key to a file, allowing Zitadel Interceptor to use it
+	if err := CreateKeyFile(); err != nil {
+		log.Fatal(err)
+	}
+
+	introspection, err := http_mw.NewIntrospectionInterceptor(os.Getenv("ZITADEL_INSTANCE"), middleware.OSKeyPath())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// clean up key file, as it is no longer needed as file
+	if err := DeleteKeyFile(); err != nil {
+		log.Fatal(err)
+	}
+
+	app := fiber.New()
+	app.Use(cors.New())
+
+	// attach swagger doc
+	app.Get(fmt.Sprintf("/api/v%v/docs/*", config.ApiVersion), swagger.HandlerDefault)
+	app.Get(fmt.Sprintf("/api/v%v/docs/*", config.ApiVersion), swagger.New(swagger.Config{ // custom
+		URL:         "https://athletistics.com/doc.json",
+		DeepLinking: false,
+		// Expand ("list") or Collapse ("none") tag groups by default
+		DocExpansion: "none",
+	}))
+
+	// check auth token on each call
+	app.Use(adaptor.HTTPMiddleware(introspection.Handler))
+
+	// extract user id from JWT token
+	app.Use(jwtclaim.New())
+
+	// store the user's 2FA state
+	app.Use(totpverify.New())
+
+	router.SetupRoutes(app)
+
+	err = app.Listen(":3000")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func CreateKeyFile() error {
+	return os.WriteFile(middleware.OSKeyPath(), []byte(os.Getenv("ZITADEL_API_KEY")), 0755) //nolint:gomnd
+}
+
+func DeleteKeyFile() error {
+	return os.Remove(middleware.OSKeyPath())
 }

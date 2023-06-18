@@ -1,0 +1,15 @@
+linters:
+  disable:
+    - unused
+  enable:
+    - bidichk
+    - bodyclose
+    - dupl
+    - dupword
+    - errchkjson
+    - errname
+    - funlen
+    - goconst
+    - gomnd
+    - nestif
+    - reassign

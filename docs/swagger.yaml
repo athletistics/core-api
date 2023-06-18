@@ -1,0 +1,21 @@
+basePath: /api/v1
+host: athletistics.kube.isc.heia-fr.ch
+info:
+  contact:
+    email: nicolasfabrice.baeriswyl@edu.hefr.ch
+    name: API Support
+  description: API that manages TOTPs and
+  license:
+    name: GPL-3.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Core Athletistics API
+  version: "1.0"
+paths: {}
+schemes:
+- https
+securityDefinitions:
+  Zitadel JWT token:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

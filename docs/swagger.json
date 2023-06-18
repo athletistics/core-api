@@ -1,0 +1,29 @@
+{
+    "schemes": [
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "API that manages TOTPs and",
+        "title": "Core Athletistics API",
+        "contact": {
+            "name": "API Support",
+            "email": "nicolasfabrice.baeriswyl@edu.hefr.ch"
+        },
+        "license": {
+            "name": "GPL-3.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "athletistics.kube.isc.heia-fr.ch",
+    "basePath": "/api/v1",
+    "paths": {},
+    "securityDefinitions": {
+        "Zitadel JWT token": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

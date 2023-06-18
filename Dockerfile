@@ -20,7 +20,7 @@ RUN go mod download
 COPY *.go ./
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /athletistics-api
+RUN CGO_ENABLED=0 GOOS=linux go build -o /build .
 
 
 
@@ -33,10 +33,10 @@ FROM scratch
 WORKDIR /
 
 # Copy binaries
-COPY --from=builder /athletistics-api /athletistics-api
+COPY --from=builder /build /build
 
 # Expose the API port
 EXPOSE 3000
 
 # Run
-ENTRYPOINT ["/athletistics-api"]
+ENTRYPOINT ["/build"]

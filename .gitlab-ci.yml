@@ -1,6 +1,13 @@
 stages:
+  - lint
   - build
   - deploy
+
+lint:
+  stage: lint
+  image: golangci/golangci-lint:latest
+  script:
+    - golangci-lint run -v
 
 build:
   stage: build
@@ -12,6 +19,8 @@ build:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t registry.forge.hefr.ch/tb-athletistics/backend --network host .
     - docker push registry.forge.hefr.ch/tb-athletistics/backend
+  only:
+    - main
 
 deploy:
   image:
@@ -24,3 +33,5 @@ deploy:
     - kubectl config set-context local --user=local --cluster=local
     - kubectl config use-context local
     - kubectl -n athletistics rollout restart deploy backend
+  only:
+    - main
