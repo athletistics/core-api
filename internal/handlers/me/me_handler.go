@@ -32,29 +32,31 @@ func GetMe(c *fiber.Ctx) error {
 }
 
 func GetAuth(c *fiber.Ctx) error {
-	type role struct {
-		club string
-		role string
+	type Role struct {
+		Club string `json:"club"`
+		Role string `json:"role"`
 	}
-	type response struct {
-		authRoles []role
-		is2FaOk   bool
+	type Response struct {
+		AuthRoles []Role `json:"authRoles"`
+		Is2FaOk   bool   `json:"is2FaOk"`
+		Has2Fa    bool   `json:"has2Fa"`
 	}
 
 	var auth []models.Authorisation
-	err := database.DB.Where(&models.Authorisation{UserID: helpers.GetUserId(c)}).Find(&auth)
+	err := database.DB.Where(&models.Authorisation{UserID: helpers.GetUserId(c)}).Preload("AccessRole").Preload("Club").Find(&auth).Error
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB)
 	}
 
-	roles := make([]role, len(auth))
+	roles := make([]Role, len(auth))
 	for i := 0; i < len(auth); i++ {
-		roles[i] = role{club: auth[i].Club.Name, role: auth[i].AccessRole.I18nName}
+		roles[i] = Role{Club: auth[i].Club.Name, Role: auth[i].AccessRole.I18nName}
 	}
 
-	resp := response{
-		authRoles: roles,
-		is2FaOk:   c.Locals(constants.LocalsHasVerified2FA).(bool),
+	resp := Response{
+		AuthRoles: roles,
+		Is2FaOk:   c.Locals(constants.LocalsHasVerified2FA).(bool),
+		Has2Fa:    c.Locals(constants.LocalsHas2FA).(bool),
 	}
 	return c.JSON(resp)
 }

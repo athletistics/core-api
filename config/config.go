@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	AppName    = "athletistics"
-	ApiVersion = 1
+	AppName          = "athletistics"
+	ApiVersion       = 1
+	TotpSecondsLimit = 100
 )
 
 var (

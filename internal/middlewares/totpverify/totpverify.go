@@ -7,6 +7,7 @@ package totpverify
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"net/http"
 	"os"
@@ -26,17 +27,19 @@ func New() fiber.Handler {
 		}
 
 		client := &http.Client{}
-		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%v/verify", os.Getenv("TOTP_ENDPOINT")), nil)
+		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%v/verify?%v=%v", os.Getenv("TOTP_ENDPOINT"), constants.KeySecondsAgo, config.TotpSecondsLimit), nil)
 		if err != nil {
 			c.Locals(constants.LocalsHasVerified2FA, false)
+			c.Locals(constants.LocalsHas2FA, false)
 			return c.Next()
 		}
-
 		req.Header.Set(AuthHeaderName, authHeader)
 		res, err := client.Do(req)
 
 		// mark 2FA as verified if response has OK code
-		c.Locals(constants.LocalsHasVerified2FA, res.StatusCode == http.StatusOK)
+		c.Locals(constants.LocalsHasVerified2FA, err == nil && res.StatusCode == http.StatusOK)
+		c.Locals(constants.LocalsHas2FA, err == nil && (res.StatusCode == http.StatusExpectationFailed || res.StatusCode == http.StatusOK))
+
 		return c.Next()
 	}
 }

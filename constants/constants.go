@@ -7,5 +7,7 @@ package constants
 const (
 	LocalsUserId         = "userId"
 	LocalsHasVerified2FA = "is2faOk"
+	LocalsHas2FA         = "has2fa"
+	KeySecondsAgo        = "secondsAgo"
 	DB_PORT_DEFAULT      = 5432
 )
