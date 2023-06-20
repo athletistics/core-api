@@ -22,23 +22,23 @@ import (
 	_ "gitlab.forge.hefr.ch/tb-athletistics/backend/docs"
 )
 
-// @title Core Athletistics API
-// @version 1.0
-// @description API that manages TOTPs and
+//	@title			Core Athletistics API
+//	@version		1.0
+//	@description	API that manages TOTPs and
 
-// @contact.name API Support
-// @contact.email nicolasfabrice.baeriswyl@edu.hefr.ch
+//	@contact.name	API Support
+//	@contact.email	nicolasfabrice.baeriswyl@edu.hefr.ch
 
-// @license.name GPL-3.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	GPL-3.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host athletistics.kube.isc.heia-fr.ch
-// @schemes https
-// @BasePath /api/v1
+//	@host		athletistics.kube.isc.heia-fr.ch
+//	@schemes	https
+//	@BasePath	/api/v1
 
-// @securityDefinitions.apikey Zitadel JWT token
-// @in header
-// @name Authorization
+//	@securityDefinitions.apikey	Zitadel JWT token
+//	@in							header
+//	@name						Authorization
 func main() {
 	database.ConnectDb()
 
