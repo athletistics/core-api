@@ -1,0 +1,82 @@
+// Brief   :
+// Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
+// Created : 20.06.2023
+
+package helpers
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
+)
+
+type Role int64
+
+const (
+	RoleAthlete Role = iota
+	RoleCoach
+	RoleHeadCoach
+)
+
+func (r Role) String() string {
+	switch r {
+	case RoleAthlete:
+		return "athlete"
+	case RoleCoach:
+		return "coach"
+	case RoleHeadCoach:
+		return "head_coach"
+	}
+	return "unknown"
+}
+
+// HasRoleOnClub checks if the requesting user has at least one of the specified roles on the specified club.
+func HasRoleOnClub(c *fiber.Ctx, roles []Role, clubId uuid.UUID) bool {
+	authorisations, err := getAuthorisations(c, clubId)
+	if err != nil {
+		return false
+	}
+
+	for i := 0; i < len(authorisations); i++ {
+		for i := 0; i < len(roles); i++ {
+			if authorisations[i].AccessRole.I18nName == roles[i].String() {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// HasAnyRoleOnClub checks if the requesting user has any role on the specificed club.
+func HasAnyRoleOnClub(c *fiber.Ctx, clubId uuid.UUID) bool {
+	authorisations, err := getAuthorisations(c, clubId)
+	if err != nil {
+		return false
+	}
+
+	return len(authorisations) > 0
+}
+
+// IsAthlete checks if the requesting user has the role "athlete" on any club.
+func IsAthlete(c *fiber.Ctx) bool {
+	db := database.DB
+
+	var authorisations []models.Authorisation
+	err := db.Where(&models.Authorisation{UserID: GetUserId(c)}).Where(&models.AccessRole{I18nName: RoleAthlete.String()}).Find(&authorisations).Error
+	if err != nil {
+		return false
+	}
+
+	return len(authorisations) > 0
+}
+
+// getAuthorisations lists all authorisations of the requesting user on a specific club.
+func getAuthorisations(c *fiber.Ctx, clubId uuid.UUID) ([]models.Authorisation, error) {
+	db := database.DB
+
+	var authorisations []models.Authorisation
+	err := db.Where(&models.Authorisation{UserID: GetUserId(c), ClubID: clubId}).Find(&authorisations).Error
+	return authorisations, err
+}

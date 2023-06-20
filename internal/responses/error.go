@@ -10,8 +10,10 @@ import "net/http"
 // All errors thrown
 // General errors
 var (
-	ErrNotFound = NewError(http.StatusNotFound, 0000, "Resource not found", "Resource not found")
-	ErrDB       = NewError(http.StatusInternalServerError, 1010, "Server error", "Database error")
+	ErrNotFound   = NewError(http.StatusNotFound, 0000, "Resource not found", "Resource not found")
+	ErrDB         = NewError(http.StatusInternalServerError, 1010, "Server error", "Database error")
+	ErrForbidden  = NewError(http.StatusForbidden, 0000, "Not allowed to read requested resource", "")
+	ErrBadRequest = NewError(http.StatusBadRequest, 0000, "The request body is invalid", "")
 )
 
 // JWT Claim
@@ -20,6 +22,11 @@ var (
 	ErrBadAuthHeader  = NewError(http.StatusUnauthorized, 1001, "Unauthenticated", "Bad auth header format")
 	ErrBadToken       = NewError(http.StatusUnauthorized, 1002, "Unauthenticated", "Unable to parse token")
 	ErrMissingSubject = NewError(http.StatusUnauthorized, 1003, "Unauthenticated", "Token has no subject")
+)
+
+// Team errors
+var (
+	ErrParticipantsExist = NewError(http.StatusBadRequest, 1000, "Some atheltes are already part of the team", "")
 )
 
 type Error struct {

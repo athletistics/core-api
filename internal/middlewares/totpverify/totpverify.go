@@ -36,6 +36,9 @@ func New() fiber.Handler {
 		req.Header.Set(AuthHeaderName, authHeader)
 		res, err := client.Do(req)
 
+		// nolint:govet,staticcheck
+		defer res.Body.Close()
+
 		// mark 2FA as verified if response has OK code
 		c.Locals(constants.LocalsHasVerified2FA, err == nil && res.StatusCode == http.StatusOK)
 		c.Locals(constants.LocalsHas2FA, err == nil && (res.StatusCode == http.StatusExpectationFailed || res.StatusCode == http.StatusOK))
