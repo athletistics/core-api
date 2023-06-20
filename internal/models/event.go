@@ -12,7 +12,7 @@ import (
 
 type Event struct {
 	gorm.Model
-	Id            uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	ID            uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
 	EventTypeID   int
 	EventType     EventType
 	Name          string

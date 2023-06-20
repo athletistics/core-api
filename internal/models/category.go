@@ -11,7 +11,7 @@ import (
 
 type Category struct {
 	gorm.Model
-	Id     uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	ID     uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
 	Name   string
 	Gender string `gorm:"type:varchar(1)"`
 }

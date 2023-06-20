@@ -11,7 +11,7 @@ import (
 
 type Discipline struct {
 	gorm.Model
-	Id           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
 	SportID      int
 	Sport        Sport
 	ClubID       *uuid.UUID `gorm:"type:uuid"`

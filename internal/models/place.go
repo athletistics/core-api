@@ -8,7 +8,7 @@ import "gorm.io/gorm"
 
 type Place struct {
 	gorm.Model
-	Id       int `gorm:"primaryKey;unique;autoIncrement"`
+	ID       int `gorm:"primaryKey;unique;autoIncrement"`
 	PostCode string
 	Place    string
 	StateID  int

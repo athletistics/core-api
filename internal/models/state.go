@@ -8,7 +8,7 @@ import "gorm.io/gorm"
 
 type State struct {
 	gorm.Model
-	Id        int `gorm:"primaryKey;unique;autoIncrement"`
+	ID        int `gorm:"primaryKey;unique;autoIncrement"`
 	Name      string
 	Short     string `gorm:"type:varchar(4)"`
 	CountryID int

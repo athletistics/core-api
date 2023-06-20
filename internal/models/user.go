@@ -12,7 +12,7 @@ import (
 
 type User struct {
 	gorm.Model
-	Id            string    `gorm:"primaryKey;unique"`
+	ID            string    `gorm:"primaryKey;unique"`
 	ClubID        uuid.UUID `gorm:"type:uuid"`
 	Club          Club
 	Oasi          *string

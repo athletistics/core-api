@@ -8,6 +8,6 @@ import "gorm.io/gorm"
 
 type EventType struct {
 	gorm.Model
-	Id       int `gorm:"primaryKey;unique;autoIncrement"`
+	ID       int `gorm:"primaryKey;unique;autoIncrement"`
 	I18nName string
 }

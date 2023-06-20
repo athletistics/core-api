@@ -12,7 +12,7 @@ import (
 
 type Result struct {
 	gorm.Model
-	Id           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
 	UserID       string
 	User         User
 	CategoryID   uuid.UUID `gorm:"type:uuid"`

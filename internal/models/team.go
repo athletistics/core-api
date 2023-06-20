@@ -11,7 +11,7 @@ import (
 
 type Team struct {
 	gorm.Model
-	Id      uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	ID      uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
 	ClubID  uuid.UUID `gorm:"type:uuid"`
 	Club    Club
 	Name    string
