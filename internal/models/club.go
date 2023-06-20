@@ -10,9 +10,9 @@ import (
 )
 
 type Club struct {
-	gorm.Model
-	ID      uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
-	SportID int
-	Sport   Sport
-	Name    string
+	gorm.Model `json:"-"`
+	ID         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	SportID    int
+	Sport      Sport
+	Name       string
 }

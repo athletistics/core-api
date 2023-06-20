@@ -11,7 +11,7 @@ import (
 )
 
 type User struct {
-	gorm.Model
+	gorm.Model    `json:"-"`
 	ID            string    `gorm:"primaryKey;unique"`
 	ClubID        uuid.UUID `gorm:"type:uuid"`
 	Club          Club

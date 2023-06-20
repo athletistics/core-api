@@ -7,7 +7,7 @@ package models
 import "gorm.io/gorm"
 
 type AccessRole struct {
-	gorm.Model
+	gorm.Model `json:"-"`
 	ID       int `gorm:"primaryKey;unique;autoIncrement"`
 	I18nName string
 }

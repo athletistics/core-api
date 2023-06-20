@@ -7,7 +7,7 @@ package models
 import "gorm.io/gorm"
 
 type Place struct {
-	gorm.Model
+	gorm.Model `json:"-"`
 	ID       int `gorm:"primaryKey;unique;autoIncrement"`
 	PostCode string
 	Place    string

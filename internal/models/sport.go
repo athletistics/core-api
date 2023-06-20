@@ -7,7 +7,7 @@ package models
 import "gorm.io/gorm"
 
 type Sport struct {
-	gorm.Model
-	ID       int `gorm:"primaryKey;unique;autoIncrement"`
-	I18nName string
+	gorm.Model `json:"-"`
+	ID         int `gorm:"primaryKey;unique;autoIncrement"`
+	I18nName   string
 }

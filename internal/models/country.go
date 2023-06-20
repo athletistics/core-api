@@ -7,8 +7,8 @@ package models
 import "gorm.io/gorm"
 
 type Country struct {
-	gorm.Model
-	ID   int    `gorm:"primaryKey;unique;autoIncrement"`
-	Code string `gorm:"type:varchar(3)"`
-	Name string
+	gorm.Model `json:"-"`
+	ID         int    `gorm:"primaryKey;unique;autoIncrement"`
+	Code       string `gorm:"type:varchar(3)"`
+	Name       string
 }

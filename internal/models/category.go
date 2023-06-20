@@ -10,8 +10,8 @@ import (
 )
 
 type Category struct {
-	gorm.Model
-	ID     uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
-	Name   string
-	Gender string `gorm:"type:varchar(1)"`
+	gorm.Model `json:"-"`
+	ID         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	Name       string
+	Gender     string `gorm:"type:varchar(1)"`
 }

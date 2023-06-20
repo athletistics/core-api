@@ -10,10 +10,10 @@ import (
 )
 
 type Team struct {
-	gorm.Model
-	ID      uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
-	ClubID  uuid.UUID `gorm:"type:uuid"`
-	Club    Club
-	Name    string
-	Members []User `gorm:"many2many:participants;"`
+	gorm.Model `json:"-"`
+	ID         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	ClubID     uuid.UUID `gorm:"type:uuid"`
+	Club       Club
+	Name       string
+	Members    []User `gorm:"many2many:participants;"`
 }

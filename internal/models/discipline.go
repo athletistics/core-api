@@ -10,7 +10,7 @@ import (
 )
 
 type Discipline struct {
-	gorm.Model
+	gorm.Model `json:"-"`
 	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
 	SportID      int
 	Sport        Sport

@@ -7,7 +7,7 @@ package models
 import "gorm.io/gorm"
 
 type State struct {
-	gorm.Model
+	gorm.Model `json:"-"`
 	ID        int `gorm:"primaryKey;unique;autoIncrement"`
 	Name      string
 	Short     string `gorm:"type:varchar(4)"`

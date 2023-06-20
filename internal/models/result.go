@@ -11,7 +11,7 @@ import (
 )
 
 type Result struct {
-	gorm.Model
+	gorm.Model `json:"-"`
 	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
 	UserID       string
 	User         User
