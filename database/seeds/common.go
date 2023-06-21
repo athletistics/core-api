@@ -11,6 +11,7 @@ func init() {
 	goseeder.Register(languageSeeder)
 	goseeder.Register(genderSeeder)
 	goseeder.Register(accessRoleSeeder)
+	goseeder.Register(eventTypeSeeder)
 
 	goseeder.Register(countriesSeeder)
 	goseeder.Register(statesSeeder)
@@ -18,6 +19,9 @@ func init() {
 
 	goseeder.Register(sportsSeeder)
 	goseeder.Register(clubsSeeder)
+
+	goseeder.Register(eventSeeder)
+	goseeder.Register(disciplineSeeder)
 
 	goseeder.Register(usersSeeder)
 	goseeder.Register(authorisationSeeder)

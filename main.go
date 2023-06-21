@@ -65,10 +65,9 @@ func fiberSetup() {
 	defer helpers.CloseMgmtClient()
 
 	// clean up key file, as it is no longer needed as file
-	defer DeleteKeyFile()
-	//if err := DeleteKeyFile(); err != nil {
-	//	log.Fatal(err)
-	//}
+	if err := DeleteKeyFile(); err != nil {
+		log.Fatal(err)
+	}
 
 	app := fiber.New()
 	app.Use(cors.New())
@@ -103,7 +102,7 @@ func fiberSetup() {
 }
 
 func CreateKeyFile() error {
-	if err := os.WriteFile(os.Getenv("ZITADEL_MGMT_KEY_PATH"), []byte(os.Getenv("ZITADEL_MGMT_API_KEY")), 0755); err != nil {
+	if err := os.WriteFile(os.Getenv("ZITADEL_MGMT_KEY_PATH"), []byte(os.Getenv("ZITADEL_MGMT_API_KEY")), 0755); err != nil { //nolint:gomnd
 		return err
 	}
 	return os.WriteFile(middleware.OSKeyPath(), []byte(os.Getenv("ZITADEL_API_KEY")), 0755) //nolint:gomnd

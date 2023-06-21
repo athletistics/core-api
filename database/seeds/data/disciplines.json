@@ -1,0 +1,37 @@
+[
+  {
+    "sport_id": 1,
+    "i18n_name": "discipline.throw3kg",
+    "is_descending": true
+  },
+  {
+    "sport_id": 1,
+    "i18n_name": "discipline.throw4kg",
+    "is_descending": true
+  },
+  {
+    "sport_id": 1,
+    "i18n_name": "discipline.throw5kg",
+    "is_descending": true
+  },
+  {
+    "sport_id": 1,
+    "i18n_name": "discipline.javelin400g",
+    "is_descending": true
+  },
+  {
+    "sport_id": 1,
+    "i18n_name": "discipline.sprint60m",
+    "is_descending": false
+  },
+  {
+    "sport_id": 1,
+    "i18n_name": "discipline.sprint80m",
+    "is_descending": false
+  },
+  {
+    "sport_id": 1,
+    "i18n_name": "discipline.sprint100m",
+    "is_descending": false
+  }
+]

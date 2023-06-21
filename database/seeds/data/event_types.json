@@ -1,0 +1,14 @@
+[
+  {
+    "i18n_name": "eventType.competition.swissAthletics"
+  },
+  {
+    "i18n_name": "eventType.competition.ubsKidsCup"
+  },
+  {
+    "i18n_name": "eventType.competition.custom"
+  },
+  {
+    "i18n_name": "eventType.training"
+  }
+]
