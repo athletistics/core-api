@@ -1,4 +1,123 @@
 basePath: /api/v1
+definitions:
+  clubHandler.CreateTeam.ReqBody:
+    properties:
+      name:
+        format: uuid
+        type: string
+    required:
+    - name
+    type: object
+  models.Club:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      sport:
+        $ref: '#/definitions/models.Sport'
+      sportID:
+        type: integer
+    type: object
+  models.Country:
+    properties:
+      code:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.Place:
+    properties:
+      id:
+        type: integer
+      place:
+        type: string
+      postCode:
+        type: string
+      state:
+        $ref: '#/definitions/models.State'
+      stateID:
+        type: integer
+    type: object
+  models.Sport:
+    properties:
+      i18nName:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.State:
+    properties:
+      country:
+        $ref: '#/definitions/models.Country'
+      countryID:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      short:
+        type: string
+    type: object
+  models.Team:
+    properties:
+      club:
+        $ref: '#/definitions/models.Club'
+      clubID:
+        type: string
+      id:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      address:
+        type: string
+      birthDate:
+        type: string
+      club:
+        $ref: '#/definitions/models.Club'
+      clubID:
+        type: string
+      id:
+        type: string
+      nationality:
+        $ref: '#/definitions/models.Country'
+      nationalityID:
+        type: integer
+      oasi:
+        type: string
+      place:
+        $ref: '#/definitions/models.Place'
+      placeID:
+        type: integer
+      teams:
+        items:
+          $ref: '#/definitions/models.Team'
+        type: array
+    type: object
+  res.Error:
+    properties:
+      error:
+        type: integer
+      message:
+        type: string
+    required:
+    - error
+    - message
+    type: object
+  res.UuidCreated:
+    properties:
+      id:
+        type: string
+    type: object
 host: athletistics.kube.isc.heia-fr.ch
 info:
   contact:
@@ -10,7 +129,98 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Core Athletistics API
   version: "1.0"
-paths: {}
+paths:
+  /club/{club_id}/team:
+    post:
+      parameters:
+      - description: Club identifier
+        in: path
+        name: club_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Team'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List teams
+      tags:
+      - Club
+  /club/{club_id}/teams:
+    get:
+      parameters:
+      - description: Club identifier
+        in: path
+        name: club_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Team'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List teams
+      tags:
+      - Club
+    post:
+      parameters:
+      - description: Club identifier
+        in: path
+        name: club_id
+        required: true
+        type: string
+      - description: Team data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/clubHandler.CreateTeam.ReqBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.UuidCreated'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new team
+      tags:
+      - Club
 schemes:
 - https
 securityDefinitions:

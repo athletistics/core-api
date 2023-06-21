@@ -18,7 +18,336 @@
     },
     "host": "athletistics.kube.isc.heia-fr.ch",
     "basePath": "/api/v1",
-    "paths": {},
+    "paths": {
+        "/club/{club_id}/team": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Club"
+                ],
+                "summary": "List teams",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Club identifier",
+                        "name": "club_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Team"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/club/{club_id}/teams": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Club"
+                ],
+                "summary": "List teams",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Club identifier",
+                        "name": "club_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Team"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Club"
+                ],
+                "summary": "Create a new team",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Club identifier",
+                        "name": "club_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Team data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/clubHandler.CreateTeam.ReqBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.UuidCreated"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "clubHandler.CreateTeam.ReqBody": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "format": "uuid"
+                }
+            }
+        },
+        "models.Club": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sport": {
+                    "$ref": "#/definitions/models.Sport"
+                },
+                "sportID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Country": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Place": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "place": {
+                    "type": "string"
+                },
+                "postCode": {
+                    "type": "string"
+                },
+                "state": {
+                    "$ref": "#/definitions/models.State"
+                },
+                "stateID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Sport": {
+            "type": "object",
+            "properties": {
+                "i18nName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.State": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "$ref": "#/definitions/models.Country"
+                },
+                "countryID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "short": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Team": {
+            "type": "object",
+            "properties": {
+                "club": {
+                    "$ref": "#/definitions/models.Club"
+                },
+                "clubID": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "birthDate": {
+                    "type": "string"
+                },
+                "club": {
+                    "$ref": "#/definitions/models.Club"
+                },
+                "clubID": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "$ref": "#/definitions/models.Country"
+                },
+                "nationalityID": {
+                    "type": "integer"
+                },
+                "oasi": {
+                    "type": "string"
+                },
+                "place": {
+                    "$ref": "#/definitions/models.Place"
+                },
+                "placeID": {
+                    "type": "integer"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Team"
+                    }
+                }
+            }
+        },
+        "res.Error": {
+            "type": "object",
+            "required": [
+                "error",
+                "message"
+            ],
+            "properties": {
+                "error": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "res.UuidCreated": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "Zitadel JWT token": {
             "type": "apiKey",
