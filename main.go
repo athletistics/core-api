@@ -13,6 +13,7 @@ import (
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/jwtclaim"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/totpverify"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/userprovider"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/router"
 	"log"
 	"os"
@@ -86,6 +87,9 @@ func fiberSetup() {
 
 	// extract user id from JWT token
 	app.Use(jwtclaim.New())
+
+	// extract user from db using id that was previously extracted
+	app.Use(userprovider.New())
 
 	// store the user's 2FA state
 	app.Use(totpverify.New())

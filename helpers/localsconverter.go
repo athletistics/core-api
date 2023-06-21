@@ -8,8 +8,13 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 )
 
-func GetUserId(ctx *fiber.Ctx) string {
-	return fmt.Sprintf("%v", ctx.Locals(constants.LocalsUserId))
+func GetUserId(c *fiber.Ctx) string {
+	return fmt.Sprintf("%v", c.Locals(constants.LocalsUserId))
+}
+
+func GetUser(c *fiber.Ctx) models.User {
+	return c.Locals(constants.LocalsUser).(models.User)
 }

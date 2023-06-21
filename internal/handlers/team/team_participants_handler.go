@@ -22,7 +22,7 @@ import (
 //	@Tags		Team
 //	@Produce	json
 //	@Param		team_id	path		string	true	"Team identifier"
-//	@Success	200		{object}	[]models.ShortUser
+//	@Success	200		{object}	[]models.UserShort
 //	@Failure	401		{object}	res.Error
 //	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
@@ -34,7 +34,7 @@ func GetParticipants(c *fiber.Ctx) error {
 	}
 
 	db := database.DB
-	var participants []models.ShortUser
+	var participants []models.UserShort
 	err = db.Model(&models.User{}).Joins("inner join participants on participants.user_id = users.id and participants.team_id = ?", team.ID).Find(&participants).Error
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))

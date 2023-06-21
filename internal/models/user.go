@@ -32,7 +32,7 @@ type User struct {
 	Teams         []Team    `gorm:"many2many:participants;" json:"-"`
 }
 
-type ShortUser struct {
+type UserShort struct {
 	gorm.Model `json:"-"`
 	ID         string    `gorm:"primaryKey;unique" json:"id"`
 	FirstName  string    `json:"firstName" validate:"required"`
@@ -40,7 +40,7 @@ type ShortUser struct {
 	BirthDate  time.Time `json:"birthDate" validate:"required"`
 }
 
-type EmergencyUser struct {
+type UserEmergency struct {
 	gorm.Model `json:"-"`
 	ID         string `gorm:"primaryKey;unique" json:"id"`
 	FirstName  string `json:"firstName" validate:"required"`

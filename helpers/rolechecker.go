@@ -31,15 +31,6 @@ func (r Role) String() string {
 	return "unknown"
 }
 
-func HasRoleOnParentClub(c *fiber.Ctx, roles []Role) bool {
-	user := models.User{ID: GetUserId(c)}
-	if err := database.DB.First(&user); err != nil {
-		return false
-	}
-
-	return HasRoleOnClub(c, roles, user.ClubID)
-}
-
 // HasRoleOnClub checks if the requesting user has at least one of the specified roles on the specified club.
 func HasRoleOnClub(c *fiber.Ctx, roles []Role, clubId uuid.UUID) bool {
 	authorisations, err := getAuthorisations(c, clubId)
@@ -56,6 +47,12 @@ func HasRoleOnClub(c *fiber.Ctx, roles []Role, clubId uuid.UUID) bool {
 	}
 
 	return false
+}
+
+// HasAnyRoleOnParentClub returns true if the user has any role on his parent club.
+// Short for HasAnyRoleOnClub(c, helperse.GetUser(c).ClubID)
+func HasAnyRoleOnParentClub(c *fiber.Ctx) bool {
+	return HasAnyRoleOnClub(c, GetUser(c).ClubID)
 }
 
 // HasAnyRoleOnClub checks if the requesting user has any role on the specificed club.

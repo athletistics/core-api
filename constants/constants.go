@@ -6,6 +6,7 @@ package constants
 
 const (
 	LocalsUserId         = "userId"
+	LocalsUser           = "user"
 	LocalsHasVerified2FA = "is2faOk"
 	LocalsHas2FA         = "has2fa"
 	KeySecondsAgo        = "secondsAgo"
