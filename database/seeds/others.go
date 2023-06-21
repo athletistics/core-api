@@ -13,3 +13,19 @@ func sportsSeeder(s goseeder.Seeder) {
 func clubsSeeder(s goseeder.Seeder) {
 	s.FromJson("clubs")
 }
+
+func genderSeeder(s goseeder.Seeder) {
+	s.FromJson("genders")
+}
+
+func languageSeeder(s goseeder.Seeder) {
+	s.FromJson("languages")
+}
+
+func accessRoleSeeder(s goseeder.Seeder) {
+	s.FromJson("access_roles")
+}
+
+func authorisationSeeder(s goseeder.Seeder) {
+	s.FromJson("authorisations")
+}

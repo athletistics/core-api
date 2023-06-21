@@ -8,10 +8,17 @@ import "github.com/baeriswyln/goseeder"
 
 func init() {
 	goseeder.SetDataPath("database/seeds/data")
+	goseeder.Register(languageSeeder)
+	goseeder.Register(genderSeeder)
+	goseeder.Register(accessRoleSeeder)
+
 	goseeder.Register(countriesSeeder)
 	goseeder.Register(statesSeeder)
 	goseeder.Register(placesSeeder)
+
 	goseeder.Register(sportsSeeder)
 	goseeder.Register(clubsSeeder)
+
 	goseeder.Register(usersSeeder)
+	goseeder.Register(authorisationSeeder)
 }
