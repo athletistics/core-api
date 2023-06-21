@@ -1,18 +1,18 @@
 [
   {
     "zitadel_name": "GENDER_UNSPECIFIED",
-    "i18n_name": "unspecified"
+    "i18n_name": "gender.unspecified"
   },
   {
     "zitadel_name": "GENDER_FEMALE",
-    "i18n_name": "female"
+    "i18n_name": "gender.female"
   },
   {
     "zitadel_name": "GENDER_MALE",
-    "i18n_name": "male"
+    "i18n_name": "gender.male"
   },
   {
     "zitadel_name": "GENDER_DIVERSE",
-    "i18n_name": "diverse"
+    "i18n_name": "gender.diverse"
   }
 ]

@@ -1,14 +1,14 @@
 [
   {
     "short": "en",
-    "i18n_name": "en"
+    "i18n_name": "language.en"
   },
   {
     "short": "de",
-    "i18n_name": "de"
+    "i18n_name": "language.de"
   },
   {
     "short": "fr",
-    "i18n_name": "fr"
+    "i18n_name": "language.fr"
   }
 ]
