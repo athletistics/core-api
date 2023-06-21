@@ -25,10 +25,10 @@ func GetEvents(c *fiber.Ctx) error {
 	var events []models.EventShort
 	err := db.Model(&models.Event{}).
 		Where("club_id IS NULL").
-		Or(&models.Event{ClubID: &user.ClubID}).Find(&events)
+		Or(&models.Event{ClubID: &user.ClubID}).Find(&events).Error
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(err)
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
 	return c.JSON(events)

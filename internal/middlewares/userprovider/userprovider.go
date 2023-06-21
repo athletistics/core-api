@@ -21,7 +21,7 @@ func New() fiber.Handler {
 			return c.Status(http.StatusNotFound).JSON(res.ErrDB.Err(err))
 		}
 
-		c.Locals(constants.LocalsUser)
+		c.Locals(constants.LocalsUser, user)
 
 		return c.Next()
 	}

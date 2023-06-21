@@ -40,7 +40,9 @@ func New() fiber.Handler {
 		c.Locals(constants.LocalsHasVerified2FA, err == nil && res.StatusCode == http.StatusOK)
 		c.Locals(constants.LocalsHas2FA, err == nil && (res.StatusCode == http.StatusExpectationFailed || res.StatusCode == http.StatusOK))
 
-		_ = res.Body.Close()
+		if res != nil {
+			_ = res.Body.Close()
+		}
 
 		return c.Next()
 	}

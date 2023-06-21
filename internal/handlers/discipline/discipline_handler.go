@@ -24,11 +24,16 @@ func GetDisciplines(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 	var disciplines []models.DisciplineShort
 	err := db.Model(&models.Discipline{}).
-		Where("club_id IS NULL and sport_id = ?", db.Table("clubs").Select("sport_id").Where("id = ?", user.ClubID)).
-		Or(&models.Discipline{ClubID: &user.ClubID}).Find(&disciplines)
+		Where("club_id IS NULL and sport_id = (?)", db.Table("clubs").Select("sport_id").Where("id = ?", user.ClubID)).
+		Or(&models.Discipline{ClubID: &user.ClubID}).Find(&disciplines).Error
 
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(err)
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+
+	for i := 0; i < len(disciplines); i++ {
+		isOfficial := disciplines[i].ClubId == nil
+		disciplines[i].IsOfficial = &isOfficial
 	}
 
 	return c.JSON(disciplines)
