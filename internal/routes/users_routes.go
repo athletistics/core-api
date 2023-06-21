@@ -4,8 +4,16 @@
 
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+	userHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/user"
+)
 
 func SetupUsersRoutes(router fiber.Router) {
+	node := router.Group("/users")
 
+	node.Get("/", userHandler.GetUsers)
+	node.Post("/", userHandler.CreateUser)
+	node.Get(fmt.Sprintf("/:%v", userHandler.ParamUserId), userHandler.GetUser)
 }

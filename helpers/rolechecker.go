@@ -39,8 +39,8 @@ func HasRoleOnClub(c *fiber.Ctx, roles []Role, clubId uuid.UUID) bool {
 	}
 
 	for i := 0; i < len(authorisations); i++ {
-		for i := 0; i < len(roles); i++ {
-			if authorisations[i].AccessRole.I18nName == roles[i].String() {
+		for j := 0; j < len(roles); j++ {
+			if authorisations[i].AccessRole.I18nName == roles[j].String() {
 				return true
 			}
 		}
@@ -77,6 +77,6 @@ func getAuthorisations(c *fiber.Ctx, clubId uuid.UUID) ([]models.Authorisation, 
 	db := database.DB
 
 	var authorisations []models.Authorisation
-	err := db.Where(&models.Authorisation{UserID: GetUserId(c), ClubID: clubId}).Find(&authorisations).Error
+	err := db.Where(&models.Authorisation{UserID: GetUserId(c), ClubID: clubId}).Preload("AccessRole").Find(&authorisations).Error
 	return authorisations, err
 }

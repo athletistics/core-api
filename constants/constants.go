@@ -10,4 +10,5 @@ const (
 	LocalsHas2FA         = "has2fa"
 	KeySecondsAgo        = "secondsAgo"
 	DB_PORT_DEFAULT      = 5432
+	UserSuffixLength     = 4
 )

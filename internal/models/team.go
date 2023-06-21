@@ -11,9 +11,9 @@ import (
 
 type Team struct {
 	gorm.Model `json:"-"`
-	ID         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
-	ClubID     uuid.UUID `gorm:"type:uuid"`
-	Club       Club
-	Name       string
-	Members    []User `gorm:"many2many:participants;"`
+	ID         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique" json:"id"`
+	ClubID     uuid.UUID `gorm:"type:uuid" json:"clubId"`
+	Club       Club      `json:"-"`
+	Name       string    `json:"name"`
+	Members    []User    `gorm:"many2many:participants;" json:"-"`
 }

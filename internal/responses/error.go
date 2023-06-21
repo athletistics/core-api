@@ -10,18 +10,21 @@ import "net/http"
 // All errors thrown
 // General errors
 var (
-	ErrNotFound   = NewError(http.StatusNotFound, 0000, "Resource not found", "Resource not found")
-	ErrDB         = NewError(http.StatusInternalServerError, 1010, "Server error", "Database error")
-	ErrForbidden  = NewError(http.StatusForbidden, 0000, "Not allowed to read requested resource", "")
-	ErrBadRequest = NewError(http.StatusBadRequest, 0000, "The request body is invalid", "")
+	ErrNotFound          = NewError(http.StatusNotFound, 0000, "Resource not found", "Resource not found")
+	ErrDB                = NewError(http.StatusInternalServerError, 0010, "Server error", "Database error")
+	ErrZitadel           = NewError(http.StatusInternalServerError, 0020, "Server error", "Error communicating with Zitadel")
+	ErrForbidden         = NewError(http.StatusForbidden, 0000, "Not allowed to read requested resource", "")
+	ErrForbiddenNotFound = NewError(http.StatusForbidden, 0010, "Not allowed to read requested resource", "The resource does not exist")
+	ErrBadRequest        = NewError(http.StatusBadRequest, 0000, "The request body is invalid", "")
+	ErrMissingTotp       = NewError(http.StatusUnauthorized, 0010, "2FA must be re-verified", "")
 )
 
 // JWT Claim
 var (
-	ErrMissingAuth    = NewError(http.StatusUnauthorized, 1000, "Unauthenticated", "Missing auth token")
-	ErrBadAuthHeader  = NewError(http.StatusUnauthorized, 1001, "Unauthenticated", "Bad auth header format")
-	ErrBadToken       = NewError(http.StatusUnauthorized, 1002, "Unauthenticated", "Unable to parse token")
-	ErrMissingSubject = NewError(http.StatusUnauthorized, 1003, "Unauthenticated", "Token has no subject")
+	ErrMissingAuth    = NewError(http.StatusUnauthorized, 0000, "Unauthenticated", "Missing auth token")
+	ErrBadAuthHeader  = NewError(http.StatusUnauthorized, 0001, "Unauthenticated", "Bad auth header format")
+	ErrBadToken       = NewError(http.StatusUnauthorized, 0002, "Unauthenticated", "Unable to parse token")
+	ErrMissingSubject = NewError(http.StatusUnauthorized, 0003, "Unauthenticated", "Token has no subject")
 )
 
 // Team errors
@@ -31,10 +34,10 @@ var (
 
 type Error struct {
 	Error         int    `json:"error" validate:"required"`
-	ErrorSubCode  int    `json:"-"`
+	ErrorSubCode  int    `json:"subCode"`
 	Message       string `json:"message" validate:"required"`
-	HiddenMessage string `json:"-"`
-	InternalMsg   string `json:"-"`
+	HiddenMessage string `json:"hiddenMessage"`
+	InternalMsg   string `json:"internalMessage"`
 }
 
 // NewError creates a new error instance with a code and a human-readable message.

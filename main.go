@@ -10,6 +10,7 @@ import (
 	http_mw "github.com/zitadel/zitadel-go/v2/pkg/api/middleware/http"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/jwtclaim"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/totpverify"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/router"
@@ -36,9 +37,9 @@ import (
 //	@schemes	https
 //	@BasePath	/api/v1
 
-//	@securityDefinitions.apikey	Zitadel JWT token
-//	@in							header
-//	@name						Authorization
+// @securityDefinitions.apikey	Zitadel JWT token
+// @in							header
+// @name						Authorization
 func main() {
 	database.ConnectDb()
 
@@ -58,10 +59,15 @@ func fiberSetup() {
 		log.Fatal(err)
 	}
 
+	// Create connection to the Zitadel Management API
+	helpers.InitMgmtClient()
+	defer helpers.CloseMgmtClient()
+
 	// clean up key file, as it is no longer needed as file
-	if err := DeleteKeyFile(); err != nil {
-		log.Fatal(err)
-	}
+	defer DeleteKeyFile()
+	//if err := DeleteKeyFile(); err != nil {
+	//	log.Fatal(err)
+	//}
 
 	app := fiber.New()
 	app.Use(cors.New())
