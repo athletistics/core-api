@@ -9,3 +9,7 @@ import "github.com/gofiber/fiber/v2"
 func SetupDataRoutes(router fiber.Router) {
 
 }
+
+func SetupDataRoutesTotpProtected(router fiber.Router) {
+
+}

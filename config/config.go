@@ -12,7 +12,7 @@ import (
 const (
 	AppName          = "athletistics"
 	ApiVersion       = 1
-	TotpSecondsLimit = 1000
+	TotpSecondsLimit = 100000
 )
 
 var (

@@ -17,14 +17,17 @@ func SetupRoutes(app *fiber.App) {
 
 	routes.SetupMeRoutes(api)
 	routes.SetupDataRoutes(api)
+	routes.SetupUsersRoutes(api)
+	routes.SetupEventsRoutes(api)
+	routes.SetupDisciplinesRoutes(api)
 
 	api.Use(totprequire.New())
 
 	routes.SetupClubRoutes(api)
 	routes.SetupTeamsRoutes(api)
-	routes.SetupUsersRoutes(api)
+	routes.SetupUsersRoutesTotpProtected(api)
 	routes.SetupResultsRoutes(api)
-	routes.SetupEventsRoutes(api)
-	routes.SetupDisciplinesRoutes(api)
+	routes.SetupEventsRoutesTotpProtected(api)
+	routes.SetupDisciplinesRoutesTotpProtected(api)
 	routes.SetupNdsRoutes(api)
 }

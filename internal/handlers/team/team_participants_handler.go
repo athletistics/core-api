@@ -22,7 +22,7 @@ import (
 //	@Tags		Team
 //	@Produce	json
 //	@Param		team_id	path		string	true	"Team identifier"
-//	@Success	200		{object}	[]models.User
+//	@Success	200		{object}	[]models.ShortUser
 //	@Failure	401		{object}	res.Error
 //	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
@@ -33,8 +33,9 @@ func GetParticipants(c *fiber.Ctx) error {
 		return err
 	}
 
-	var participants []models.User
-	err = database.DB.Where(&models.Participant{TeamID: team.ID}).Preload("User").Find(&participants).Error
+	db := database.DB
+	var participants []models.ShortUser
+	err = db.Model(&models.User{}).Joins("inner join participants on participants.user_id = users.id and participants.team_id = ?", team.ID).Find(&participants).Error
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
@@ -90,7 +91,7 @@ func AddParticipants(c *fiber.Ctx) error {
 	}
 
 	// write objects to database
-	err = db.Create(participants).Error
+	err = db.Create(&participants).Error
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
 		return c.Status(http.StatusBadRequest).JSON(res.ErrParticipantsExist)
 	} else if err != nil {

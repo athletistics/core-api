@@ -99,9 +99,15 @@ func fiberSetup() {
 }
 
 func CreateKeyFile() error {
+	if err := os.WriteFile(os.Getenv("ZITADEL_MGMT_KEY_PATH"), []byte(os.Getenv("ZITADEL_MGMT_API_KEY")), 0755); err != nil {
+		return err
+	}
 	return os.WriteFile(middleware.OSKeyPath(), []byte(os.Getenv("ZITADEL_API_KEY")), 0755) //nolint:gomnd
 }
 
 func DeleteKeyFile() error {
+	if err := os.Remove(os.Getenv("ZITADEL_MGMT_KEY_PATH")); err != nil {
+		return err
+	}
 	return os.Remove(middleware.OSKeyPath())
 }

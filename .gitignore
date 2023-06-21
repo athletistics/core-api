@@ -1,4 +1,5 @@
 .idea
 .env
 apikey.json
+apikey-mgmt.json
 tmp

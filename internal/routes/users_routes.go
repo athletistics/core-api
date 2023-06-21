@@ -11,6 +11,11 @@ import (
 )
 
 func SetupUsersRoutes(router fiber.Router) {
+	//node := router.Group("/users")
+
+}
+
+func SetupUsersRoutesTotpProtected(router fiber.Router) {
 	node := router.Group("/users")
 
 	node.Get("/", userHandler.GetUsers)

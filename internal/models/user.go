@@ -31,3 +31,18 @@ type User struct {
 	Nationality   Country   `json:"-"`
 	Teams         []Team    `gorm:"many2many:participants;" json:"-"`
 }
+
+type ShortUser struct {
+	gorm.Model `json:"-"`
+	ID         string    `gorm:"primaryKey;unique" json:"id"`
+	FirstName  string    `json:"firstName" validate:"required"`
+	LastName   string    `json:"lastName" validate:"required"`
+	BirthDate  time.Time `json:"birthDate" validate:"required"`
+}
+
+type EmergencyUser struct {
+	gorm.Model `json:"-"`
+	ID         string `gorm:"primaryKey;unique" json:"id"`
+	FirstName  string `json:"firstName" validate:"required"`
+	LastName   string `json:"lastName" validate:"required"`
+}
