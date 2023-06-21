@@ -62,7 +62,7 @@ func GetTeams(c *fiber.Ctx) error {
 	}
 
 	var teams []models.Team
-	err = database.DB.Where(&models.Club{ID: clubId}).Find(&teams).Error
+	err = database.DB.Where(&models.Team{ClubID: clubId}).Find(&teams).Error
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
@@ -98,7 +98,7 @@ func CreateTeam(c *fiber.Ctx) error {
 	}
 
 	team := models.Team{ClubID: clubId, Name: body.Name}
-	err = database.DB.Create(team).Error
+	err = database.DB.Create(&team).Error
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
