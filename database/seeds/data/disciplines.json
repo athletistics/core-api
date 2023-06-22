@@ -1,35 +1,42 @@
 [
   {
+    "id": "c4c43448-942b-4d53-bb96-5b21b83908e6",
     "sport_id": 1,
     "i18n_name": "discipline.throw3kg",
     "is_descending": true
   },
   {
+    "id": "3cf92f13-74c4-48bd-8d1c-ee191841ef72",
     "sport_id": 1,
     "i18n_name": "discipline.throw4kg",
     "is_descending": true
   },
   {
+    "id": "99d9e5f1-d51a-4d98-b160-abc65d554509",
     "sport_id": 1,
     "i18n_name": "discipline.throw5kg",
     "is_descending": true
   },
   {
+    "id": "fd86100d-07d8-49c9-8c56-1f915ae6ad19",
     "sport_id": 1,
     "i18n_name": "discipline.javelin400g",
     "is_descending": true
   },
   {
+    "id": "f72e1a03-a466-434e-b4cc-7d7de33543db",
     "sport_id": 1,
     "i18n_name": "discipline.sprint60m",
     "is_descending": false
   },
   {
+    "id": "7c8aeed0-531b-4f4f-b633-013d43439503",
     "sport_id": 1,
     "i18n_name": "discipline.sprint80m",
     "is_descending": false
   },
   {
+    "id": "50df8709-293d-4b9a-85bd-2316071743fa",
     "sport_id": 1,
     "i18n_name": "discipline.sprint100m",
     "is_descending": false

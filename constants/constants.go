@@ -12,4 +12,5 @@ const (
 	KeySecondsAgo        = "secondsAgo"
 	DB_PORT_DEFAULT      = 5432
 	UserSuffixLength     = 4
+	TrainingEventTypeId  = 4
 )

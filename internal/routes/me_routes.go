@@ -14,4 +14,7 @@ func SetupMeRoutes(router fiber.Router) {
 
 	node.Get("/", meHandler.GetMe)
 	node.Get("/auth", meHandler.GetAuth)
+	node.Get("/results", meHandler.GetResults)
+	node.Post("/results", meHandler.CreateResult)
+	node.Get("/results/best", meHandler.GetBestResults)
 }

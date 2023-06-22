@@ -1,0 +1,125 @@
+// Brief   :
+// Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
+// Created : 22.06.2023
+
+package resultHandler
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
+	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
+	"net/http"
+	"strconv"
+)
+
+type ResultQuery struct {
+	UserID       *string    `query:"userId"`
+	EventID      *uuid.UUID `query:"eventId"`
+	EventTypeID  *int       `query:"eventTypeId"`
+	CategoryId   *int       `query:"categoryId"`
+	DisciplineID *uuid.UUID `query:"disciplineId"`
+	BestOnly     bool       `query:"bestOnly"`
+}
+
+// FindResults searches for results in the database. This function does not perform any security checks.
+// The calling function must make sure that the query can be executed as given.
+// Only results of the requesting user's club are returned
+func FindResults(query *ResultQuery, outModel interface{}, callingUser *models.User) error {
+	var err error
+	db := database.DB
+
+	// join results with users, limiting the results to the users that belong to the requesting user's club
+	q := db.Model(&models.Result{}).Joins("inner join users ON users.id = results.user_id AND users.club_id = ?", callingUser.ClubID)
+
+	// apply filters passed through the query argument
+	if query.UserID != nil {
+		q.Where(&models.Result{UserID: *query.UserID})
+	}
+
+	if query.EventID != nil {
+		q.Where(&models.Result{EventID: *query.EventID})
+	}
+
+	if query.EventTypeID != nil {
+		q.Joins("inner join events ON events.id = results.event_id AND events.event_type_id = ?", *query.EventTypeID)
+	}
+
+	if query.DisciplineID != nil {
+		q.Where(&models.Result{DisciplineID: *query.DisciplineID})
+	}
+
+	// get best results by discipline
+	if query.BestOnly {
+		q.Select("results.*, disciplines.is_descending").Joins("inner join disciplines ON disciplines.id = results.discipline_id")
+
+		descendingQ := db.Table("(?) as d", q).Select("*, ROW_NUMBER() OVER (PARTITION BY d.discipline_id ORDER BY d.value DESC) as rn")
+		descendingQ = db.Raw("WITH ranked AS (?) SELECT * FROM ranked WHERE rn = 1 AND is_descending = TRUE", descendingQ)
+
+		ascendingQ := db.Table("(?) as d", q).Select("*, ROW_NUMBER() OVER (PARTITION BY d.discipline_id ORDER BY d.value ASC) as rn")
+		ascendingQ = db.Raw("WITH ranked AS (?) SELECT * FROM ranked WHERE rn = 1 AND is_descending = FALSE", ascendingQ)
+
+		err = db.Raw("(?) UNION (?)", descendingQ, ascendingQ).Preload("User").Preload("Discipline").Preload("Event").Preload("Category").Find(outModel).Error
+	} else {
+		err = q.Find(outModel).Error
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RunQuery starts a query with the ResultQuery parameter, and sends the Fiber response.
+// This function must be called as a last statement of a Fiber handler, and the error
+// should be returned without checking it.
+func RunQuery(c *fiber.Ctx, q *ResultQuery) error {
+	user := helpers.GetUser(c)
+
+	var results []models.ResultString
+	if err := FindResults(q, &results, &user); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+
+	for i := 0; i < len(results); i++ {
+		results[i].Prepare()
+	}
+	return c.JSON(results)
+}
+
+func RunCreateQuery(c *fiber.Ctx, body *models.ResultInput) error {
+	user := helpers.GetUser(c)
+	db := database.DB
+
+	// make sure given UserID is numeric
+	if _, err := strconv.ParseInt(body.UserId, 10, 64); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
+	}
+
+	// make sure user, event, and discipline can be used
+	u := models.User{ID: body.UserId, ClubID: user.ClubID}
+	if err := db.First(&u).Error; err != nil {
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
+	}
+
+	d := models.Discipline{ID: body.DisciplineID}
+	if err := db.Where("club_id IS NULL OR club_id = ?", u.ClubID).First(&d).Error; err != nil {
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
+	}
+
+	e := models.Event{ID: body.EventID}
+	if err := db.Where("club_id IS NULL OR club_id = ?", u.ClubID).First(&e).Error; err != nil {
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
+	}
+
+	// create the result
+	result := models.ResultFromInput(body)
+	if err := db.Create(result).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+
+	return c.JSON(res.UuidCreated{Id: result.ID})
+}

@@ -1,5 +1,6 @@
 [
   {
+    "id": "f1af9ea7-6fdf-4773-83b6-94102a8187d5",
     "name": "Hallen SM",
     "place": "Magglingen, End der Welt",
     "date": "2023-01-18T00:00:00Z",
@@ -7,6 +8,7 @@
     "event_type_id": 1
   },
   {
+    "id": "c921722f-252d-4588-8daf-7f4c928e3cb3",
     "name": "Frühjahresmeeting",
     "place": "Düdingen",
     "date": "2023-04-18T00:00:00Z",
@@ -14,6 +16,7 @@
     "event_type_id": 1
   },
   {
+    "id": "59b1bdb4-3566-4729-8b36-71bac563b92c",
     "name": "FM Bulle",
     "place": "Bulle",
     "date": "2023-01-18T00:00:00Z",
@@ -21,6 +24,7 @@
     "event_type_id": 1
   },
   {
+    "id": "0ec18255-9f43-491b-991f-d6a04c29783f",
     "name": "Internes Plauschmeeting",
     "place": "Plaffeien",
     "date": "2023-05-01T00:00:00Z",
@@ -28,6 +32,7 @@
     "event_type_id": 2
   },
   {
+    "id": "5b247298-52e1-4aea-be9b-ddb508ce868b",
     "name": "Rechthaltenlauf",
     "place": "Rechthalten",
     "date": "2022-09-01T00:00:00Z",
