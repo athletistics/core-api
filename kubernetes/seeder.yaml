@@ -8,7 +8,6 @@ spec:
       containers:
         - name: core-db-seeder
           image: registry.forge.hefr.ch/tb-athletistics/backend/seeder
-          command: [ "infisical", "run", "--", "/build", "--gseed" ]
           env:
             - name: INFISICAL_TOKEN
               valueFrom:
