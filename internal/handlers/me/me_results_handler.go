@@ -36,8 +36,8 @@ func CreateResult(c *fiber.Ctx) error {
 	body.UserId = helpers.GetUserId(c)
 
 	// make sure the event has type 4 (training)
-	event := models.Event{ID: body.EventID, EventTypeID: constants.TrainingEventTypeId}
-	if err := database.DB.First(&event).Error; err != nil {
+	event := models.Event{ID: body.EventID}
+	if err := database.DB.Where(&models.Event{EventTypeID: constants.TrainingEventTypeId}).First(&event).Error; err != nil {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 

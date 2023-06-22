@@ -99,8 +99,8 @@ func RunCreateQuery(c *fiber.Ctx, body *models.ResultInput) error {
 	}
 
 	// make sure user, event, and discipline can be used
-	u := models.User{ID: body.UserId, ClubID: user.ClubID}
-	if err := db.First(&u).Error; err != nil {
+	u := models.User{ID: body.UserId}
+	if err := db.Where(&models.User{ClubID: user.ClubID}).First(&u).Error; err != nil {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 
