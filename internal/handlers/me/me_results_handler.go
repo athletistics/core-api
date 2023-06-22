@@ -16,8 +16,6 @@ import (
 )
 
 func GetResults(c *fiber.Ctx) error {
-	helpers.HasRoleOnParentClub(c, helpers.RoleCoach)
-
 	userId := helpers.GetUserId(c)
 	q := new(resultHandler.ResultQuery)
 	if err := c.QueryParser(q); err != nil {

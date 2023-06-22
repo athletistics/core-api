@@ -38,6 +38,10 @@ func GetUsers(c *fiber.Ctx) error {
 }
 
 func CreateUser(c *fiber.Ctx) error {
+	if !helpers.HasRoleOnParentClub(c, helpers.RoleHeadCoach) {
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
+	}
+
 	// check that requesting user is head coach
 	db := database.DB
 	user := helpers.GetUser(c)

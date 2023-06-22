@@ -57,7 +57,7 @@ func GetClub(c *fiber.Ctx) error {
 //	@Router		/club/{club_id}/teams [get]
 func GetTeams(c *fiber.Ctx) error {
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
-	if err != nil || !helpers.HasAnyRoleOnClub(c, clubId) {
+	if err != nil || !helpers.HasRoleOnClub(c, clubId, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
@@ -93,7 +93,7 @@ func CreateTeam(c *fiber.Ctx) error {
 	}
 
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
-	if err != nil || !helpers.HasAnyRoleOnClub(c, clubId) {
+	if err != nil || !helpers.HasRoleOnClub(c, clubId, helpers.RoleHeadCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
