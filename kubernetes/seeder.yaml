@@ -1,0 +1,11 @@
+apiVersion: batch/vi
+kind: Job
+metadata:
+  name: core-db-seeder
+spec:
+  template:
+    spec:
+      containers:
+        - name: core-db-seeder
+          image: registry.forge.hefr.ch/tb-athletistics/backend
+          command: ["infisical", "run", "--", "/build", "--gseed"]

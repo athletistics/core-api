@@ -6,17 +6,19 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 )
 
 const (
-	AppName          = "athletistics"
-	ApiVersion       = 1
-	TotpSecondsLimit = 100000
+	AppName    = "athletistics"
+	ApiVersion = 1
 )
 
 var (
-	Issuer = getIssuer()
+	Issuer           = getIssuer()
+	TotpSecondsLimit = getTotpSecondsLimit()
 )
 
 func getIssuer() string {
@@ -29,4 +31,13 @@ func getIssuer() string {
 	}
 
 	return fmt.Sprintf("%v-%v", AppName, env)
+}
+
+func getTotpSecondsLimit() int {
+	l := os.Getenv("TOTP_SECONDS_LIMIT")
+	limit, err := strconv.Atoi(l)
+	if err != nil {
+		log.Fatalln("unable to load env variables", err)
+	}
+	return limit
 }
