@@ -71,7 +71,7 @@ func (r *ResultString) Prepare() {
 
 	if r.Discipline.I18nName != nil {
 		r.DisciplineName = *r.Discipline.I18nName
-	} else {
+	} else if r.Discipline.CustomName != nil {
 		r.DisciplineName = *r.Discipline.CustomName
 	}
 

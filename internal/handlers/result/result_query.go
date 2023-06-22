@@ -61,11 +61,10 @@ func FindResults(query *ResultQuery, outModel interface{}, callingUser *models.U
 		ascendingQ := db.Table("(?) as d", q).Select("*, ROW_NUMBER() OVER (PARTITION BY d.discipline_id ORDER BY d.value ASC) as rn")
 		ascendingQ = db.Raw("WITH ranked AS (?) SELECT * FROM ranked WHERE rn = 1 AND is_descending = FALSE", ascendingQ)
 
-		err = db.Raw("(?) UNION (?)", descendingQ, ascendingQ).Preload("User").Preload("Discipline").Preload("Event").Preload("Category").Find(outModel).Error
-	} else {
-		err = q.Find(outModel).Error
+		q = db.Raw("(?) UNION (?)", descendingQ, ascendingQ)
 	}
 
+	err = q.Preload("User").Preload("Discipline").Preload("Event").Preload("Category").Find(outModel).Error
 	if err != nil {
 		return err
 	}
@@ -117,7 +116,7 @@ func RunCreateQuery(c *fiber.Ctx, body *models.ResultInput) error {
 
 	// create the result
 	result := models.ResultFromInput(body)
-	if err := db.Create(result).Error; err != nil {
+	if err := db.Create(&result).Error; err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
