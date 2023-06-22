@@ -13,6 +13,7 @@ import (
 	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -21,10 +22,9 @@ const (
 
 func GetUsers(c *fiber.Ctx) error {
 	db := database.DB
-	user := models.User{ID: helpers.GetUserId(c)}
-	db.First(&user)
+	user := helpers.GetUser(c)
 
-	if !helpers.HasRoleOnClub(c, []helpers.Role{helpers.RoleCoach, helpers.RoleHeadCoach}, user.ClubID) {
+	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
@@ -40,10 +40,9 @@ func GetUsers(c *fiber.Ctx) error {
 func CreateUser(c *fiber.Ctx) error {
 	// check that requesting user is head coach
 	db := database.DB
-	user := models.User{ID: helpers.GetUserId(c)}
-	db.First(&user)
+	user := helpers.GetUser(c)
 
-	if !helpers.HasRoleOnClub(c, []helpers.Role{helpers.RoleHeadCoach}, user.ClubID) {
+	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleHeadCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
@@ -73,17 +72,25 @@ func CreateUser(c *fiber.Ctx) error {
 func GetUser(c *fiber.Ctx) error {
 	// check that requesting user is coach/head coach
 	db := database.DB
-	user := models.User{ID: helpers.GetUserId(c)}
-	err := db.First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	user := helpers.GetUser(c)
+
+	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
+	}
+
+	// read the requested user id, and verify that it is a numeric string
+	userId := c.Query(ParamUserId)
+	if _, err := strconv.ParseInt(userId, 10, 64); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
+	}
+
+	// search the user
+	targetUser := models.User{ID: "", ClubID: user.ClubID}
+	if err := db.First(&targetUser).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbiddenNotFound)
 	} else if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
-	if !helpers.HasRoleOnClub(c, []helpers.Role{helpers.RoleCoach, helpers.RoleHeadCoach}, user.ClubID) {
-		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
-	}
-
-	return c.JSON(user)
+	return c.JSON(targetUser)
 }
