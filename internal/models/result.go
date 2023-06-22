@@ -56,6 +56,7 @@ type ResultString struct {
 	EventID        uuid.UUID        `gorm:"type:uuid" json:"-"`
 	EventName      string           `json:"eventName" gorm:"-"`
 	EventPlace     string           `json:"eventPlace" gorm:"-"`
+	EventOutdoor   bool             `json:"eventOutdoor" gorm:"-"`
 	Date           time.Time        `json:"date" gorm:"-"`
 	Value          decimal.Decimal  `json:"value"`
 	Wind           *decimal.Decimal `json:"wind"`
@@ -67,6 +68,7 @@ func (r *ResultString) Prepare() {
 	r.UserLastName = r.User.LastName
 	r.EventName = r.Event.Name
 	r.EventPlace = r.Event.Place
+	r.EventOutdoor = r.Event.IsOutdoor
 	r.Date = r.Event.Date
 
 	if r.Discipline.I18nName != nil {

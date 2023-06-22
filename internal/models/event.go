@@ -21,6 +21,7 @@ type Event struct {
 	Club          *Club
 	Date          time.Time
 	IsHomologated bool
+	IsOutdoor     bool `gorm:"default:true"`
 }
 
 // OUTPUT FORMATS used for sending data to the client
@@ -33,6 +34,7 @@ type EventShort struct {
 	Place         string    `json:"place"`
 	Date          time.Time `json:"date"`
 	IsHomologated bool      `json:"isHomologated"`
+	IsOutdoor     bool      `json:"isOutdoor"`
 }
 
 // INPUT FORMATS used for decoding bodies
@@ -43,4 +45,5 @@ type EventInput struct {
 	Place         string    `json:"place" validate:"required"`
 	Date          time.Time `json:"date" validate:"required"`
 	IsHomologated bool      `json:"isHomologated" validate:"required"`
+	IsOutdoor     bool      `json:"isOutdoor" validate:"required"`
 }
