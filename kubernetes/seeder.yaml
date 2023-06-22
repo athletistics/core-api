@@ -1,4 +1,4 @@
-apiVersion: batch/vi
+apiVersion: batch/v1
 kind: Job
 metadata:
   name: core-db-seeder
@@ -7,5 +7,21 @@ spec:
     spec:
       containers:
         - name: core-db-seeder
-          image: registry.forge.hefr.ch/tb-athletistics/backend
-          command: ["infisical", "run", "--", "/build", "--gseed"]
+          image: registry.forge.hefr.ch/tb-athletistics/backend/seeder
+          command: [ "infisical", "run", "--", "/build", "--gseed" ]
+          env:
+            - name: INFISICAL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: INFISICAL_TOKEN
+                  name: infisical-core
+                  optional: false
+            - name: INFISICAL_API_URL
+              valueFrom:
+                secretKeyRef:
+                  key: INFISICAL_API_URL
+                  name: infisical-core
+                  optional: false
+      restartPolicy: Never
+      imagePullSecrets:
+        - name: registry
