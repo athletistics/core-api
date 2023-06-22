@@ -50,7 +50,7 @@ func canAccessTeam(c *fiber.Ctx, roles []helpers.Role) (bool, *models.Team, erro
 		return false, nil, c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
-	if !helpers.HasRoleOnClub(c, roles, team.ClubID) {
+	if !helpers.HasRoleOnClub(c, team.ClubID, roles...) {
 		return false, nil, c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 

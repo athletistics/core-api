@@ -35,7 +35,7 @@ func GetEvents(c *fiber.Ctx) error {
 }
 
 func CreateEvent(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnClub(c, []helpers.Role{helpers.RoleCoach}, helpers.GetUser(c).ClubID) {
+	if !helpers.HasRoleOnClub(c, helpers.GetUser(c).ClubID, helpers.RoleCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 

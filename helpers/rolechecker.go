@@ -32,7 +32,11 @@ func (r Role) String() string {
 }
 
 // HasRoleOnClub checks if the requesting user has at least one of the specified roles on the specified club.
-func HasRoleOnClub(c *fiber.Ctx, roles []Role, clubId uuid.UUID) bool {
+func HasRoleOnClub(c *fiber.Ctx, clubId uuid.UUID, roles ...Role) bool {
+	if len(roles) == 0 {
+		return false
+	}
+
 	authorisations, err := getAuthorisations(c, clubId)
 	if err != nil {
 		return false
@@ -47,6 +51,10 @@ func HasRoleOnClub(c *fiber.Ctx, roles []Role, clubId uuid.UUID) bool {
 	}
 
 	return false
+}
+
+func HasRoleOnParentClub(c *fiber.Ctx, roles ...Role) bool {
+	return HasRoleOnClub(c, GetUser(c).ClubID, roles...)
 }
 
 // HasAnyRoleOnParentClub returns true if the user has any role on his parent club.
