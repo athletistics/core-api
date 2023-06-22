@@ -50,7 +50,7 @@ type ResultString struct {
 	CategoryID     uuid.UUID        `gorm:"type:uuid" json:"-"`
 	CategoryName   string           `json:"categoryName" gorm:"-"`
 	Discipline     Discipline       `json:"-"`
-	DisciplineID   uuid.UUID        `gorm:"type:uuid" json:"-"`
+	DisciplineID   uuid.UUID        `gorm:"type:uuid" json:"disciplineId"`
 	DisciplineName string           `json:"disciplineName" gorm:"-"`
 	Event          Event            `json:"-"`
 	EventID        uuid.UUID        `gorm:"type:uuid" json:"-"`

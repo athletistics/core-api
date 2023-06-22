@@ -25,11 +25,12 @@ type Discipline struct {
 
 // DisciplineShort is used to list disciplines
 type DisciplineShort struct {
-	ID         uuid.UUID  `json:"id"`
-	I18nName   *string    `json:"i18nName"`
-	CustomName *string    `json:"customName"`
-	ClubId     *uuid.UUID `gorm:"type:uuid" json:"-"`
-	IsOfficial *bool      `gorm:"-" json:"isOfficial"`
+	ID           uuid.UUID  `json:"id"`
+	I18nName     *string    `json:"i18nName"`
+	CustomName   *string    `json:"customName"`
+	ClubId       *uuid.UUID `gorm:"type:uuid" json:"-"`
+	IsDescending bool       `json:"isDescending"`
+	IsOfficial   *bool      `gorm:"-" json:"isOfficial"`
 }
 
 // INPUT FORMATS used for decoding bodies
