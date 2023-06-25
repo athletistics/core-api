@@ -28,6 +28,68 @@ definitions:
       name:
         type: string
     type: object
+  models.DisciplineInput:
+    properties:
+      customName:
+        type: string
+      isDescending:
+        type: boolean
+    required:
+    - customName
+    - isDescending
+    type: object
+  models.DisciplineShort:
+    properties:
+      customName:
+        type: string
+      i18nName:
+        type: string
+      id:
+        type: string
+      isDescending:
+        type: boolean
+      isOfficial:
+        type: boolean
+    type: object
+  models.EventInput:
+    properties:
+      date:
+        type: string
+      eventTypeId:
+        type: integer
+      isHomologated:
+        type: boolean
+      isOutdoor:
+        type: boolean
+      name:
+        type: string
+      place:
+        type: string
+    required:
+    - date
+    - eventTypeId
+    - isHomologated
+    - isOutdoor
+    - name
+    - place
+    type: object
+  models.EventShort:
+    properties:
+      date:
+        type: string
+      eventTypeId:
+        type: integer
+      id:
+        type: string
+      isHomologated:
+        type: boolean
+      isOutdoor:
+        type: boolean
+      name:
+        type: string
+      place:
+        type: string
+    type: object
   models.Place:
     properties:
       id:
@@ -40,6 +102,56 @@ definitions:
         $ref: '#/definitions/models.State'
       stateID:
         type: integer
+    type: object
+  models.ResultInput:
+    properties:
+      categoryId:
+        type: string
+      disciplineId:
+        type: string
+      eventId:
+        type: string
+      rank:
+        type: string
+      userId:
+        type: string
+      value:
+        type: number
+      wind:
+        type: number
+    required:
+    - disciplineId
+    - eventId
+    - value
+    type: object
+  models.ResultString:
+    properties:
+      categoryName:
+        type: string
+      date:
+        type: string
+      disciplineId:
+        type: string
+      disciplineName:
+        type: string
+      eventName:
+        type: string
+      eventOutdoor:
+        type: boolean
+      eventPlace:
+        type: string
+      id:
+        type: string
+      rank:
+        type: string
+      userFirstName:
+        type: string
+      userLastName:
+        type: string
+      value:
+        type: number
+      wind:
+        type: number
     type: object
   models.Sport:
     properties:
@@ -63,16 +175,10 @@ definitions:
     type: object
   models.Team:
     properties:
-      club:
-        $ref: '#/definitions/models.Club'
-      clubID:
+      clubId:
         type: string
       id:
         type: string
-      members:
-        items:
-          $ref: '#/definitions/models.User'
-        type: array
       name:
         type: string
     type: object
@@ -82,36 +188,92 @@ definitions:
         type: string
       birthDate:
         type: string
-      club:
-        $ref: '#/definitions/models.Club'
-      clubID:
+      clubId:
         type: string
+      firstName:
+        type: string
+      genderId:
+        type: integer
       id:
         type: string
-      nationality:
-        $ref: '#/definitions/models.Country'
-      nationalityID:
+      languageId:
+        type: integer
+      lastName:
+        type: string
+      nationalityId:
         type: integer
       oasi:
         type: string
       place:
         $ref: '#/definitions/models.Place'
-      placeID:
+      placeId:
         type: integer
-      teams:
+      primaryMail:
+        type: string
+    required:
+    - address
+    - birthDate
+    - firstName
+    - genderId
+    - languageId
+    - lastName
+    - nationalityId
+    - placeId
+    - primaryMail
+    type: object
+  models.UserResponse:
+    properties:
+      authRoles:
         items:
-          $ref: '#/definitions/models.Team'
+          $ref: '#/definitions/models.UserRole'
         type: array
+      has2Fa:
+        type: boolean
+      is2FaOk:
+        type: boolean
+    type: object
+  models.UserRole:
+    properties:
+      club:
+        type: string
+      role:
+        type: string
+    type: object
+  models.UserShort:
+    properties:
+      birthDate:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+    required:
+    - birthDate
+    - firstName
+    - lastName
     type: object
   res.Error:
     properties:
       error:
         type: integer
+      hiddenMessage:
+        type: string
+      internalMessage:
+        type: string
       message:
         type: string
+      subCode:
+        type: integer
     required:
     - error
     - message
+    type: object
+  res.IdCreated:
+    properties:
+      id:
+        type: string
     type: object
   res.UuidCreated:
     properties:
@@ -130,8 +292,8 @@ info:
   title: Core Athletistics API
   version: "1.0"
 paths:
-  /club/{club_id}/team:
-    post:
+  /club/{club_id}:
+    get:
       parameters:
       - description: Club identifier
         in: path
@@ -144,7 +306,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Team'
+            $ref: '#/definitions/models.Club'
         "401":
           description: Unauthorized
           schema:
@@ -155,7 +317,7 @@ paths:
             $ref: '#/definitions/res.Error'
       security:
       - ApiKeyAuth: []
-      summary: List teams
+      summary: Get club details
       tags:
       - Club
   /club/{club_id}/teams:
@@ -221,6 +383,560 @@ paths:
       summary: Create a new team
       tags:
       - Club
+  /disciplines:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DisciplineShort'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List disciplines
+      tags:
+      - Discipline
+    post:
+      parameters:
+      - description: Discipline data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.DisciplineInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.UuidCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new discipline
+      tags:
+      - Discipline
+  /events:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.EventShort'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List events
+      tags:
+      - Event
+    post:
+      parameters:
+      - description: Event data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.EventInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.UuidCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new event
+      tags:
+      - Event
+  /me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Detailed information about the connected user
+      tags:
+      - Personal data
+  /me/auth:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get authentication status
+      tags:
+      - Personal data
+  /me/results:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResultString'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List all personal results
+      tags:
+      - Personal results
+    post:
+      parameters:
+      - description: Result data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResultInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.UuidCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Selected event is not a training
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new training result for the authenticated user.
+      tags:
+      - Personal results
+  /me/results/best:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResultString'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Read personal bests of authenticated user.
+      tags:
+      - Personal results
+  /results:
+    get:
+      parameters:
+      - in: query
+        name: bestOnly
+        type: boolean
+      - in: query
+        name: categoryId
+        type: integer
+      - in: query
+        name: disciplineID
+        type: string
+      - in: query
+        name: eventID
+        type: string
+      - in: query
+        name: eventTypeID
+        type: integer
+      - in: query
+        name: userID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResultString'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List results.
+      tags:
+      - Results
+    post:
+      parameters:
+      - description: Result data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResultInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.UuidCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new result.
+      tags:
+      - Results
+  /results/best:
+    get:
+      parameters:
+      - in: query
+        name: bestOnly
+        type: boolean
+      - in: query
+        name: categoryId
+        type: integer
+      - in: query
+        name: disciplineID
+        type: string
+      - in: query
+        name: eventID
+        type: string
+      - in: query
+        name: eventTypeID
+        type: integer
+      - in: query
+        name: userID
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ResultString'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Read personal bests of authenticated user.
+      tags:
+      - Results
+  /teams/{team_id}:
+    get:
+      parameters:
+      - description: Team identifier
+        in: path
+        name: team_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Team'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Team details
+      tags:
+      - Team
+  /teams/{team_id}/participants:
+    delete:
+      parameters:
+      - description: Team identifier
+        in: path
+        name: team_id
+        required: true
+        type: string
+      - description: User IDs
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad user IDs, or user already added to team
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove participants
+      tags:
+      - Team
+    get:
+      parameters:
+      - description: Team identifier
+        in: path
+        name: team_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UserShort'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List team members
+      tags:
+      - Team
+    post:
+      parameters:
+      - description: Team identifier
+        in: path
+        name: team_id
+        required: true
+        type: string
+      - description: Users to add
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad user IDs, or user already added to team
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Add participants to a team
+      tags:
+      - Team
+  /users:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List users
+      tags:
+      - User info
+    post:
+      parameters:
+      - description: User data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.IdCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new user
+      tags:
+      - User info
+  /users/{userId}:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a user's details
+      tags:
+      - User info
 schemes:
 - https
 securityDefinitions:

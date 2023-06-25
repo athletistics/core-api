@@ -15,6 +15,16 @@ import (
 	"net/http"
 )
 
+// GetDisciplines lists all global disciplines as well as the club's custom disciplines.
+//
+//	@Summary	List disciplines
+//	@Tags		Discipline
+//	@Produce	json
+//	@Success	200	{object}	[]models.DisciplineShort
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/disciplines [get]
 func GetDisciplines(c *fiber.Ctx) error {
 	if !helpers.HasAnyRoleOnParentClub(c) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
@@ -39,6 +49,19 @@ func GetDisciplines(c *fiber.Ctx) error {
 	return c.JSON(disciplines)
 }
 
+// CreateDisciplines creates a new custom club.
+//
+//	@Summary	Create a new discipline
+//	@Tags		Discipline
+//	@Consumes	json
+//	@Produce	json
+//	@Param		request	body		models.DisciplineInput	true	"Discipline data"
+//	@Success	200		{object}	res.UuidCreated
+//	@Failure	400		{object}	res.Error
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/disciplines [post]
 func CreateDisciplines(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnClub(c, helpers.GetUser(c).ClubID, helpers.RoleCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)

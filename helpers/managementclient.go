@@ -5,7 +5,6 @@
 package helpers
 
 import (
-	"fmt"
 	"github.com/zitadel/oidc/pkg/oidc"
 	"github.com/zitadel/zitadel-go/v2/pkg/client/management"
 	"github.com/zitadel/zitadel-go/v2/pkg/client/middleware"
@@ -17,13 +16,11 @@ import (
 var MgmtClient *management.Client
 
 func InitMgmtClient() {
-	// todo replace (env variable is empty for some reason)
-	fmt.Println(os.Getenv("ZITADEL_MGMT_KEY_PATH"))
 	client, err := management.NewClient(
 		os.Getenv("ZITADEL_INSTANCE"),
 		os.Getenv("ZITADEL_INSTANCE_GRPC"),
 		[]string{oidc.ScopeOpenID, zitadel.ScopeZitadelAPI()},
-		zitadel.WithJWTProfileTokenSource(middleware.JWTProfileFromPath("apikey-mgmt.json")),
+		zitadel.WithJWTProfileTokenSource(middleware.JWTProfileFromFileData([]byte(os.Getenv("ZITADEL_MGMT_API_KEY")))),
 	)
 
 	if err != nil {

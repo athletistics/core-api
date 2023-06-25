@@ -15,6 +15,16 @@ import (
 	"net/http"
 )
 
+// GetEvents lists all global events as well as the club's custom events.
+//
+//	@Summary	List events
+//	@Tags		Event
+//	@Produce	json
+//	@Success	200	{object}	[]models.EventShort
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/events [get]
 func GetEvents(c *fiber.Ctx) error {
 	if !helpers.HasAnyRoleOnParentClub(c) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
@@ -34,6 +44,19 @@ func GetEvents(c *fiber.Ctx) error {
 	return c.JSON(events)
 }
 
+// CreateEvent creates a new custom event.
+//
+//	@Summary	Create a new event
+//	@Tags		Event
+//	@Consume	json
+//	@Produce	json
+//	@Param		request	body		models.EventInput	true	"Event data"
+//	@Success	200		{object}	res.UuidCreated
+//	@Failure	400		{object}	res.Error
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/events [post]
 func CreateEvent(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnClub(c, helpers.GetUser(c).ClubID, helpers.RoleCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)

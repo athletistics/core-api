@@ -15,6 +15,16 @@ import (
 	"net/http"
 )
 
+// GetResults lists all global disciplines as well as the club's custom disciplines.
+//
+//	@Summary	List all personal results
+//	@Tags		Personal results
+//	@Produce	json
+//	@Success	200	{object}	[]models.ResultString
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/me/results [get]
 func GetResults(c *fiber.Ctx) error {
 	userId := helpers.GetUserId(c)
 	q := new(resultHandler.ResultQuery)
@@ -26,6 +36,19 @@ func GetResults(c *fiber.Ctx) error {
 	return resultHandler.RunQuery(c, q)
 }
 
+// CreateResult creates a new training result.
+//
+//	@Summary	Create a new training result for the authenticated user.
+//	@Tags		Personal results
+//	@Consume	json
+//	@Produce	json
+//	@Param		request	body		models.ResultInput	true	"Result data"
+//	@Success	200		{object}	res.UuidCreated
+//	@Failure	400		{object}	res.Error
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Selected event is not a training"
+//	@Security	ApiKeyAuth
+//	@Router		/me/results [post]
 func CreateResult(c *fiber.Ctx) error {
 	body := new(models.ResultInput)
 	if err := c.BodyParser(body); err != nil {
@@ -44,6 +67,16 @@ func CreateResult(c *fiber.Ctx) error {
 	return resultHandler.RunCreateQuery(c, body)
 }
 
+// GetBestResults lists the best result by discipline.
+//
+//	@Summary	Read personal bests of authenticated user.
+//	@Tags		Personal results
+//	@Produce	json
+//	@Success	200	{object}	[]models.ResultString
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/me/results/best [get]
 func GetBestResults(c *fiber.Ctx) error {
 	userId := helpers.GetUserId(c)
 	q := new(resultHandler.ResultQuery)

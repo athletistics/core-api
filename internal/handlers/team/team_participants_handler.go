@@ -51,7 +51,7 @@ func GetParticipants(c *fiber.Ctx) error {
 //	@Param		team_id	path	string		true	"Team identifier"
 //	@Param		request	body	[]string	true	"Users to add"
 //	@Success	200
-//	@Failure	400	{object}	res.Err	"Bad user IDs, or user already added to team"
+//	@Failure	400	{object}	res.Error	"Bad user IDs, or user already added to team"
 //	@Failure	401	{object}	res.Error
 //	@Failure	403	{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
@@ -110,11 +110,11 @@ func AddParticipants(c *fiber.Ctx) error {
 //	@Param		team_id	path	string		true	"Team identifier"
 //	@Param		request	body	[]string	true	"User IDs"
 //	@Success	200
-//	@Failure	400	{object}	res.Err	"Bad user IDs, or user already added to team"
+//	@Failure	400	{object}	res.Error	"Bad user IDs, or user already added to team"
 //	@Failure	401	{object}	res.Error
 //	@Failure	403	{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
-//	@Router		/teams/{team_id} [get]
+//	@Router		/teams/{team_id}/participants [delete]
 func RemoveParticipants(c *fiber.Ctx) error {
 	ok, team, err := canAccessTeam(c, []helpers.Role{helpers.RoleHeadCoach})
 	if !ok {

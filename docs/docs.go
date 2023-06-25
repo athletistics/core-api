@@ -23,8 +23,8 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/club/{club_id}/team": {
-            "post": {
+        "/club/{club_id}": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -36,7 +36,7 @@ const docTemplate = `{
                 "tags": [
                     "Club"
                 ],
-                "summary": "List teams",
+                "summary": "Get club details",
                 "parameters": [
                     {
                         "type": "string",
@@ -50,7 +50,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Team"
+                            "$ref": "#/definitions/models.Club"
                         }
                     },
                     "401": {
@@ -167,6 +167,900 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/disciplines": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Discipline"
+                ],
+                "summary": "List disciplines",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DisciplineShort"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Discipline"
+                ],
+                "summary": "Create a new discipline",
+                "parameters": [
+                    {
+                        "description": "Discipline data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.DisciplineInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.UuidCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/events": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "List events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.EventShort"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "description": "Event data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.EventInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.UuidCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Personal data"
+                ],
+                "summary": "Detailed information about the connected user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/auth": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Personal data"
+                ],
+                "summary": "Get authentication status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/results": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Personal results"
+                ],
+                "summary": "List all personal results",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ResultString"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Personal results"
+                ],
+                "summary": "Create a new training result for the authenticated user.",
+                "parameters": [
+                    {
+                        "description": "Result data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.UuidCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Selected event is not a training",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/results/best": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Personal results"
+                ],
+                "summary": "Read personal bests of authenticated user.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ResultString"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/results": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "List results.",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "name": "bestOnly",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "categoryId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "disciplineID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "eventID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "eventTypeID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "userID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ResultString"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Create a new result.",
+                "parameters": [
+                    {
+                        "description": "Result data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.UuidCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/results/best": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Read personal bests of authenticated user.",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "name": "bestOnly",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "categoryId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "disciplineID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "eventID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "eventTypeID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "userID",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ResultString"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{team_id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Team"
+                ],
+                "summary": "Team details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team identifier",
+                        "name": "team_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Team"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/teams/{team_id}/participants": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Team"
+                ],
+                "summary": "List team members",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team identifier",
+                        "name": "team_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UserShort"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Team"
+                ],
+                "summary": "Add participants to a team",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team identifier",
+                        "name": "team_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Users to add",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad user IDs, or user already added to team",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Team"
+                ],
+                "summary": "Remove participants",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team identifier",
+                        "name": "team_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "User IDs",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad user IDs, or user already added to team",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User info"
+                ],
+                "summary": "List users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User info"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.IdCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{userId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User info"
+                ],
+                "summary": "Get a user's details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -213,6 +1107,98 @@ const docTemplate = `{
                 }
             }
         },
+        "models.DisciplineInput": {
+            "type": "object",
+            "required": [
+                "customName",
+                "isDescending"
+            ],
+            "properties": {
+                "customName": {
+                    "type": "string"
+                },
+                "isDescending": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.DisciplineShort": {
+            "type": "object",
+            "properties": {
+                "customName": {
+                    "type": "string"
+                },
+                "i18nName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isDescending": {
+                    "type": "boolean"
+                },
+                "isOfficial": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.EventInput": {
+            "type": "object",
+            "required": [
+                "date",
+                "eventTypeId",
+                "isHomologated",
+                "isOutdoor",
+                "name",
+                "place"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "eventTypeId": {
+                    "type": "integer"
+                },
+                "isHomologated": {
+                    "type": "boolean"
+                },
+                "isOutdoor": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.EventShort": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "eventTypeId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isHomologated": {
+                    "type": "boolean"
+                },
+                "isOutdoor": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Place": {
             "type": "object",
             "properties": {
@@ -230,6 +1216,81 @@ const docTemplate = `{
                 },
                 "stateID": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.ResultInput": {
+            "type": "object",
+            "required": [
+                "disciplineId",
+                "eventId",
+                "value"
+            ],
+            "properties": {
+                "categoryId": {
+                    "type": "string"
+                },
+                "disciplineId": {
+                    "type": "string"
+                },
+                "eventId": {
+                    "type": "string"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                },
+                "wind": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.ResultString": {
+            "type": "object",
+            "properties": {
+                "categoryName": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "disciplineId": {
+                    "type": "string"
+                },
+                "disciplineName": {
+                    "type": "string"
+                },
+                "eventName": {
+                    "type": "string"
+                },
+                "eventOutdoor": {
+                    "type": "boolean"
+                },
+                "eventPlace": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "rank": {
+                    "type": "string"
+                },
+                "userFirstName": {
+                    "type": "string"
+                },
+                "userLastName": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                },
+                "wind": {
+                    "type": "number"
                 }
             }
         },
@@ -267,20 +1328,11 @@ const docTemplate = `{
         "models.Team": {
             "type": "object",
             "properties": {
-                "club": {
-                    "$ref": "#/definitions/models.Club"
-                },
-                "clubID": {
+                "clubId": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
-                },
-                "members": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.User"
-                    }
                 },
                 "name": {
                     "type": "string"
@@ -289,6 +1341,17 @@ const docTemplate = `{
         },
         "models.User": {
             "type": "object",
+            "required": [
+                "address",
+                "birthDate",
+                "firstName",
+                "genderId",
+                "languageId",
+                "lastName",
+                "nationalityId",
+                "placeId",
+                "primaryMail"
+            ],
             "properties": {
                 "address": {
                     "type": "string"
@@ -296,19 +1359,25 @@ const docTemplate = `{
                 "birthDate": {
                     "type": "string"
                 },
-                "club": {
-                    "$ref": "#/definitions/models.Club"
-                },
-                "clubID": {
+                "clubId": {
                     "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "genderId": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
                 },
-                "nationality": {
-                    "$ref": "#/definitions/models.Country"
+                "languageId": {
+                    "type": "integer"
                 },
-                "nationalityID": {
+                "lastName": {
+                    "type": "string"
+                },
+                "nationalityId": {
                     "type": "integer"
                 },
                 "oasi": {
@@ -317,14 +1386,61 @@ const docTemplate = `{
                 "place": {
                     "$ref": "#/definitions/models.Place"
                 },
-                "placeID": {
+                "placeId": {
                     "type": "integer"
                 },
-                "teams": {
+                "primaryMail": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserResponse": {
+            "type": "object",
+            "properties": {
+                "authRoles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Team"
+                        "$ref": "#/definitions/models.UserRole"
                     }
+                },
+                "has2Fa": {
+                    "type": "boolean"
+                },
+                "is2FaOk": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.UserRole": {
+            "type": "object",
+            "properties": {
+                "club": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserShort": {
+            "type": "object",
+            "required": [
+                "birthDate",
+                "firstName",
+                "lastName"
+            ],
+            "properties": {
+                "birthDate": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
                 }
             }
         },
@@ -338,7 +1454,24 @@ const docTemplate = `{
                 "error": {
                     "type": "integer"
                 },
+                "hiddenMessage": {
+                    "type": "string"
+                },
+                "internalMessage": {
+                    "type": "string"
+                },
                 "message": {
+                    "type": "string"
+                },
+                "subCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "res.IdCreated": {
+            "type": "object",
+            "properties": {
+                "id": {
                     "type": "string"
                 }
             }

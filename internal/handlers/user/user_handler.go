@@ -20,6 +20,16 @@ const (
 	ParamUserId = "id"
 )
 
+// GetUsers lists all users owned by the authenticated user's club.
+//
+//	@Summary	List users
+//	@Tags		User info
+//	@Produce	json
+//	@Success	200	{object}	[]models.User
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users [get]
 func GetUsers(c *fiber.Ctx) error {
 	db := database.DB
 	user := helpers.GetUser(c)
@@ -37,6 +47,19 @@ func GetUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+// CreateUser creates a new user on Zitadel and the core database.
+//
+//	@Summary	Create a new user
+//	@Tags		User info
+//	@Consume	json
+//	@Produce	json
+//	@Param		request	body		models.User	true	"User data"
+//	@Success	200		{object}	res.IdCreated
+//	@Failure	400		{object}	res.Error
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnParentClub(c, helpers.RoleHeadCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
@@ -73,6 +96,16 @@ func CreateUser(c *fiber.Ctx) error {
 	return c.JSON(res.IdCreated{Id: newUser.ID})
 }
 
+// GetUser returns details of a specific user.
+//
+//	@Summary	Get a user's details
+//	@Tags		User info
+//	@Produce	json
+//	@Success	200	{object}	models.User
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users/{userId} [get]
 func GetUser(c *fiber.Ctx) error {
 	// check that requesting user is coach/head coach
 	db := database.DB
@@ -89,8 +122,8 @@ func GetUser(c *fiber.Ctx) error {
 	}
 
 	// search the user
-	targetUser := models.User{ID: "", ClubID: user.ClubID}
-	if err := db.First(&targetUser).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	targetUser := models.User{ID: userId}
+	if err := db.Where(&models.User{ClubID: user.ClubID}).First(&targetUser).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbiddenNotFound)
 	} else if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))

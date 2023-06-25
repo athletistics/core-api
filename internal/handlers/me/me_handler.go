@@ -16,6 +16,15 @@ import (
 	"net/http"
 )
 
+// GetMe gets details of the authenticated user
+//
+//	@Summary	Detailed information about the connected user
+//	@Tags		Personal data
+//	@Produce	json
+//	@Success	200	{object}	models.User
+//	@Failure	401	{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/me [get]
 func GetMe(c *fiber.Ctx) error {
 	db := database.DB
 	userId := helpers.GetUserId(c)
@@ -31,29 +40,28 @@ func GetMe(c *fiber.Ctx) error {
 	return c.JSON(me)
 }
 
+// GetAuth lists all roles of the authenticated user, as well as the state of the second factor.
+//
+//	@Summary	Get authentication status
+//	@Tags		Personal data
+//	@Produce	json
+//	@Success	200	{object}	models.UserResponse
+//	@Failure	401	{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/me/auth [get]
 func GetAuth(c *fiber.Ctx) error {
-	type Role struct {
-		Club string `json:"club"`
-		Role string `json:"role"`
-	}
-	type Response struct {
-		AuthRoles []Role `json:"authRoles"`
-		Is2FaOk   bool   `json:"is2FaOk"`
-		Has2Fa    bool   `json:"has2Fa"`
-	}
-
 	var auth []models.Authorisation
 	err := database.DB.Where(&models.Authorisation{UserID: helpers.GetUserId(c)}).Preload("AccessRole").Preload("Club").Find(&auth).Error
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB)
 	}
 
-	roles := make([]Role, len(auth))
+	roles := make([]models.UserRole, len(auth))
 	for i := 0; i < len(auth); i++ {
-		roles[i] = Role{Club: auth[i].Club.Name, Role: auth[i].AccessRole.I18nName}
+		roles[i] = models.UserRole{Club: auth[i].Club.Name, Role: auth[i].AccessRole.I18nName}
 	}
 
-	resp := Response{
+	resp := models.UserResponse{
 		AuthRoles: roles,
 		Is2FaOk:   c.Locals(constants.LocalsHasVerified2FA).(bool),
 		Has2Fa:    c.Locals(constants.LocalsHas2FA).(bool),

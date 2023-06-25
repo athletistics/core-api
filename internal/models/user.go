@@ -46,3 +46,13 @@ type UserEmergency struct {
 	FirstName  string `json:"firstName" validate:"required"`
 	LastName   string `json:"lastName" validate:"required"`
 }
+
+type UserRole struct {
+	Club string `json:"club"`
+	Role string `json:"role"`
+}
+type UserResponse struct {
+	AuthRoles []UserRole `json:"authRoles"`
+	Is2FaOk   bool       `json:"is2FaOk"`
+	Has2Fa    bool       `json:"has2Fa"`
+}

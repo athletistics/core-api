@@ -38,9 +38,9 @@ import (
 //	@schemes	https
 //	@BasePath	/api/v1
 
-// @securityDefinitions.apikey	Zitadel JWT token
-// @in							header
-// @name						Authorization
+//	@securityDefinitions.apikey	Zitadel JWT token
+//	@in							header
+//	@name						Authorization
 func main() {
 	database.ConnectDb()
 

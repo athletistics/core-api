@@ -13,14 +13,18 @@ import (
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 	"math/rand"
+	"strings"
 )
 
 func createUser(u *models.User) (string, error) {
 	userNameOk := false
 	var userName string
 
+	cleanFirstName := strings.Join(strings.Fields(u.FirstName), "")
+	cleanLastName := strings.Join(strings.Fields(u.LastName), "")
+
 	for !userNameOk {
-		userName = fmt.Sprintf("%v%v_%v", u.FirstName, u.LastName, getRandStr(constants.UserSuffixLength))
+		userName = fmt.Sprintf("%v%v_%v", cleanFirstName, cleanLastName, getRandStr(constants.UserSuffixLength))
 		req := pb.IsUserUniqueRequest{UserName: userName}
 
 		res, err := helpers.MgmtClient.IsUserUnique(context.Background(), &req)
