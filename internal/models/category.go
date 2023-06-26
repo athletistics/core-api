@@ -11,7 +11,9 @@ import (
 
 type Category struct {
 	gorm.Model `json:"-"`
-	ID         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
-	Name       string
-	Gender     string `gorm:"type:varchar(1)"`
+	ID         uuid.UUID `json:"id" gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	Name       string    `json:"name"`
+	Gender     string    `json:"gender" gorm:"type:varchar(1)"`
+	SportID    int       `json:"-"`
+	Sport      Sport     `json:"-"`
 }

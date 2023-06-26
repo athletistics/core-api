@@ -87,3 +87,7 @@ func GetBestResults(c *fiber.Ctx) error {
 
 	return RunQuery(c, q)
 }
+
+func GetStaticResults(c *fiber.Ctx) error {
+	return nil
+}

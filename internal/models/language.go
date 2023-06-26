@@ -8,7 +8,7 @@ import "gorm.io/gorm"
 
 type Language struct {
 	gorm.Model `json:"-"`
-	ID         int `gorm:"primaryKey;unique;autoIncrement"`
-	Short      string
-	I18nName   string
+	ID         int    `json:"id" gorm:"primaryKey;unique;autoIncrement"`
+	Short      string `json:"short"`
+	I18nName   string `json:"i18nName"`
 }

@@ -25,14 +25,14 @@ import (
 )
 
 //	@title			Core Athletistics API
-//	@version		1.0
-//	@description	API that manages TOTPs and
+//	@version		v0.1.1
+//	@description	API that manages the core Athletistics database containing athletes and their sports performances.
 
 //	@contact.name	API Support
 //	@contact.email	nicolasfabrice.baeriswyl@edu.hefr.ch
 
-//	@license.name	GPL-3.0
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	AGPL-3.0
+//	@license.url	https://www.gnu.org/licenses/agpl-3.0.html
 
 //	@host		athletistics.kube.isc.heia-fr.ch
 //	@schemes	https

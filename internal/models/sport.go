@@ -8,6 +8,6 @@ import "gorm.io/gorm"
 
 type Sport struct {
 	gorm.Model `json:"-"`
-	ID         int `gorm:"primaryKey;unique;autoIncrement"`
-	I18nName   string
+	ID         int    `json:"id" gorm:"primaryKey;unique;autoIncrement"`
+	I18nName   string `json:"i18nName"`
 }
