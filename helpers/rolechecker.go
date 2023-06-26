@@ -37,7 +37,7 @@ func HasRoleOnClub(c *fiber.Ctx, clubId uuid.UUID, roles ...Role) bool {
 		return false
 	}
 
-	authorisations, err := getAuthorisations(c, clubId)
+	authorisations, err := getAuthorisations(GetUserId(c), clubId)
 	if err != nil {
 		return false
 	}
@@ -65,7 +65,7 @@ func HasAnyRoleOnParentClub(c *fiber.Ctx) bool {
 
 // HasAnyRoleOnClub checks if the requesting user has any role on the specificed club.
 func HasAnyRoleOnClub(c *fiber.Ctx, clubId uuid.UUID) bool {
-	authorisations, err := getAuthorisations(c, clubId)
+	authorisations, err := getAuthorisations(GetUserId(c), clubId)
 	if err != nil {
 		return false
 	}
@@ -87,10 +87,10 @@ func IsAthlete(c *fiber.Ctx) bool {
 }
 
 // getAuthorisations lists all authorisations of the requesting user on a specific club.
-func getAuthorisations(c *fiber.Ctx, clubId uuid.UUID) ([]models.Authorisation, error) {
+func getAuthorisations(userId string, clubId uuid.UUID) ([]models.Authorisation, error) {
 	db := database.DB
 
 	var authorisations []models.Authorisation
-	err := db.Where(&models.Authorisation{UserID: GetUserId(c), ClubID: clubId}).Preload("AccessRole").Find(&authorisations).Error
+	err := db.Where(&models.Authorisation{UserID: userId, ClubID: clubId}).Preload("AccessRole").Find(&authorisations).Error
 	return authorisations, err
 }

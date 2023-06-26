@@ -8,6 +8,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"github.com/DATA-DOG/go-sqlmock"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 	"log"
@@ -20,6 +21,7 @@ import (
 )
 
 var DB *gorm.DB
+var Mock sqlmock.Sqlmock
 
 // ConnectDb creates a connection towards the database and keeps that connection in the public 'DB' variable.
 // Once connected, the auto migration is run, updating the database structure.
@@ -63,6 +65,17 @@ func ConnectDb() {
 	}
 
 	DB = db
+}
+
+func ConnectMockDB() {
+	mockDb, mock, _ := sqlmock.New()
+	dialector := postgres.New(postgres.Config{
+		Conn:       mockDb,
+		DriverName: "postgres",
+	})
+	db, _ := gorm.Open(dialector, &gorm.Config{})
+	DB = db
+	Mock = mock
 }
 
 func GetSqlDB() *sql.DB {

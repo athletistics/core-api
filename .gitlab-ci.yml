@@ -1,5 +1,6 @@
 stages:
   - lint
+  - test
   - build
   - deploy
 
@@ -8,6 +9,13 @@ lint:
   image: golangci/golangci-lint:latest
   script:
     - golangci-lint run -v
+
+test:
+  stage: test
+  image: golangci/golangci-lint:latest
+  script:
+    - go test ./...
+
 
 build:
   stage: build
