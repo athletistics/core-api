@@ -8,6 +8,22 @@ definitions:
     required:
     - name
     type: object
+  models.AccessRole:
+    properties:
+      i18nName:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.Category:
+    properties:
+      gender:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
   models.Club:
     properties:
       id:
@@ -90,6 +106,29 @@ definitions:
       place:
         type: string
     type: object
+  models.EventType:
+    properties:
+      i18NName:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.ExternalIdType:
+    properties:
+      i18nName:
+        type: string
+      id:
+        type: integer
+    type: object
+  models.Language:
+    properties:
+      i18nName:
+        type: string
+      id:
+        type: integer
+      short:
+        type: string
+    type: object
   models.Place:
     properties:
       id:
@@ -101,6 +140,19 @@ definitions:
       state:
         $ref: '#/definitions/models.State'
       stateID:
+        type: integer
+    type: object
+  models.PlaceOut:
+    properties:
+      countryId:
+        type: integer
+      id:
+        type: integer
+      place:
+        type: string
+      postCode:
+        type: string
+      stateId:
         type: integer
     type: object
   models.ResultInput:
@@ -162,9 +214,7 @@ definitions:
     type: object
   models.State:
     properties:
-      country:
-        $ref: '#/definitions/models.Country'
-      countryID:
+      countryId:
         type: integer
       id:
         type: integer
@@ -285,12 +335,13 @@ info:
   contact:
     email: nicolasfabrice.baeriswyl@edu.hefr.ch
     name: API Support
-  description: API that manages TOTPs and
+  description: API that manages the core Athletistics database containing athletes
+    and their sports performances.
   license:
-    name: GPL-3.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    name: AGPL-3.0
+    url: https://www.gnu.org/licenses/agpl-3.0.html
   title: Core Athletistics API
-  version: "1.0"
+  version: v0.1.1
 paths:
   /club/{club_id}:
     get:
@@ -383,6 +434,223 @@ paths:
       summary: Create a new team
       tags:
       - Club
+  /data/accessRoles:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AccessRole'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Lists all available access roles that can be given to a user.
+      tags:
+      - Data
+  /data/categories:
+    get:
+      parameters:
+      - description: Sport ID
+        in: query
+        name: sport
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Category'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a list of all categories for a specific sport.
+      tags:
+      - Data
+  /data/eventTypes:
+    get:
+      parameters:
+      - description: Filter, returning only elements that can be used by authenticated
+          user
+        in: query
+        name: filter
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.EventType'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a list of all event types.
+      tags:
+      - Data
+  /data/idTypes:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ExternalIdType'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: get a list of available ID types.
+      tags:
+      - Data
+  /data/languages:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Language'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all languages.
+      tags:
+      - Data
+  /data/places:
+    get:
+      parameters:
+      - description: Country ID
+        in: query
+        name: country
+        required: true
+        type: integer
+      - description: State ID
+        in: query
+        name: state
+        required: true
+        type: integer
+      - description: Search query, postal code or name of the place
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.PlaceOut'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Searches for places.
+      tags:
+      - Data
+  /data/places/countries:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Country'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all countries.
+      tags:
+      - Data
+  /data/places/states:
+    get:
+      parameters:
+      - description: Country ID
+        in: query
+        name: country
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.State'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all states of a country.
+      tags:
+      - Data
+  /data/sports:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Sport'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a list of all sports.
+      tags:
+      - Data
   /disciplines:
     get:
       produces:

@@ -21,7 +21,7 @@ func TestGetAuthorisations_NoRoles(t *testing.T) {
 	database.ConnectMockDB()
 
 	database.Mock.ExpectQuery(`SELECT`).WillReturnRows(sqlmock.NewRows([]string{}))
-	auth, err := getAuthorisations(userId, clubId)
+	auth, err := GetAuthorisations(userId, clubId)
 
 	assert.Nil(t, err)
 	assert.Empty(t, auth)
@@ -31,7 +31,7 @@ func TestGetAuthorisations_SingleRole(t *testing.T) {
 	database.ConnectMockDB()
 
 	database.Mock.ExpectQuery(`SELECT`).WillReturnRows(sqlmock.NewRows([]string{}).AddRow())
-	auth, err := getAuthorisations(userId, clubId)
+	auth, err := GetAuthorisations(userId, clubId)
 
 	assert.Nil(t, err)
 	assert.Len(t, auth, 1)
