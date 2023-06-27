@@ -6,11 +6,14 @@ package resultHandler
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"net/http"
 )
+
+const QuerySportId = "sport"
 
 // GetResults lists the result according to the query parameters.
 //
@@ -88,6 +91,35 @@ func GetBestResults(c *fiber.Ctx) error {
 	return RunQuery(c, q)
 }
 
+// GetStaticResults lists static results (e.g. national limits) stored in the database.
+//
+//	@Summary	Get static results
+//	@Tags		Results
+//	@Produce	json
+//	@Param		sport	query		integer	true	"Sport ID"
+//	@Success	200		{object}	models.ResultStaticOut
+//	@Failure	401		{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/results/static [get]
 func GetStaticResults(c *fiber.Ctx) error {
-	return nil
+	db := database.DB
+	var results []models.ResultStatic
+	var types []models.ResultStaticType
+
+	sportId := c.QueryInt(QuerySportId)
+	if sportId == 0 {
+		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest)
+	}
+
+	if err := db.Find(&results).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+	if err := db.Find(&types).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+
+	return c.JSON(models.ResultStaticOut{
+		Results: results,
+		Types:   types,
+	})
 }

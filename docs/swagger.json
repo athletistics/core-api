@@ -1077,6 +1077,45 @@
                 }
             }
         },
+        "/results/static": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Get static results",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Sport ID",
+                        "name": "sport",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultStaticOut"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/teams/{team_id}": {
             "get": {
                 "security": [
@@ -1675,6 +1714,54 @@
                 },
                 "wind": {
                     "type": "number"
+                }
+            }
+        },
+        "models.ResultStatic": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "type": "string"
+                },
+                "disciplineId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "resultStaticTypeId": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.ResultStaticOut": {
+            "type": "object",
+            "properties": {
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResultStatic"
+                    }
+                },
+                "types": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ResultStaticType"
+                    }
+                }
+            }
+        },
+        "models.ResultStaticType": {
+            "type": "object",
+            "properties": {
+                "i18nType": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         },

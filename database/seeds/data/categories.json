@@ -1,0 +1,92 @@
+[
+  {
+    "id": "3656cc71-b08d-49eb-9922-63ae2604e6d4",
+    "name": "U10",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "c1c28c86-1555-4337-9d5a-366fbbc29e06",
+    "name": "U12",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "ac72203b-07df-451c-94ed-540c56fb1ed3",
+    "name": "U14",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "de294fe1-277c-434d-90e5-2fc91e4311cb",
+    "name": "U16",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "f76929d5-aceb-409f-8963-559dcd8483bd",
+    "name": "U18",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "60023625-acf8-46f2-ade5-d3b897b9a90c",
+    "name": "U20",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "189ed729-0b07-41da-abca-baeb7800f3a2",
+    "name": "U23",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "8508e06f-42c0-4625-bb6b-8483100ff3bb",
+    "name": "",
+    "gender": "M",
+    "sport_id": 1
+  },
+  {
+    "id": "cefa4c65-c1f4-44e6-b60f-170014ead40f",
+    "name": "U10",
+    "gender": "W",
+    "sport_id": 1
+  },
+  {
+    "id": "6b9fd744-5688-401b-921d-df19e91bd0ee",
+    "name": "U12",
+    "gender": "W",
+    "sport_id": 1
+  },
+  {
+    "id": "4f459705-7a63-4193-9c16-1ddb6a932fd1",
+    "name": "U14",
+    "gender": "W",
+    "sport_id": 1
+  },
+  {
+    "id": "5713dfc7-1e67-4b44-b0b3-0376224658a4",
+    "name": "U16",
+    "gender": "W",
+    "sport_id": 1
+  },
+  {
+    "id": "85212271-fa8c-4128-a603-b42b62f9058e",
+    "name": "U20",
+    "gender": "W",
+    "sport_id": 1
+  },
+  {
+    "id": "30a6a736-e0ea-4d96-8b42-36d5474ad00c",
+    "name": "U23",
+    "gender": "W",
+    "sport_id": 1
+  },
+  {
+    "id": "a4f0931a-d7af-4d78-8135-db89057ce864",
+    "name": "",
+    "gender": "W",
+    "sport_id": 1
+  }
+]

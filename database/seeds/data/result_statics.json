@@ -1,0 +1,26 @@
+[
+  {
+    "value": "11.70",
+    "category_id": "f76929d5-aceb-409f-8963-559dcd8483bd",
+    "discipline_id": "50df8709-293d-4b9a-85bd-2316071743fa",
+    "result_static_type_id": 1
+  },
+  {
+    "value": "11.40",
+    "category_id": "60023625-acf8-46f2-ade5-d3b897b9a90c",
+    "discipline_id": "50df8709-293d-4b9a-85bd-2316071743fa",
+    "result_static_type_id": 1
+  },
+  {
+    "value": "11.40",
+    "category_id": "189ed729-0b07-41da-abca-baeb7800f3a2",
+    "discipline_id": "50df8709-293d-4b9a-85bd-2316071743fa",
+    "result_static_type_id": 1
+  },
+  {
+    "value": "11.20",
+    "category_id": "8508e06f-42c0-4625-bb6b-8483100ff3bb",
+    "discipline_id": "50df8709-293d-4b9a-85bd-2316071743fa",
+    "result_static_type_id": 1
+  }
+]

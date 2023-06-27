@@ -176,6 +176,37 @@ definitions:
     - eventId
     - value
     type: object
+  models.ResultStatic:
+    properties:
+      categoryId:
+        type: string
+      disciplineId:
+        type: string
+      id:
+        type: integer
+      resultStaticTypeId:
+        type: integer
+      value:
+        type: number
+    type: object
+  models.ResultStaticOut:
+    properties:
+      results:
+        items:
+          $ref: '#/definitions/models.ResultStatic'
+        type: array
+      types:
+        items:
+          $ref: '#/definitions/models.ResultStaticType'
+        type: array
+    type: object
+  models.ResultStaticType:
+    properties:
+      i18nType:
+        type: string
+      id:
+        type: integer
+    type: object
   models.ResultString:
     properties:
       categoryName:
@@ -995,6 +1026,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Read personal bests of authenticated user.
+      tags:
+      - Results
+  /results/static:
+    get:
+      parameters:
+      - description: Sport ID
+        in: query
+        name: sport
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResultStaticOut'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get static results
       tags:
       - Results
   /teams/{team_id}:

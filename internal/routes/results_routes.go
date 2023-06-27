@@ -15,4 +15,5 @@ func SetupResultsRoutes(router fiber.Router) {
 	node.Get("/", resultHandler.GetResults)
 	node.Post("/", resultHandler.CreateResult)
 	node.Get("/best", resultHandler.GetBestResults)
+	node.Get("/static", resultHandler.GetStaticResults)
 }

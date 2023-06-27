@@ -26,5 +26,8 @@ func init() {
 	goseeder.Register(usersSeeder)
 	goseeder.Register(authorisationSeeder)
 
+	goseeder.Register(categorySeeder)
+	goseeder.Register(resultStaticTypeSeeder)
 	goseeder.Register(resultSeeder)
+	goseeder.Register(resultStaticSeeder)
 }
