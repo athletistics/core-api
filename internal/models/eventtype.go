@@ -9,6 +9,6 @@ import "gorm.io/gorm"
 type EventType struct {
 	gorm.Model   `json:"-"`
 	ID           int          `json:"id" gorm:"primaryKey;unique;autoIncrement"`
-	I18nName     string       `json:"i18NName"`
+	I18nName     string       `json:"i18nName"`
 	RequiredRole []AccessRole `json:"-" gorm:"many2many:event_type_access_roles"`
 }

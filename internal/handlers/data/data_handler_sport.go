@@ -50,7 +50,7 @@ func SelectEventTypes(filter bool, requesterRoles []models.Authorisation) ([]mod
 
 	err = db.
 		Joins(`INNER JOIN event_type_access_roles r ON "r"."event_type_id" = "event_type"."id" AND "r"."access_role_id" IN ?`, roles).
-		Distinct("id").
+		Distinct("id", "i18n_name").
 		Find(&eventTypes).Error
 
 	return eventTypes, err

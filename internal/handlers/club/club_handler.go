@@ -36,7 +36,7 @@ func GetClub(c *fiber.Ctx) error {
 	}
 
 	var club models.Club
-	err = database.DB.Where(&models.Club{ID: clubId}).First(&club).Error
+	err = database.DB.Where(&models.Club{ID: clubId}).Preload("Sport").First(&club).Error
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}

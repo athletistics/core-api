@@ -116,7 +116,7 @@ func GetUser(c *fiber.Ctx) error {
 	}
 
 	// read the requested user id, and verify that it is a numeric string
-	userId := c.Query(ParamUserId)
+	userId := c.Params(ParamUserId)
 	if _, err := strconv.ParseInt(userId, 10, 64); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}

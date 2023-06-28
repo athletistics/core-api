@@ -11,8 +11,8 @@ import (
 
 type Club struct {
 	gorm.Model `json:"-"`
-	ID         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
-	SportID    int
-	Sport      Sport
-	Name       string
+	ID         uuid.UUID `json:"id" gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
+	SportID    int       `json:"-"`
+	Sport      Sport     `json:"sport"`
+	Name       string    `json:"name"`
 }
