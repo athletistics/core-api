@@ -32,8 +32,6 @@ definitions:
         type: string
       sport:
         $ref: '#/definitions/models.Sport'
-      sportID:
-        type: integer
     type: object
   models.Country:
     properties:
@@ -108,7 +106,7 @@ definitions:
     type: object
   models.EventType:
     properties:
-      i18NName:
+      i18nName:
         type: string
       id:
         type: integer
@@ -139,8 +137,6 @@ definitions:
         type: string
       state:
         $ref: '#/definitions/models.State'
-      stateID:
-        type: integer
     type: object
   models.PlaceOut:
     properties:
@@ -245,8 +241,8 @@ definitions:
     type: object
   models.State:
     properties:
-      countryId:
-        type: integer
+      country:
+        $ref: '#/definitions/models.Country'
       id:
         type: integer
       name:
@@ -269,6 +265,8 @@ definitions:
         type: string
       birthDate:
         type: string
+      club:
+        $ref: '#/definitions/models.Club'
       clubId:
         type: string
       firstName:
@@ -281,6 +279,8 @@ definitions:
         type: integer
       lastName:
         type: string
+      nationality:
+        $ref: '#/definitions/models.Country'
       nationalityId:
         type: integer
       oasi:
@@ -290,6 +290,8 @@ definitions:
       placeId:
         type: integer
       primaryMail:
+        type: string
+      primaryPhone:
         type: string
     required:
     - address
@@ -301,6 +303,22 @@ definitions:
     - nationalityId
     - placeId
     - primaryMail
+    - primaryPhone
+    type: object
+  models.UserEmergency:
+    properties:
+      firstName:
+        type: string
+      id:
+        type: string
+      lastName:
+        type: string
+      primaryPhone:
+        type: string
+    required:
+    - firstName
+    - lastName
+    - primaryPhone
     type: object
   models.UserResponse:
     properties:
@@ -372,7 +390,7 @@ info:
     name: AGPL-3.0
     url: https://www.gnu.org/licenses/agpl-3.0.html
   title: Core Athletistics API
-  version: v0.1.1
+  version: v0.1.2
 paths:
   /club/{club_id}:
     get:
@@ -1258,6 +1276,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get a user's details
+      tags:
+      - User info
+  /users/emergency:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.UserEmergency'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List users
       tags:
       - User info
 schemes:

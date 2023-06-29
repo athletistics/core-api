@@ -1416,6 +1416,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/emergency": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User info"
+                ],
+                "summary": "List users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.UserEmergency"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{userId}": {
             "get": {
                 "security": [
@@ -1502,9 +1541,6 @@ const docTemplate = `{
                 },
                 "sport": {
                     "$ref": "#/definitions/models.Sport"
-                },
-                "sportID": {
-                    "type": "integer"
                 }
             }
         },
@@ -1617,7 +1653,7 @@ const docTemplate = `{
         "models.EventType": {
             "type": "object",
             "properties": {
-                "i18NName": {
+                "i18nName": {
                     "type": "string"
                 },
                 "id": {
@@ -1664,9 +1700,6 @@ const docTemplate = `{
                 },
                 "state": {
                     "$ref": "#/definitions/models.State"
-                },
-                "stateID": {
-                    "type": "integer"
                 }
             }
         },
@@ -1827,8 +1860,8 @@ const docTemplate = `{
         "models.State": {
             "type": "object",
             "properties": {
-                "countryId": {
-                    "type": "integer"
+                "country": {
+                    "$ref": "#/definitions/models.Country"
                 },
                 "id": {
                     "type": "integer"
@@ -1866,7 +1899,8 @@ const docTemplate = `{
                 "lastName",
                 "nationalityId",
                 "placeId",
-                "primaryMail"
+                "primaryMail",
+                "primaryPhone"
             ],
             "properties": {
                 "address": {
@@ -1874,6 +1908,9 @@ const docTemplate = `{
                 },
                 "birthDate": {
                     "type": "string"
+                },
+                "club": {
+                    "$ref": "#/definitions/models.Club"
                 },
                 "clubId": {
                     "type": "string"
@@ -1893,6 +1930,9 @@ const docTemplate = `{
                 "lastName": {
                     "type": "string"
                 },
+                "nationality": {
+                    "$ref": "#/definitions/models.Country"
+                },
                 "nationalityId": {
                     "type": "integer"
                 },
@@ -1906,6 +1946,31 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "primaryMail": {
+                    "type": "string"
+                },
+                "primaryPhone": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserEmergency": {
+            "type": "object",
+            "required": [
+                "firstName",
+                "lastName",
+                "primaryPhone"
+            ],
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "primaryPhone": {
                     "type": "string"
                 }
             }
@@ -2012,7 +2077,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v0.1.1",
+	Version:          "v0.1.2",
 	Host:             "athletistics.kube.isc.heia-fr.ch",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"https"},

@@ -25,7 +25,7 @@ import (
 )
 
 //	@title			Core Athletistics API
-//	@version		v0.1.1
+//	@version		v0.1.2
 //	@description	API that manages the core Athletistics database containing athletes and their sports performances.
 
 //	@contact.name	API Support
@@ -38,9 +38,9 @@ import (
 //	@schemes	https
 //	@BasePath	/api/v1
 
-//	@securityDefinitions.apikey	Zitadel JWT token
-//	@in							header
-//	@name						Authorization
+// @securityDefinitions.apikey	Zitadel JWT token
+// @in							header
+// @name						Authorization
 func main() {
 	database.ConnectDb()
 
