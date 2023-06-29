@@ -12,8 +12,13 @@ import (
 func SetupResultsRoutes(router fiber.Router) {
 	node := router.Group("/results")
 
+	node.Get("/static", resultHandler.GetStaticResults)
+}
+
+func SetupResultsRoutesTotpProtected(router fiber.Router) {
+	node := router.Group("/results")
+
 	node.Get("/", resultHandler.GetResults)
 	node.Post("/", resultHandler.CreateResult)
 	node.Get("/best", resultHandler.GetBestResults)
-	node.Get("/static", resultHandler.GetStaticResults)
 }
