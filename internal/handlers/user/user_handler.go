@@ -47,6 +47,33 @@ func GetUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+// GetEmergencyUsers lists all users owned by the authenticated user's club, but only shows emergency information.
+//
+//	@Summary	List users
+//	@Tags		User info
+//	@Produce	json
+//	@Success	200	{object}	[]models.UserEmergency
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users/emergency [get]
+func GetEmergencyUsers(c *fiber.Ctx) error {
+	db := database.DB
+	user := helpers.GetUser(c)
+
+	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
+	}
+
+	var users []models.UserEmergency
+	err := db.Model(&models.User{}).Where(&models.User{ClubID: user.ClubID}).Find(&users).Error
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+
+	return c.JSON(users)
+}
+
 // CreateUser creates a new user on Zitadel and the core database.
 //
 //	@Summary	Create a new user

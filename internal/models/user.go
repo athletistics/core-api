@@ -16,6 +16,7 @@ type User struct {
 	FirstName     string    `json:"firstName" validate:"required"`
 	LastName      string    `json:"lastName" validate:"required"`
 	PrimaryMail   string    `json:"primaryMail" validate:"required,email"`
+	PrimaryPhone  string    `json:"primaryPhone" validate:"required"`
 	LanguageID    int       `json:"languageId" validate:"required"`
 	Language      Language  `json:"-"`
 	GenderID      int       `json:"genderId" validate:"required"`
@@ -41,10 +42,11 @@ type UserShort struct {
 }
 
 type UserEmergency struct {
-	gorm.Model `json:"-"`
-	ID         string `gorm:"primaryKey;unique" json:"id"`
-	FirstName  string `json:"firstName" validate:"required"`
-	LastName   string `json:"lastName" validate:"required"`
+	gorm.Model   `json:"-"`
+	ID           string `gorm:"primaryKey;unique" json:"id"`
+	FirstName    string `json:"firstName" validate:"required"`
+	LastName     string `json:"lastName" validate:"required"`
+	PrimaryPhone string `json:"primaryPhone" validate:"required"`
 }
 
 type UserRole struct {
