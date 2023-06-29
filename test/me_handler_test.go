@@ -35,7 +35,7 @@ func TestGetMe(t *testing.T) {
 	app := prepareFiberWithUser(userId)
 
 	_ = sqlmock.NewRows([]string{""})
-	database.Mock.ExpectQuery(`SELECT \* FROM "users"`).WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(userId))
+	database.Mock.ExpectQuery(`SELECT .* FROM "users"`).WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(userId))
 
 	req := httptest.NewRequest("GET", "/api/v1/me", nil)
 	resp, err := app.Test(req, -1)
@@ -49,7 +49,7 @@ func TestGetMe_NoUser(t *testing.T) {
 	app := prepareFiberWithUser(userId)
 
 	_ = sqlmock.NewRows([]string{""})
-	database.Mock.ExpectQuery(`SELECT \* FROM "users"`).WillReturnRows(sqlmock.NewRows([]string{"id"}))
+	database.Mock.ExpectQuery(`SELECT .* FROM "users"`).WillReturnRows(sqlmock.NewRows([]string{"id"}))
 
 	req := httptest.NewRequest("GET", "/api/v1/me", nil)
 	resp, err := app.Test(req, -1)
