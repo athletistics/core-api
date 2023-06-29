@@ -11,6 +11,6 @@ type State struct {
 	ID         int     `json:"id" gorm:"primaryKey;unique;autoIncrement"`
 	Name       string  `json:"name"`
 	Short      string  `json:"short" gorm:"type:varchar(4)"`
-	CountryID  int     `json:"countryId"`
-	Country    Country `json:"-"`
+	CountryID  int     `json:"-"`
+	Country    Country `json:"country"`
 }

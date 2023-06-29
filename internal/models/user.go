@@ -21,14 +21,14 @@ type User struct {
 	GenderID      int       `json:"genderId" validate:"required"`
 	Gender        Gender    `json:"-"`
 	ClubID        uuid.UUID `gorm:"type:uuid" json:"clubId"`
-	Club          Club      `json:"-"`
+	Club          Club      `json:"club"`
 	Oasi          *string   `json:"oasi"`
 	BirthDate     time.Time `json:"birthDate" validate:"required"`
 	Address       string    `json:"address" validate:"required"`
 	PlaceID       int       `json:"placeId" validate:"required"`
-	Place         Place     `json:""`
+	Place         Place     `json:"place"`
 	NationalityID int       `json:"nationalityId" validate:"required"`
-	Nationality   Country   `json:"-"`
+	Nationality   Country   `json:"nationality"`
 	Teams         []Team    `gorm:"many2many:participants;" json:"-"`
 }
 

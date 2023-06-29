@@ -123,7 +123,10 @@ func GetUser(c *fiber.Ctx) error {
 
 	// search the user
 	targetUser := models.User{ID: userId}
-	if err := db.Where(&models.User{ClubID: user.ClubID}).First(&targetUser).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+	err := db.Where(&models.User{ClubID: user.ClubID}).
+		Preload("Country").Preload("State").Preload("Place").
+		First(&targetUser).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbiddenNotFound)
 	} else if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))

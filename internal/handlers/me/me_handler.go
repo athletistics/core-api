@@ -29,8 +29,11 @@ func GetMe(c *fiber.Ctx) error {
 	db := database.DB
 	userId := helpers.GetUserId(c)
 
-	var me models.User
-	err := db.Where(&models.User{ID: userId}).First(&me).Error
+	me := models.User{ID: userId}
+	err := db.
+		Preload("Nationality").Preload("Club").
+		Joins("Place").Joins("Place.State").Joins("Place.State.Country").
+		First(&me).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(http.StatusNotFound).JSON(res.ErrNotFound)
 	} else if err != nil {
