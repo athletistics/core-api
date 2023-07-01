@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const TrainingTypeId = 4
+
 type Result struct {
 	gorm.Model   `json:"-"`
 	ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey;unique"`
@@ -57,6 +59,7 @@ type ResultString struct {
 	EventName      string           `json:"eventName" gorm:"-"`
 	EventPlace     string           `json:"eventPlace" gorm:"-"`
 	EventOutdoor   bool             `json:"eventOutdoor" gorm:"-"`
+	IsTraining     bool             `json:"isTraining" gorm:"-"`
 	Date           time.Time        `json:"date" gorm:"-"`
 	Value          decimal.Decimal  `json:"value"`
 	Wind           *decimal.Decimal `json:"wind"`
@@ -70,6 +73,7 @@ func (r *ResultString) Prepare() {
 	r.EventPlace = r.Event.Place
 	r.EventOutdoor = r.Event.IsOutdoor
 	r.Date = r.Event.Date
+	r.IsTraining = r.Event.EventTypeID == TrainingTypeId
 
 	if r.Discipline.I18nName != nil {
 		r.DisciplineName = *r.Discipline.I18nName
