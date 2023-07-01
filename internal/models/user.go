@@ -26,8 +26,10 @@ type User struct {
 	Oasi          *string   `json:"oasi"`
 	BirthDate     time.Time `json:"birthDate" validate:"required"`
 	Address       string    `json:"address" validate:"required"`
-	PlaceID       int       `json:"placeId" validate:"required"`
-	Place         Place     `json:"place"`
+	PostCode      string    `json:"postCode" validate:"required"`
+	City          string    `json:"city" validate:"required"`
+	CountryID     int       `json:"countryId" validate:"required"`
+	Country       Country   `json:"country"`
 	NationalityID int       `json:"nationalityId" validate:"required"`
 	Nationality   Country   `json:"nationality"`
 	Teams         []Team    `gorm:"many2many:participants;" json:"-"`

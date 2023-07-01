@@ -8,8 +8,10 @@
     "gender_id": 3,
     "club_id": "d9c7672f-5368-41b8-beae-e90bcdc5a82e",
     "birth_date": "2000-01-01",
-    "address": "Zelgli",
-    "place_id": 1,
+    "address": "Zelgli 45",
+    "post_code": "1716",
+    "city": "Oberschrot",
+    "country_id": 1,
     "nationality_id": 1
   }
 ]

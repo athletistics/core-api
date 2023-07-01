@@ -31,8 +31,7 @@ func GetMe(c *fiber.Ctx) error {
 
 	me := models.User{ID: userId}
 	err := db.
-		Preload("Nationality").Preload("Club").
-		Joins("Place").Joins("Place.State").Joins("Place.State.Country").
+		Preload("Nationality").Preload("Country").Preload("Club").
 		First(&me).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(http.StatusNotFound).JSON(res.ErrNotFound)

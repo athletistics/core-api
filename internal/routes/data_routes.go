@@ -13,9 +13,7 @@ func SetupDataRoutes(router fiber.Router) {
 	node := router.Group("/data")
 
 	node.Get("/categories", dataHandler.GetCategories)
-	node.Get("/places", dataHandler.GetPlaces)
-	node.Get("/places/states", dataHandler.GetStates)
-	node.Get("/places/countries", dataHandler.GetCountries)
+	node.Get("/countries", dataHandler.GetCountries)
 	node.Get("/languages", dataHandler.GetLanguages)
 	node.Get("/eventTypes", dataHandler.GetEventTypes)
 	node.Get("/sports", dataHandler.GetSports)

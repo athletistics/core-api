@@ -14,8 +14,6 @@ func init() {
 	goseeder.Register(eventTypeSeeder)
 
 	goseeder.Register(countriesSeeder)
-	goseeder.Register(statesSeeder)
-	goseeder.Register(placesSeeder)
 
 	goseeder.Register(sportsSeeder)
 	goseeder.Register(clubsSeeder)
