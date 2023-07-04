@@ -5,6 +5,7 @@
 package clubHandler
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
@@ -31,13 +32,19 @@ const (
 //	@Router		/club/{club_id} [get]
 func GetClub(c *fiber.Ctx) error {
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
-	if err != nil || !helpers.HasAnyRoleOnClub(c, clubId) {
+	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
+		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest)
+	}
+	if !helpers.HasAnyRoleOnClub(c, clubId) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing club %v", clubId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	var club models.Club
 	err = database.DB.Where(&models.Club{ID: clubId}).Preload("Sport").First(&club).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -57,13 +64,19 @@ func GetClub(c *fiber.Ctx) error {
 //	@Router		/club/{club_id}/teams [get]
 func GetTeams(c *fiber.Ctx) error {
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
-	if err != nil || !helpers.HasRoleOnClub(c, clubId, helpers.RoleCoach, helpers.RoleHeadCoach) {
+	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
+		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest)
+	}
+	if !helpers.HasRoleOnClub(c, clubId, helpers.RoleCoach, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing club %v", clubId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	var teams []models.Team
 	err = database.DB.Where(&models.Team{ClubID: clubId}).Find(&teams).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -89,17 +102,20 @@ func CreateTeam(c *fiber.Ctx) error {
 	}
 	body := new(ReqBody)
 	if err := c.BodyParser(body); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
 	if err != nil || !helpers.HasRoleOnClub(c, clubId, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing club %v", clubId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	team := models.Team{ClubID: clubId, Name: body.Name}
 	err = database.DB.Create(&team).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 

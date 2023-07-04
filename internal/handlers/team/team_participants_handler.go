@@ -6,6 +6,7 @@ package teamHandler
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -37,6 +38,7 @@ func GetParticipants(c *fiber.Ctx) error {
 	var participants []models.UserShort
 	err = db.Model(&models.User{}).Joins("inner join participants on participants.user_id = users.id and participants.team_id = ?", team.ID).Find(&participants).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -74,12 +76,14 @@ func AddParticipants(c *fiber.Ctx) error {
 	var users []models.User
 	err = db.Find(&users, userIds).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
 	// check if all users are member of the head coach's club
 	for i := 0; i < len(users); i++ {
 		if users[i].ClubID != team.ClubID {
+			helpers.LogSecurity(fmt.Sprintf("tried modifying team members %v", team.ID), helpers.GetUserId(c))
 			return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 		}
 	}
@@ -93,8 +97,10 @@ func AddParticipants(c *fiber.Ctx) error {
 	// write objects to database
 	err = db.Create(&participants).Error
 	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrParticipantsExist)
 	} else if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -134,6 +140,7 @@ func RemoveParticipants(c *fiber.Ctx) error {
 
 	err = database.DB.Unscoped().Delete(&participants).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -152,12 +159,14 @@ func getUserIdsFromBody(c *fiber.Ctx) ([]string, bool, error) {
 	// parse the body
 	userIds := new([]string)
 	if err = c.BodyParser(userIds); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return nil, false, c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
 	// verify that IDs are numerical (base 10, 64 bit integer)
 	for i := 0; i < len(*userIds); i++ {
 		if _, err := strconv.ParseInt((*userIds)[i], 10, 64); err != nil {
+			helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 			return nil, false, c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 		}
 	}

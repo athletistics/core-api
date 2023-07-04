@@ -6,6 +6,7 @@ package userHandler
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -35,12 +36,14 @@ func GetUsers(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 
 	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing users of club %v", user.ClubID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	var users []models.User
 	err := db.Where(&models.User{ClubID: user.ClubID}).Find(&users).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -62,12 +65,14 @@ func GetEmergencyUsers(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 
 	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing users of club %v", user.ClubID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	var users []models.UserEmergency
 	err := db.Model(&models.User{}).Where(&models.User{ClubID: user.ClubID}).Find(&users).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -89,6 +94,7 @@ func GetEmergencyUsers(c *fiber.Ctx) error {
 //	@Router		/users [post]
 func CreateUser(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnParentClub(c, helpers.RoleHeadCoach) {
+		helpers.LogSecurity("tried creating user (missing role)", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
@@ -97,18 +103,21 @@ func CreateUser(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 
 	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleHeadCoach) {
+		helpers.LogSecurity("tried creating user (missing required role)", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	// extract values from body
 	newUser := new(models.User)
 	if err := c.BodyParser(newUser); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
 	// create the user on zitadel
 	id, err := createUser(newUser)
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -117,6 +126,7 @@ func CreateUser(c *fiber.Ctx) error {
 	newUser.ClubID = user.ClubID
 	err = db.Create(newUser).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -139,12 +149,14 @@ func GetUser(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 
 	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried reading user %v", user.ID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	// read the requested user id, and verify that it is a numeric string
 	userId := c.Params(ParamUserId)
 	if _, err := strconv.ParseInt(userId, 10, 64); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -154,8 +166,10 @@ func GetUser(c *fiber.Ctx) error {
 		Preload("Nationality").Preload("Country").Preload("Club").
 		First(&targetUser).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing user %v", userId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbiddenNotFound)
 	} else if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 

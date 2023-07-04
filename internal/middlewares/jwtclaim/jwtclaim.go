@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"net/http"
 	"strings"
@@ -64,12 +65,14 @@ func New(config ...Config) fiber.Handler {
 		// get the auth header
 		authHeader, ok := c.GetReqHeaders()[AuthHeaderName]
 		if !ok {
+			helpers.LogSecurity("missing auth header", "")
 			return c.Status(http.StatusUnauthorized).JSON(res.ErrMissingAuth)
 		}
 
 		// split header into parts, as the token is prefixed with "Bearer "
 		authHeaderParts := strings.Fields(authHeader)
 		if len(authHeaderParts) != AuthHeaderSplitLength {
+			helpers.LogSecurity("bad auth header", "")
 			return c.Status(http.StatusUnauthorized).JSON(res.ErrBadAuthHeader)
 		}
 
@@ -79,11 +82,13 @@ func New(config ...Config) fiber.Handler {
 		claims := jwt.RegisteredClaims{}
 		_, _, err := jwt.NewParser().ParseUnverified(rawToken, &claims)
 		if err != nil {
+			helpers.LogSecurity("bad auth token", "")
 			return c.Status(http.StatusUnauthorized).JSON(res.ErrBadToken)
 		}
 
 		// make sure the subject exists, and store it in the locals
 		if len(claims.Subject) == 0 {
+			helpers.LogSecurity("missing subject in auth token", "")
 			return c.Status(http.StatusUnauthorized).JSON(res.ErrMissingSubject)
 		}
 		c.Locals(constants.LocalsUserId, claims.Subject)

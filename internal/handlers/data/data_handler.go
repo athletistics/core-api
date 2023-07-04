@@ -12,11 +12,9 @@ import (
 )
 
 const (
-	QuerySportId   = "sport"
-	QueryCountryId = "country"
-	QueryStateId   = "state"
-	QueryFilter    = "filter"
-	Query          = "q"
+	QuerySportId = "sport"
+	QueryFilter  = "filter"
+	Query        = "q"
 )
 
 // GetCategories returns a list of all categories registered for the authenticated user's sport.
@@ -32,11 +30,13 @@ const (
 func GetCategories(c *fiber.Ctx) error {
 	sportId := c.QueryInt(QuerySportId)
 	if sportId == 0 {
+		helpers.LogInfo("bad request: missing parameter 'sportId'", helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest)
 	}
 
 	result, err := SelectCategoriesBySport(sportId)
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -55,6 +55,7 @@ func GetCategories(c *fiber.Ctx) error {
 func GetCountries(c *fiber.Ctx) error {
 	result, err := SelectCountries()
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -73,6 +74,7 @@ func GetCountries(c *fiber.Ctx) error {
 func GetLanguages(c *fiber.Ctx) error {
 	result, err := SelectLanguages()
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -91,11 +93,13 @@ func GetLanguages(c *fiber.Ctx) error {
 //	@Router		/data/accessRoles [get]
 func GetAccessRoles(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnParentClub(c, helpers.RoleHeadCoach) {
+		helpers.LogSecurity("tried accessing access roles", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	result, err := SelectAccessRoles()
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -121,11 +125,13 @@ func GetEventTypes(c *fiber.Ctx) error {
 	filter := c.QueryBool(QueryFilter, true)
 	roles, err := helpers.GetAuthorisations(user.ID, user.ClubID)
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
 	result, err := SelectEventTypes(filter, roles)
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -144,6 +150,7 @@ func GetEventTypes(c *fiber.Ctx) error {
 func GetSports(c *fiber.Ctx) error {
 	result, err := SelectSports()
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -162,6 +169,7 @@ func GetSports(c *fiber.Ctx) error {
 func GetIdTypes(c *fiber.Ctx) error {
 	result, err := SelectIdTypes()
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 

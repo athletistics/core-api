@@ -6,6 +6,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/swagger"
 	http_mw "github.com/zitadel/zitadel-go/v2/pkg/api/middleware/http"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
@@ -44,6 +46,14 @@ import (
 func main() {
 	database.ConnectDb()
 
+	// prepare logger
+	f, err := os.OpenFile("./core-api.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644) //nolint:gomnd
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+
 	goseeder.WithSeeder(database.GetSqlDB, func() {
 		fiberSetup()
 	})
@@ -52,12 +62,12 @@ func main() {
 func fiberSetup() {
 	// write the API Key to a file, allowing Zitadel Interceptor to use it
 	if err := CreateKeyFile(); err != nil {
-		log.Fatal(err)
+		helpers.LogFatal(err)
 	}
 
 	introspection, err := http_mw.NewIntrospectionInterceptor(os.Getenv("ZITADEL_INSTANCE"), middleware.OSKeyPath())
 	if err != nil {
-		log.Fatal(err)
+		helpers.LogFatal(err)
 	}
 
 	// Create connection to the Zitadel Management API
@@ -66,20 +76,20 @@ func fiberSetup() {
 
 	// clean up key file, as it is no longer needed as file
 	if err := DeleteKeyFile(); err != nil {
-		log.Fatal(err)
+		helpers.LogFatal(err)
 	}
 
 	app := fiber.New()
+
+	prepareFiberLogger(app)
+
+	// set up the monitor that is protected through BasicAuth
+	router.SetupMonitor(app)
+
 	app.Use(cors.New())
 
 	// attach swagger doc
-	app.Get(fmt.Sprintf("/api/v%v/docs/*", config.ApiVersion), swagger.HandlerDefault)
-	app.Get(fmt.Sprintf("/api/v%v/docs/*", config.ApiVersion), swagger.New(swagger.Config{ // custom
-		URL:         "https://athletistics.com/doc.json",
-		DeepLinking: false,
-		// Expand ("list") or Collapse ("none") tag groups by default
-		DocExpansion: "none",
-	}))
+	mountDocs(app)
 
 	// check auth token on each call
 	app.Use(adaptor.HTTPMiddleware(introspection.Handler))
@@ -97,8 +107,33 @@ func fiberSetup() {
 
 	err = app.Listen(":3000")
 	if err != nil {
-		log.Fatal(err)
+		helpers.LogFatal(err)
 	}
+}
+
+// mountDocs listens for calls on the documentation route and serves the documentation
+func mountDocs(app *fiber.App) {
+	// attach swagger doc
+	app.Get(fmt.Sprintf("/api/v%v/docs/*", config.ApiVersion), swagger.HandlerDefault)
+	app.Get(fmt.Sprintf("/api/v%v/docs/*", config.ApiVersion), swagger.New(swagger.Config{ // custom
+		URL:         "https://athletistics.com/doc.json",
+		DeepLinking: false,
+		// Expand ("list") or Collapse ("none") tag groups by default
+		DocExpansion: "none",
+	}))
+}
+
+// prepareFiberLogger configures Fiber to keep a log of all requests that are processed.
+// the log includes the endpoint as well as the response code and the request duration
+func prepareFiberLogger(app *fiber.App) {
+	// prepare the logger, and add a requestid to each request
+	file, err := os.OpenFile("./request.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644) //nolint:gomnd
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer file.Close()
+	app.Use(requestid.New())
+	app.Use(logger.New(logger.Config{Output: file}))
 }
 
 func CreateKeyFile() error {

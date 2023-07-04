@@ -5,6 +5,7 @@
 package resultHandler
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -28,11 +29,13 @@ const QuerySportId = "sport"
 //	@Router		/results [get]
 func GetResults(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnParentClub(c, helpers.RoleCoach) {
+		helpers.LogSecurity("tried accessing results", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	q := new(ResultQuery)
 	if err := c.QueryParser(q); err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -54,11 +57,13 @@ func GetResults(c *fiber.Ctx) error {
 //	@Router		/results [post]
 func CreateResult(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnParentClub(c, helpers.RoleCoach) {
+		helpers.LogSecurity("tried creating result", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	body := new(models.ResultInput)
 	if err := c.BodyParser(body); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -78,11 +83,13 @@ func CreateResult(c *fiber.Ctx) error {
 //	@Router		/results/best [get]
 func GetBestResults(c *fiber.Ctx) error {
 	if !helpers.HasRoleOnParentClub(c, helpers.RoleCoach) {
+		helpers.LogSecurity("tried accessing results", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	q := new(ResultQuery)
 	if err := c.QueryParser(q); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -108,13 +115,16 @@ func GetStaticResults(c *fiber.Ctx) error {
 
 	sportId := c.QueryInt(QuerySportId)
 	if sportId == 0 {
+		helpers.LogInfo("bad request: missing parameter 'sportId'", helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest)
 	}
 
 	if err := db.Find(&results).Error; err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 	if err := db.Find(&types).Error; err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 

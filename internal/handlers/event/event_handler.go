@@ -6,6 +6,7 @@ package eventHandler
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -27,6 +28,7 @@ import (
 //	@Router		/events [get]
 func GetEvents(c *fiber.Ctx) error {
 	if !helpers.HasAnyRoleOnParentClub(c) {
+		helpers.LogSecurity("tried accessing events", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
@@ -38,6 +40,7 @@ func GetEvents(c *fiber.Ctx) error {
 		Or(&models.Event{ClubID: &user.ClubID}).Find(&events).Error
 
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -65,6 +68,7 @@ func CreateEvent(c *fiber.Ctx) error {
 	// read input body
 	reqBody := new(models.EventInput)
 	if err := c.BodyParser(reqBody); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -74,6 +78,7 @@ func CreateEvent(c *fiber.Ctx) error {
 	if err := db.First(&club).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(http.StatusNotFound).JSON(res.ErrNotFound)
 	} else if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -87,6 +92,7 @@ func CreateEvent(c *fiber.Ctx) error {
 		IsHomologated: reqBody.IsHomologated,
 	}
 	if err := db.Create(&event).Error; err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 

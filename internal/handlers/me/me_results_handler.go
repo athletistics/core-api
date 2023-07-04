@@ -5,6 +5,7 @@
 package meHandler
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
@@ -29,6 +30,7 @@ func GetResults(c *fiber.Ctx) error {
 	userId := helpers.GetUserId(c)
 	q := new(resultHandler.ResultQuery)
 	if err := c.QueryParser(q); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -52,6 +54,7 @@ func GetResults(c *fiber.Ctx) error {
 func CreateResult(c *fiber.Ctx) error {
 	body := new(models.ResultInput)
 	if err := c.BodyParser(body); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -61,6 +64,7 @@ func CreateResult(c *fiber.Ctx) error {
 	// make sure the event has type 4 (training)
 	event := models.Event{ID: body.EventID}
 	if err := database.DB.Where(&models.Event{EventTypeID: constants.TrainingEventTypeId}).First(&event).Error; err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 
@@ -81,6 +85,7 @@ func GetBestResults(c *fiber.Ctx) error {
 	userId := helpers.GetUserId(c)
 	q := new(resultHandler.ResultQuery)
 	if err := c.QueryParser(q); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 

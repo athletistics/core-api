@@ -5,6 +5,7 @@
 package teamHandler
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
@@ -41,16 +42,19 @@ func GetTeam(c *fiber.Ctx) error {
 func canAccessTeam(c *fiber.Ctx, roles []helpers.Role) (bool, *models.Team, error) {
 	teamId, err := uuid.Parse(c.Params(ParamTeamId))
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return false, nil, c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
 	var team models.Team
 	err = database.DB.Where(&models.Team{ID: teamId}).First(&team).Error
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return false, nil, c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
 	if !helpers.HasRoleOnClub(c, team.ClubID, roles...) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing team %v", teamId), helpers.GetUserId(c))
 		return false, nil, c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 

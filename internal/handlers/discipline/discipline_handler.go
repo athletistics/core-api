@@ -6,6 +6,7 @@ package disciplineHandler
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -27,6 +28,7 @@ import (
 //	@Router		/disciplines [get]
 func GetDisciplines(c *fiber.Ctx) error {
 	if !helpers.HasAnyRoleOnParentClub(c) {
+		helpers.LogSecurity("tried accessing disciplines", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
@@ -38,6 +40,7 @@ func GetDisciplines(c *fiber.Ctx) error {
 		Or(&models.Discipline{ClubID: &user.ClubID}).Find(&disciplines).Error
 
 	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -70,6 +73,7 @@ func CreateDisciplines(c *fiber.Ctx) error {
 	// read input body
 	reqBody := new(models.DisciplineInput)
 	if err := c.BodyParser(reqBody); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
@@ -79,6 +83,7 @@ func CreateDisciplines(c *fiber.Ctx) error {
 	if err := db.First(&club).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.Status(http.StatusNotFound).JSON(res.ErrNotFound)
 	} else if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -90,6 +95,7 @@ func CreateDisciplines(c *fiber.Ctx) error {
 		IsDescending: reqBody.IsDescending,
 	}
 	if err := db.Create(&discipline).Error; err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 

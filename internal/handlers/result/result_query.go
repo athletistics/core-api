@@ -5,6 +5,7 @@
 package resultHandler
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
@@ -80,6 +81,7 @@ func RunQuery(c *fiber.Ctx, q *ResultQuery) error {
 
 	var results []models.ResultString
 	if err := FindResults(q, &results, &user); err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
@@ -95,28 +97,33 @@ func RunCreateQuery(c *fiber.Ctx, body *models.ResultInput) error {
 
 	// make sure given UserID is numeric
 	if _, err := strconv.ParseInt(body.UserId, 10, 64); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
 	// make sure user, event, and discipline can be used
 	u := models.User{ID: body.UserId}
 	if err := db.Where(&models.User{ClubID: user.ClubID}).First(&u).Error; err != nil {
+		helpers.LogSecurity(fmt.Sprintf("tried using user id %v", body.UserId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 
 	d := models.Discipline{ID: body.DisciplineID}
 	if err := db.Where("club_id IS NULL OR club_id = ?", u.ClubID).First(&d).Error; err != nil {
+		helpers.LogSecurity(fmt.Sprintf("tried using discipline %v", body.DisciplineID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 
 	e := models.Event{ID: body.EventID}
 	if err := db.Where("club_id IS NULL OR club_id = ?", u.ClubID).First(&e).Error; err != nil {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing using event %v", body.EventID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 
 	// create the result
 	result := models.ResultFromInput(body)
 	if err := db.Create(&result).Error; err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 

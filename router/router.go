@@ -7,9 +7,12 @@ package router
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/basicauth"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/totprequire"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/routes"
+	"os"
 )
 
 func SetupRoutes(app *fiber.App) {
@@ -33,4 +36,15 @@ func SetupRoutes(app *fiber.App) {
 	routes.SetupClubRoutes(api)
 	routes.SetupTeamsRoutes(api)
 	routes.SetupNdsRoutes(api)
+}
+
+func SetupMonitor(app *fiber.App) {
+	api := app.Group(fmt.Sprintf("/api/v%v/metrics", config.ApiVersion))
+
+	api.Use(basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			os.Getenv("METRICS_USR"): os.Getenv("METRICS_PWD"),
+		},
+	}))
+	api.Get("/", monitor.New())
 }
