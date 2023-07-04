@@ -14,3 +14,8 @@ const (
 	UserSuffixLength     = 4
 	TrainingEventTypeId  = 4
 )
+
+const (
+	EnvDev  = "dev"
+	EnvProd = "prod"
+)

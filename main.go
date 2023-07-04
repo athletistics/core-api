@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/swagger"
 	http_mw "github.com/zitadel/zitadel-go/v2/pkg/api/middleware/http"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/jwtclaim"
@@ -81,12 +82,13 @@ func fiberSetup() {
 
 	app := fiber.New()
 
-	prepareFiberLogger(app)
+	file := useFiberLogger(app)
+	defer file.Close()
 
 	// set up the monitor that is protected through BasicAuth
 	router.SetupMonitor(app)
 
-	app.Use(cors.New())
+	useCors(app)
 
 	// attach swagger doc
 	mountDocs(app)
@@ -123,17 +125,34 @@ func mountDocs(app *fiber.App) {
 	}))
 }
 
-// prepareFiberLogger configures Fiber to keep a log of all requests that are processed.
+// useFiberLogger configures Fiber to keep a log of all requests that are processed.
 // the log includes the endpoint as well as the response code and the request duration
-func prepareFiberLogger(app *fiber.App) {
+func useFiberLogger(app *fiber.App) *os.File {
 	// prepare the logger, and add a requestid to each request
 	file, err := os.OpenFile("./request.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644) //nolint:gomnd
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	defer file.Close()
 	app.Use(requestid.New())
 	app.Use(logger.New(logger.Config{Output: file}))
+
+	return file
+}
+
+func useCors(app *fiber.App) {
+	switch os.Getenv("ENV") {
+	case constants.EnvDev:
+		// serve requests from anywhere in dev environments
+		app.Use(cors.New())
+	default:
+		// default to secure configuration
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     "https://athletistics.kube.isc.heia-fr.ch",
+			AllowHeaders:     "",
+			AllowCredentials: false,
+			ExposeHeaders:    "",
+		}))
+	}
 }
 
 func CreateKeyFile() error {
