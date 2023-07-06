@@ -5,7 +5,6 @@
 package helpers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
@@ -32,12 +31,12 @@ func (r Role) String() string {
 }
 
 // HasRoleOnClub checks if the requesting user has at least one of the specified roles on the specified club.
-func HasRoleOnClub(c *fiber.Ctx, clubId uuid.UUID, roles ...Role) bool {
-	if len(roles) == 0 {
+func HasRoleOnClub(user *models.User, clubId uuid.UUID, roles ...Role) bool {
+	if len(roles) == 0 || user == nil {
 		return false
 	}
 
-	authorisations, err := GetAuthorisations(GetUserId(c), clubId)
+	authorisations, err := GetAuthorisations(user.ID, clubId)
 	if err != nil {
 		return false
 	}
@@ -53,19 +52,23 @@ func HasRoleOnClub(c *fiber.Ctx, clubId uuid.UUID, roles ...Role) bool {
 	return false
 }
 
-func HasRoleOnParentClub(c *fiber.Ctx, roles ...Role) bool {
-	return HasRoleOnClub(c, GetUser(c).ClubID, roles...)
+func HasRoleOnParentClub(user *models.User, roles ...Role) bool {
+	return HasRoleOnClub(user, user.ClubID, roles...)
 }
 
 // HasAnyRoleOnParentClub returns true if the user has any role on his parent club.
 // Short for HasAnyRoleOnClub(c, helperse.GetUser(c).ClubID)
-func HasAnyRoleOnParentClub(c *fiber.Ctx) bool {
-	return HasAnyRoleOnClub(c, GetUser(c).ClubID)
+func HasAnyRoleOnParentClub(user *models.User) bool {
+	return HasAnyRoleOnClub(user, user.ClubID)
 }
 
 // HasAnyRoleOnClub checks if the requesting user has any role on the specificed club.
-func HasAnyRoleOnClub(c *fiber.Ctx, clubId uuid.UUID) bool {
-	authorisations, err := GetAuthorisations(GetUserId(c), clubId)
+func HasAnyRoleOnClub(user *models.User, clubId uuid.UUID) bool {
+	if user == nil {
+		return false
+	}
+
+	authorisations, err := GetAuthorisations(user.ID, clubId)
 	if err != nil {
 		return false
 	}
@@ -73,12 +76,42 @@ func HasAnyRoleOnClub(c *fiber.Ctx, clubId uuid.UUID) bool {
 	return len(authorisations) > 0
 }
 
-// IsAthlete checks if the requesting user has the role "athlete" on any club.
-func IsAthlete(c *fiber.Ctx) bool {
+// HasRoleOnTeam is similar to HasRoleOnClub, but checks the roles for the club of a specific team.
+func HasRoleOnTeam(user *models.User, teamId uuid.UUID, roles ...Role) bool {
 	db := database.DB
 
+	team := models.Team{ID: teamId}
+	if err := db.First(&team).Error; err != nil {
+		return false
+	}
+	return HasRoleOnClub(user, team.ClubID, roles...)
+}
+
+// HasRoleOnActivity is similar to HasRoleOnClub, but checks the roles for the club of a specific team.
+func HasRoleOnActivity(user *models.User, activityId uuid.UUID, roles ...Role) bool {
+	db := database.DB
+
+	team := models.Team{}
+	err := db.
+		Joins("inner join nds_activities a ON a.team_id = teams.id AND a.id = ?", activityId).
+		First(&team).Error
+
+	if err != nil {
+		return false
+	}
+	return HasRoleOnClub(user, team.ClubID, roles...)
+}
+
+// IsAthlete checks if the requesting user has the role "athlete" on any club.
+func IsAthlete(user *models.User) bool {
+	db := database.DB
+
+	if user == nil {
+		return false
+	}
+
 	var authorisations []models.Authorisation
-	err := db.Where(&models.Authorisation{UserID: GetUserId(c)}).Where(&models.AccessRole{I18nName: RoleAthlete.String()}).Find(&authorisations).Error
+	err := db.Where(&models.Authorisation{UserID: user.ID}).Where(&models.AccessRole{I18nName: RoleAthlete.String()}).Find(&authorisations).Error
 	if err != nil {
 		return false
 	}

@@ -27,13 +27,13 @@ import (
 //	@Security	ApiKeyAuth
 //	@Router		/disciplines [get]
 func GetDisciplines(c *fiber.Ctx) error {
-	if !helpers.HasAnyRoleOnParentClub(c) {
+	user := helpers.GetUser(c)
+	if !helpers.HasAnyRoleOnParentClub(&user) {
 		helpers.LogSecurity("tried accessing disciplines", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	db := database.DB
-	user := helpers.GetUser(c)
 	var disciplines []models.DisciplineShort
 	err := db.Model(&models.Discipline{}).
 		Where("club_id IS NULL and sport_id = (?)", db.Table("clubs").Select("sport_id").Where("id = ?", user.ClubID)).
@@ -66,7 +66,8 @@ func GetDisciplines(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/disciplines [post]
 func CreateDisciplines(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnClub(c, helpers.GetUser(c).ClubID, helpers.RoleCoach) {
+	user := helpers.GetUser(c)
+	if !helpers.HasRoleOnParentClub(&user, helpers.RoleCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 

@@ -31,12 +31,13 @@ const (
 //	@Security	ApiKeyAuth
 //	@Router		/club/{club_id} [get]
 func GetClub(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest)
 	}
-	if !helpers.HasAnyRoleOnClub(c, clubId) {
+	if !helpers.HasAnyRoleOnClub(&user, clubId) {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing club %v", clubId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -63,12 +64,13 @@ func GetClub(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/club/{club_id}/teams [get]
 func GetTeams(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest)
 	}
-	if !helpers.HasRoleOnClub(c, clubId, helpers.RoleCoach, helpers.RoleHeadCoach) {
+	if !helpers.HasRoleOnClub(&user, clubId, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing club %v", clubId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -97,6 +99,7 @@ func GetTeams(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/club/{club_id}/teams [post]
 func CreateTeam(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
 	type ReqBody struct {
 		Name string `json:"name" validate:"required" format:"uuid"`
 	}
@@ -107,7 +110,7 @@ func CreateTeam(c *fiber.Ctx) error {
 	}
 
 	clubId, err := uuid.Parse(c.Params(ParamClubUuid))
-	if err != nil || !helpers.HasRoleOnClub(c, clubId, helpers.RoleHeadCoach) {
+	if err != nil || !helpers.HasRoleOnClub(&user, clubId, helpers.RoleHeadCoach) {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing club %v", clubId), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}

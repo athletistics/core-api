@@ -92,7 +92,8 @@ func GetLanguages(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/data/accessRoles [get]
 func GetAccessRoles(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnParentClub(c, helpers.RoleHeadCoach) {
+	user := helpers.GetUser(c)
+	if !helpers.HasRoleOnParentClub(&user, helpers.RoleHeadCoach) {
 		helpers.LogSecurity("tried accessing access roles", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}

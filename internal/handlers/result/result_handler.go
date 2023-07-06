@@ -28,7 +28,8 @@ const QuerySportId = "sport"
 //	@Security	ApiKeyAuth
 //	@Router		/results [get]
 func GetResults(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnParentClub(c, helpers.RoleCoach) {
+	user := helpers.GetUser(c)
+	if !helpers.HasRoleOnParentClub(&user, helpers.RoleCoach) {
 		helpers.LogSecurity("tried accessing results", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -56,7 +57,8 @@ func GetResults(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/results [post]
 func CreateResult(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnParentClub(c, helpers.RoleCoach) {
+	user := helpers.GetUser(c)
+	if !helpers.HasRoleOnParentClub(&user, helpers.RoleCoach) {
 		helpers.LogSecurity("tried creating result", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -82,7 +84,8 @@ func CreateResult(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/results/best [get]
 func GetBestResults(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnParentClub(c, helpers.RoleCoach) {
+	user := helpers.GetUser(c)
+	if !helpers.HasRoleOnParentClub(&user, helpers.RoleCoach) {
 		helpers.LogSecurity("tried accessing results", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}

@@ -40,6 +40,7 @@ func GetTeam(c *fiber.Ctx) error {
 }
 
 func canAccessTeam(c *fiber.Ctx, roles []helpers.Role) (bool, *models.Team, error) {
+	user := helpers.GetUser(c)
 	teamId, err := uuid.Parse(c.Params(ParamTeamId))
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
@@ -53,7 +54,7 @@ func canAccessTeam(c *fiber.Ctx, roles []helpers.Role) (bool, *models.Team, erro
 		return false, nil, c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
-	if !helpers.HasRoleOnClub(c, team.ClubID, roles...) {
+	if !helpers.HasRoleOnClub(&user, team.ClubID, roles...) {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing team %v", teamId), helpers.GetUserId(c))
 		return false, nil, c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}

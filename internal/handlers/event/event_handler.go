@@ -27,13 +27,13 @@ import (
 //	@Security	ApiKeyAuth
 //	@Router		/events [get]
 func GetEvents(c *fiber.Ctx) error {
-	if !helpers.HasAnyRoleOnParentClub(c) {
+	user := helpers.GetUser(c)
+	if !helpers.HasAnyRoleOnParentClub(&user) {
 		helpers.LogSecurity("tried accessing events", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	db := database.DB
-	user := helpers.GetUser(c)
 	var events []models.EventShort
 	err := db.Model(&models.Event{}).
 		Where("club_id IS NULL").
@@ -61,7 +61,8 @@ func GetEvents(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/events [post]
 func CreateEvent(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnClub(c, helpers.GetUser(c).ClubID, helpers.RoleCoach) {
+	user := helpers.GetUser(c)
+	if !helpers.HasRoleOnParentClub(&user, helpers.RoleCoach) {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 

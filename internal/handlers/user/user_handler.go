@@ -35,7 +35,7 @@ func GetUsers(c *fiber.Ctx) error {
 	db := database.DB
 	user := helpers.GetUser(c)
 
-	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+	if !helpers.HasRoleOnClub(&user, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing users of club %v", user.ClubID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -64,7 +64,7 @@ func GetEmergencyUsers(c *fiber.Ctx) error {
 	db := database.DB
 	user := helpers.GetUser(c)
 
-	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+	if !helpers.HasRoleOnClub(&user, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing users of club %v", user.ClubID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -93,16 +93,16 @@ func GetEmergencyUsers(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/users [post]
 func CreateUser(c *fiber.Ctx) error {
-	if !helpers.HasRoleOnParentClub(c, helpers.RoleHeadCoach) {
+	user := helpers.GetUser(c)
+	if !helpers.HasRoleOnParentClub(&user, helpers.RoleHeadCoach) {
 		helpers.LogSecurity("tried creating user (missing role)", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	// check that requesting user is head coach
 	db := database.DB
-	user := helpers.GetUser(c)
 
-	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleHeadCoach) {
+	if !helpers.HasRoleOnClub(&user, user.ClubID, helpers.RoleHeadCoach) {
 		helpers.LogSecurity("tried creating user (missing required role)", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -148,7 +148,7 @@ func GetUser(c *fiber.Ctx) error {
 	db := database.DB
 	user := helpers.GetUser(c)
 
-	if !helpers.HasRoleOnClub(c, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
+	if !helpers.HasRoleOnClub(&user, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		helpers.LogSecurity(fmt.Sprintf("tried reading user %v", user.ID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
