@@ -5,7 +5,12 @@
 //nolint:gomnd
 package res
 
-import "net/http"
+import (
+	"errors"
+	"fmt"
+	"gorm.io/gorm"
+	"net/http"
+)
 
 // All errors thrown
 // General errors
@@ -51,8 +56,24 @@ func NewError(errorCode int, errorSubCode int, message string, hiddenMessage str
 	}
 }
 
+func NewErrorFromDb(err error) *Error {
+	if err == nil {
+		return nil
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrNotFound.Err(err)
+	} else {
+		return ErrDB.Err(err)
+	}
+}
+
 // Err attaches an internal error message to the error
 func (e *Error) Err(internalError error) *Error {
 	e.InternalMsg = internalError.Error()
 	return e
+}
+
+func (e *Error) String() string {
+	return fmt.Sprintf("%v-%v: %v, Hidden Message: %v, Internal Message: %v", e.Error, e.ErrorSubCode, e.Message, e.HiddenMessage, e.InternalMsg)
 }
