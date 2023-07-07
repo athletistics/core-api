@@ -32,5 +32,5 @@ type NdsActivityInput struct {
 	Duration  uint         `json:"duration" validate:"required"`
 	Weekday   time.Weekday `json:"weekday" validate:"required" swaggertype:"integer"`
 	Place     string       `json:"place" validate:"required"`
-	TeamID    uuid.UUID    `json:"-" gorm:"type:uuid" validate:"required"`
+	TeamID    uuid.UUID    `json:"teamId" gorm:"type:uuid" validate:"required"`
 }

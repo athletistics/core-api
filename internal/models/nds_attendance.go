@@ -12,18 +12,18 @@ import (
 )
 
 type NdsAttendance struct {
-	UserID                string `gorm:"primaryKey"`
-	NdsActivityInstance   NdsActivityInstance
-	NdsActivityInstanceID uuid.UUID `gorm:"type:uuid;primaryKey"`
-	IsCoach               bool
+	UserID                string              `json:"userId" gorm:"primaryKey"`
+	NdsActivityInstance   NdsActivityInstance `json:"-"`
+	NdsActivityInstanceID uuid.UUID           `json:"ndsActivityInstanceId" gorm:"type:uuid;primaryKey"`
+	IsCoach               bool                `json:"isCoach"`
 
 	CreatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-"`
 }
 
 type NdsAttendanceInput struct {
-	UserID  string `gorm:"primaryKey"`
-	IsCoach bool
+	UserID  string `json:"userId" gorm:"primaryKey"`
+	IsCoach bool   `json:"isCoach"`
 }
 
 // CSV utilities
