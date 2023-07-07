@@ -102,6 +102,40 @@ func HasRoleOnActivity(user *models.User, activityId uuid.UUID, roles ...Role) b
 	return HasRoleOnClub(user, team.ClubID, roles...)
 }
 
+// HasRoleOnOneOfTheClubs checks for overlapping in the source and target user club authorisations. The function
+// returns true if either the source user has one of the required roles on the target user's parent club, or one of
+// the target user's authorised clubs (any access role).
+func HasRoleOnOneOfTheClubs(user *models.User, targetUser *models.User, roles ...Role) bool {
+	db := database.DB
+
+	var authorisations []models.Authorisation
+	if err := db.Where(&models.Authorisation{UserID: user.ID}).Preload("AccessRole").Find(&authorisations).Error; err != nil {
+		return false
+	}
+
+	var targetAuthorisations []models.Authorisation
+	if err := db.Where(&models.Authorisation{UserID: targetUser.ID}).Preload("AccessRole").Find(&targetAuthorisations).Error; err != nil {
+		return false
+	}
+
+	userClubIds := getDistinctClubs(authorisations, roles...)
+	targetUserClubIds := getDistinctClubs(targetAuthorisations)
+
+	for _, id := range userClubIds {
+		if id == targetUser.ClubID {
+			return true
+		}
+
+		for _, targetId := range targetUserClubIds {
+			if targetId == id {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // IsAthlete checks if the requesting user has the role "athlete" on any club.
 func IsAthlete(user *models.User) bool {
 	db := database.DB
@@ -126,4 +160,31 @@ func GetAuthorisations(userId string, clubId uuid.UUID) ([]models.Authorisation,
 	var authorisations []models.Authorisation
 	err := db.Where(&models.Authorisation{UserID: userId, ClubID: clubId}).Preload("AccessRole").Find(&authorisations).Error
 	return authorisations, err
+}
+
+// getDistinctClubs reads a list of authorisations and returns all clubs where at least one of the given roles
+// are available. If no role is given, all clubs will be returned instead.
+func getDistinctClubs(authorisations []models.Authorisation, roles ...Role) []uuid.UUID {
+	clubs := make(map[uuid.UUID]struct{})
+
+	if len(roles) == 0 {
+		for _, auth := range authorisations {
+			clubs[auth.ClubID] = struct{}{}
+		}
+	} else {
+		for _, auth := range authorisations {
+			for _, role := range roles {
+				if auth.AccessRole.I18nName == role.String() {
+					clubs[auth.ClubID] = struct{}{}
+				}
+			}
+		}
+	}
+
+	var ids []uuid.UUID
+	for k := range clubs {
+		ids = append(ids, k)
+	}
+
+	return ids
 }

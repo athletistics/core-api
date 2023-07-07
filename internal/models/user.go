@@ -5,7 +5,9 @@
 package models
 
 import (
+	"fmt"
 	"github.com/google/uuid"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/database/types"
 	"gorm.io/gorm"
 	"time"
 )
@@ -59,4 +61,20 @@ type UserResponse struct {
 	AuthRoles []UserRole `json:"authRoles"`
 	Is2FaOk   bool       `json:"is2FaOk"`
 	Has2Fa    bool       `json:"has2Fa"`
+}
+
+// CSV utilities
+
+const NdsUserCsvHeader = "PERSONENNUMMER;NAME;VORNAME;GEBURTSDATUM;GESCHLECHT;AHV_NR;PEID;NATIONALITAET;MUTTERSPRACHE;STRASSE;HAUSNUMMER;PLZ;ORT;LAND"
+
+func (u *User) AsCsv(ndsUserIds map[string]string) string {
+	id, ok := ndsUserIds[u.ID]
+	if !ok {
+		id = ""
+	}
+
+	return fmt.Sprintf("%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,",
+		id, u.LastName, u.FirstName, u.BirthDate.Format(types.NdsDateFormat),
+		u.Gender.I18nName, u.Oasi, "", u.Nationality.Code, u.Language.Short,
+		u.Address, "", u.PostCode, u.City, u.Country.Code)
 }

@@ -41,7 +41,7 @@ func selectActivities(user *models.User, teamId string) ([]models.NdsActivity, *
 	}
 
 	var activities []models.NdsActivity
-	err = db.Where(&models.NdsActivity{TeamID: teamUuid}).Preload("Team").Find(activities).Error
+	err = db.Where(&models.NdsActivity{TeamID: teamUuid}).Preload("Team").Find(&activities).Error
 
 	return activities, res.NewErrorFromDb(err)
 
@@ -81,6 +81,9 @@ func createActivity(user *models.User, body *models.NdsActivityInput, parseErr e
 	if parseErr != nil {
 		return nil, res.ErrBadRequest.Err(parseErr)
 	}
+	if body.StartDate.T().After(body.EndDate.T()) {
+		return nil, res.ErrBadRequest
+	}
 
 	// Search for target team. If target team does not exist, or the user has not enough permissions on said team,
 	// mark response as forbidden
@@ -99,7 +102,7 @@ func createActivity(user *models.User, body *models.NdsActivityInput, parseErr e
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := db.Create(&dbEntry).Error; err != nil {
+		if err := tx.Create(&dbEntry).Error; err != nil {
 			return err
 		}
 

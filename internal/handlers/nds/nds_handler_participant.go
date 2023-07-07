@@ -28,10 +28,10 @@ func selectAttendances(user *models.User, activityId string, instanceId string) 
 	return attendances, res.NewErrorFromDb(err)
 }
 
-// setParticipants updates the list of users attending an activity instance. In a transaction, all attendees are first
+// setAttendances updates the list of users attending an activity instance. In a transaction, all attendees are first
 // removed, and the new list is then added. All users to be added must have at least one role on the club owning the
 // activity instance.
-func setParticipants(user *models.User, activityId string, instanceId string, body *[]models.NdsAttendanceInput, parseError error) *res.Error {
+func setAttendances(user *models.User, activityId string, instanceId string, body *[]models.NdsAttendanceInput, parseError error) *res.Error {
 	db := database.DB
 
 	// verify parameters and access permission
@@ -61,7 +61,7 @@ func setParticipants(user *models.User, activityId string, instanceId string, bo
 		// count the number of users that have authorisations on the owner club of the activity instance
 		var nbRecords int64
 		query := models.Authorisation{ClubID: team.ClubID}
-		db.Table("authorisations").Distinct("user_id").Where(&query).Where("user_id IN (?)", userIds).Count(&nbRecords)
+		db.Model(&models.Authorisation{}).Distinct("user_id").Where(&query).Where("user_id IN (?)", userIds).Count(&nbRecords)
 
 		// if the counted number is equal to the number of users to add, all users are related to the club,
 		// and thus they all can be added as attendees.
@@ -70,24 +70,20 @@ func setParticipants(user *models.User, activityId string, instanceId string, bo
 		}
 
 		// delete old entries
-		if err := tx.Where(&models.NdsAttendance{NdsActivityInstanceID: *instanceUuid}).Delete(&models.NdsAttendance{}).Error; err != nil {
+		if err := tx.Where(&models.NdsAttendance{NdsActivityInstanceID: *instanceUuid}).Unscoped().Delete(&models.NdsAttendance{}).Error; err != nil {
 			return err
 		}
 
 		// prepare entries to be added
 		attendances := make([]models.NdsAttendance, len(*body))
 		for i := 0; i < len(attendances); i++ {
-			attendances[i] = models.NdsAttendance{
-				UserID:                (*body)[i].UserID,
-				NdsActivityInstanceID: *instanceUuid,
-				IsCoach:               (*body)[i].IsCoach,
-			}
+			attendances[i] = models.NdsAttendance{UserID: (*body)[i].UserID, NdsActivityInstanceID: *instanceUuid, IsCoach: (*body)[i].IsCoach}
 		}
 
 		// create entries, and verify that all went well
 		if dbRes := tx.Create(&attendances); dbRes.Error != nil {
 			return dbRes.Error
-		} else if db.RowsAffected != int64(len(attendances)) {
+		} else if dbRes.RowsAffected != int64(len(attendances)) {
 			return gorm.ErrInvalidTransaction
 		}
 

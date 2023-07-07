@@ -356,61 +356,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/data/places": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Data"
-                ],
-                "summary": "Searches for places.",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Country ID",
-                        "name": "country",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "State ID",
-                        "name": "state",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search query, postal code or name of the place",
-                        "name": "q",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.PlaceOut"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/res.Error"
-                        }
-                    }
-                }
-            }
-        },
         "/data/places/countries": {
             "get": {
                 "security": [
@@ -432,48 +377,6 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/models.Country"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/res.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/data/places/states": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Data"
-                ],
-                "summary": "Get all states of a country.",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Country ID",
-                        "name": "country",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.State"
                             }
                         }
                     },
@@ -883,6 +786,639 @@ const docTemplate = `{
                         "description": "Not enough permissions",
                         "schema": {
                             "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Activity"
+                ],
+                "summary": "Create a new activity and instantiate the activity once a week on the defined weekday between start and end date.",
+                "parameters": [
+                    {
+                        "description": "Activity data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.NdsActivityInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.UuidCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities/{activityId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Activity"
+                ],
+                "summary": "Read a specific activity.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NdsActivity"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities/{activityId}/export/attendances": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "NDS Export"
+                ],
+                "summary": "Export the attendances in CSV format ready for import into the NDS database.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities/{activityId}/export/instances": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "NDS Export"
+                ],
+                "summary": "Export the instances in CSV format ready for import into the NDS database.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities/{activityId}/export/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "NDS Export"
+                ],
+                "summary": "Export the users in CSV format ready for import into the NDS database.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID  (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities/{activityId}/instances": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Instance"
+                ],
+                "summary": "Lists all instances of a specific activity.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NdsActivityInstance"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Instance"
+                ],
+                "summary": "Create a new instance for a specific activity.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Instance data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.NdsActivityInstanceInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.IdCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities/{activityId}/instances/{instanceId}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Instance"
+                ],
+                "summary": "Read details of a specific instance.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instance ID (UUID format)",
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NdsActivityInstance"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Instance"
+                ],
+                "summary": "Delete an instance along with attendances for this instance.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instance ID (UUID format)",
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/activities/{activityId}/instances/{instanceId}/attendances": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Instance"
+                ],
+                "summary": "List all attendees for a specific activity instance.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instance ID (UUID format)",
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NdsAttendance"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Instance"
+                ],
+                "summary": "Update the list of attendees by first deleting the existing list, and then adding the given list.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Activity ID (UUID format)",
+                        "name": "activityId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Instance ID (UUID format)",
+                        "name": "instanceId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "List of attendees",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NdsAttendanceInput"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/nds/types": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Activity"
+                ],
+                "summary": "List all available NDS activity types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NdsActivityType"
+                            }
                         }
                     }
                 }
@@ -1686,40 +2222,153 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Place": {
+        "models.NdsActivity": {
             "type": "object",
             "properties": {
-                "id": {
+                "duration": {
                     "type": "integer"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
                 },
                 "place": {
                     "type": "string"
                 },
-                "postCode": {
+                "startDate": {
                     "type": "string"
                 },
-                "state": {
-                    "$ref": "#/definitions/models.State"
+                "startTime": {
+                    "type": "string"
+                },
+                "team": {
+                    "$ref": "#/definitions/models.Team"
+                },
+                "weekday": {
+                    "type": "integer"
                 }
             }
         },
-        "models.PlaceOut": {
+        "models.NdsActivityInput": {
+            "type": "object",
+            "required": [
+                "duration",
+                "endDate",
+                "place",
+                "startDate",
+                "startTime",
+                "weekday"
+            ],
+            "properties": {
+                "duration": {
+                    "type": "integer"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "place": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "weekday": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.NdsActivityInstance": {
             "type": "object",
             "properties": {
-                "countryId": {
+                "date": {
+                    "type": "string"
+                },
+                "duration": {
                     "type": "integer"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "ndsActivityType": {
+                    "$ref": "#/definitions/models.NdsActivityType"
+                },
+                "place": {
+                    "type": "string"
+                },
+                "startTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.NdsActivityInstanceInput": {
+            "type": "object",
+            "required": [
+                "date",
+                "ndsActivityId",
+                "ndsActivityTypeId"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "integer"
+                },
+                "ndsActivityId": {
+                    "type": "string"
+                },
+                "ndsActivityTypeId": {
                     "type": "integer"
                 },
                 "place": {
                     "type": "string"
                 },
-                "postCode": {
+                "startTime": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.NdsActivityType": {
+            "type": "object",
+            "properties": {
+                "i18nName": {
                     "type": "string"
                 },
-                "stateId": {
+                "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.NdsAttendance": {
+            "type": "object",
+            "properties": {
+                "isCoach": {
+                    "type": "boolean"
+                },
+                "ndsActivityInstance": {
+                    "$ref": "#/definitions/models.NdsActivityInstance"
+                },
+                "ndsActivityInstanceID": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.NdsAttendanceInput": {
+            "type": "object",
+            "properties": {
+                "isCoach": {
+                    "type": "boolean"
+                },
+                "userID": {
+                    "type": "string"
                 }
             }
         },
@@ -1829,6 +2478,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "isTraining": {
+                    "type": "boolean"
+                },
                 "rank": {
                     "type": "string"
                 },
@@ -1857,23 +2509,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.State": {
-            "type": "object",
-            "properties": {
-                "country": {
-                    "$ref": "#/definitions/models.Country"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "short": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Team": {
             "type": "object",
             "properties": {
@@ -1893,12 +2528,14 @@ const docTemplate = `{
             "required": [
                 "address",
                 "birthDate",
+                "city",
+                "countryId",
                 "firstName",
                 "genderId",
                 "languageId",
                 "lastName",
                 "nationalityId",
-                "placeId",
+                "postCode",
                 "primaryMail",
                 "primaryPhone"
             ],
@@ -1909,11 +2546,20 @@ const docTemplate = `{
                 "birthDate": {
                     "type": "string"
                 },
+                "city": {
+                    "type": "string"
+                },
                 "club": {
                     "$ref": "#/definitions/models.Club"
                 },
                 "clubId": {
                     "type": "string"
+                },
+                "country": {
+                    "$ref": "#/definitions/models.Country"
+                },
+                "countryId": {
+                    "type": "integer"
                 },
                 "firstName": {
                     "type": "string"
@@ -1939,11 +2585,8 @@ const docTemplate = `{
                 "oasi": {
                     "type": "string"
                 },
-                "place": {
-                    "$ref": "#/definitions/models.Place"
-                },
-                "placeId": {
-                    "type": "integer"
+                "postCode": {
+                    "type": "string"
                 },
                 "primaryMail": {
                     "type": "string"
@@ -2077,7 +2720,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v0.1.2",
+	Version:          "v0.2.0",
 	Host:             "athletistics.kube.isc.heia-fr.ch",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"https"},

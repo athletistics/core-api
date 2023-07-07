@@ -6,6 +6,10 @@ package models
 
 import "gorm.io/gorm"
 
+const (
+	ExternalIdTypeNds = 1
+)
+
 type ExternalIdType struct {
 	gorm.Model `json:"-"`
 	ID         int    `json:"id" gorm:"primaryKey;unique;autoIncrement"`

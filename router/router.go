@@ -31,6 +31,7 @@ func SetupRoutes(app *fiber.App) {
 	routes.SetupUsersRoutesTotpProtected(api)
 	routes.SetupEventsRoutesTotpProtected(api)
 	routes.SetupResultsRoutesTotpProtected(api)
+	routes.SetupExternalIdRoutesTotpProtected(api)
 	routes.SetupDisciplinesRoutesTotpProtected(api)
 
 	routes.SetupClubRoutes(api)

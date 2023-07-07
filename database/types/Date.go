@@ -18,9 +18,9 @@ const NdsDateFormat = "02.01.2006"
 
 type Date time.Time
 
-func NewDate(year int, month time.Month, day int) Time {
+func NewDate(year int, month time.Month, day int) Date {
 	t := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	return Time(t)
+	return Date(t)
 }
 
 func (d Date) T() time.Time {

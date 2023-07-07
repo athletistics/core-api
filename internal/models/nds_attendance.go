@@ -12,7 +12,8 @@ import (
 )
 
 type NdsAttendance struct {
-	UserID                string    `gorm:"primaryKey"`
+	UserID                string `gorm:"primaryKey"`
+	NdsActivityInstance   NdsActivityInstance
 	NdsActivityInstanceID uuid.UUID `gorm:"type:uuid;primaryKey"`
 	IsCoach               bool
 
@@ -27,10 +28,28 @@ type NdsAttendanceInput struct {
 
 // CSV utilities
 
-const NdsAttendanceCsvHeader = "AKTIVITAETSTYP;DATUM;ZEIT;DAUER;ORT;FOKUS"
+const NdsAttendanceCsvHeader = "PERSONENNUMMER;FUNKTION;DATUM;AKTIVITÄTSTYP;ZEIT;DAUER;ORT"
 const NdsAttendanceRoleCoach = "Teilnehmer/in"
 const NdsAttendanceRoleAthlete = "Leiter/in"
 
-func (i *NdsAttendance) AsCsv() string {
-	return fmt.Sprintf("%v,%v,%v,%v,%v,%v", i.NdsActivityType.NdsName, i.StartTime.ForNds(), i.StartTime.ForNds(), i.Duration, i.Place, defaultFocus)
+func (a *NdsAttendance) AsCsv(ndsUserIds map[string]string) string {
+	var role string
+	if a.IsCoach {
+		role = NdsAttendanceRoleCoach
+	} else {
+		role = NdsAttendanceRoleAthlete
+	}
+
+	id, ok := ndsUserIds[a.UserID]
+	if !ok {
+		return ""
+	}
+
+	return fmt.Sprintf("%v,%v,%v,%v,%v,%v,%v",
+		id, role,
+		a.NdsActivityInstance.Date.ForNds(),
+		a.NdsActivityInstance.NdsActivityType.NdsName,
+		a.NdsActivityInstance.StartTime.ForNds(),
+		a.NdsActivityInstance.Duration,
+		a.NdsActivityInstance.Place)
 }

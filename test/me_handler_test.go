@@ -12,6 +12,7 @@ import (
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/router"
+	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -49,7 +50,7 @@ func TestGetMe_NoUser(t *testing.T) {
 	app := prepareFiberWithUser(userId)
 
 	_ = sqlmock.NewRows([]string{""})
-	database.Mock.ExpectQuery(`SELECT .* FROM "users"`).WillReturnRows(sqlmock.NewRows([]string{"id"}))
+	database.Mock.ExpectQuery(`SELECT .* FROM "users"`).WillReturnError(gorm.ErrRecordNotFound)
 
 	req := httptest.NewRequest("GET", "/api/v1/me", nil)
 	resp, err := app.Test(req, -1)

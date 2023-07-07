@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+const daysInWeek = 7
+
 // selectInstances returns a list of instances belonging to the requested activity. An error is returned
 // in case the requesting user has not enough permissions to view the activity.
 func selectInstances(user *models.User, activityId string) ([]models.NdsActivityInstance, *res.Error) {
@@ -32,7 +34,7 @@ func selectInstances(user *models.User, activityId string) ([]models.NdsActivity
 	}
 
 	var instances []models.NdsActivityInstance
-	err = db.Where(&models.NdsActivityInstance{NdsActivityID: activityUuid}).Preload("NdsActivityType").Find(instances).Error
+	err = db.Where(&models.NdsActivityInstance{NdsActivityID: activityUuid}).Preload("NdsActivityType").Find(&instances).Error
 
 	return instances, res.NewErrorFromDb(err)
 }
@@ -54,7 +56,7 @@ func selectInstance(user *models.User, activityId string, instanceId string) (*m
 	}
 
 	var instance models.NdsActivityInstance
-	err = db.Where(&models.NdsActivityInstance{ID: uuids[1], NdsActivityID: uuids[0]}).Preload("NdsActivityType").First(instance).Error
+	err = db.Where(&models.NdsActivityInstance{ID: uuids[1], NdsActivityID: uuids[0]}).Preload("NdsActivityType").First(&instance).Error
 
 	return &instance, res.NewErrorFromDb(err)
 }
@@ -182,7 +184,7 @@ func instantiateSeries(tx *gorm.DB, activity *models.NdsActivity) error {
 	nextDate := time.Time(activity.StartDate)
 	lastDate := time.Time(activity.EndDate)
 	for nextDate.Weekday() != activity.Weekday {
-		nextDate.AddDate(0, 0, 1)
+		nextDate = nextDate.AddDate(0, 0, 1)
 	}
 
 	// instantiate the activity once a week between the start and end date
@@ -201,7 +203,7 @@ func instantiateSeries(tx *gorm.DB, activity *models.NdsActivity) error {
 		}
 
 		// skip to next week
-		nextDate.AddDate(0, 0, 7)
+		nextDate = nextDate.AddDate(0, 0, daysInWeek)
 	}
 
 	// commit by returning nil

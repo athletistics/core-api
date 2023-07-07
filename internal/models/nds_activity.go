@@ -19,7 +19,7 @@ type NdsActivity struct {
 	EndDate   types.Date   `json:"endDate"`
 	StartTime types.Time   `json:"startTime"`
 	Duration  uint         `json:"duration"`
-	Weekday   time.Weekday `json:"weekday"`
+	Weekday   time.Weekday `json:"weekday" swaggertype:"integer"`
 	Place     string       `json:"place"`
 	Team      Team         `json:"team"`
 	TeamID    uuid.UUID    `json:"-" gorm:"type:uuid"`
@@ -30,7 +30,7 @@ type NdsActivityInput struct {
 	EndDate   types.Date   `json:"endDate" validate:"required"`
 	StartTime types.Time   `json:"startTime" validate:"required"`
 	Duration  uint         `json:"duration" validate:"required"`
-	Weekday   time.Weekday `json:"weekday" validate:"required"`
+	Weekday   time.Weekday `json:"weekday" validate:"required" swaggertype:"integer"`
 	Place     string       `json:"place" validate:"required"`
 	TeamID    uuid.UUID    `json:"-" gorm:"type:uuid" validate:"required"`
 }

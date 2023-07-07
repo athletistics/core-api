@@ -10,13 +10,19 @@ import (
 )
 
 type ExternalId struct {
-	ExternalID string `json:"externalId" gorm:"primaryKey"`
-	InternalID string `json:"internalId" gorm:"primaryKey"`
-	Short      string `json:"short"`
-	I18nName   string `json:"i18nName"`
+	ExternalID       string         `json:"externalId" gorm:"primaryKey"`
+	InternalID       string         `json:"internalId" gorm:"primaryKey"`
+	ExternalIdType   ExternalIdType `json:"-"`
+	ExternalIdTypeID int            `json:"externalIdTypeId"`
 
 	// gorm.Model without ID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+type ExternalIdInput struct {
+	ExternalID       string `json:"externalId"`
+	InternalID       string `json:"internalId"`
+	ExternalIdTypeID int    `json:"externalIdTypeId"`
 }

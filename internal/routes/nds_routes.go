@@ -22,9 +22,13 @@ func SetupNdsRoutes(router fiber.Router) {
 	activity.Get("/instances", ndsHandler.GetInstances)
 	activity.Post("/instances", ndsHandler.CreateInstance)
 
+	activity.Get("/export/users", ndsHandler.ExportUsers)
+	activity.Get("/export/instances", ndsHandler.ExportInstances)
+	activity.Get("/export/attendances", ndsHandler.ExportAttendances)
+
 	instance := activity.Group(fmt.Sprintf("/instances/:%v", ndsHandler.ParamInstanceId))
 	instance.Get("/", ndsHandler.GetInstance)
 	instance.Delete("/", ndsHandler.DeleteInstance)
-	instance.Get("/participants", ndsHandler.GetParticipants)
-	instance.Put("/participants", ndsHandler.SetParticipants)
+	instance.Get("/attendances", ndsHandler.GetParticipants)
+	instance.Put("/attendances", ndsHandler.SetParticipants)
 }

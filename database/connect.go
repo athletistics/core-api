@@ -60,7 +60,12 @@ func ConnectDb() {
 	if db.AutoMigrate(&models.AccessRole{}, &models.Authorisation{}, &models.Category{}, &models.Club{}, &models.Country{},
 		&models.Discipline{}, &models.Email{}, &models.Event{}, &models.EventType{}, &models.Participant{},
 		&models.Phone{}, &models.Result{}, &models.Sport{}, &models.Team{},
-		&models.User{}, &models.Language{}, &models.Gender{}, &models.ResultStatic{}, &models.ResultStaticType{}) != nil {
+		&models.User{}, &models.Language{}, &models.Gender{}, &models.ResultStatic{}, &models.ResultStaticType{},
+		// External IDs
+		&models.ExternalIdType{}, &models.ExternalId{},
+		// NDS models
+		&models.NdsActivityType{}, &models.NdsActivity{}, &models.NdsActivityInstance{}, &models.NdsAttendance{},
+	) != nil {
 		log.Fatal("Failed to run auto migrations. \n", err)
 	}
 

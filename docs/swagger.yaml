@@ -127,29 +127,105 @@ definitions:
       short:
         type: string
     type: object
-  models.Place:
+  models.NdsActivity:
     properties:
-      id:
+      duration:
         type: integer
+      endDate:
+        type: string
+      id:
+        type: string
       place:
         type: string
-      postCode:
+      startDate:
         type: string
-      state:
-        $ref: '#/definitions/models.State'
+      startTime:
+        type: string
+      team:
+        $ref: '#/definitions/models.Team'
+      weekday:
+        type: integer
     type: object
-  models.PlaceOut:
+  models.NdsActivityInput:
     properties:
-      countryId:
+      duration:
+        type: integer
+      endDate:
+        type: string
+      place:
+        type: string
+      startDate:
+        type: string
+      startTime:
+        type: string
+      weekday:
+        type: integer
+    required:
+    - duration
+    - endDate
+    - place
+    - startDate
+    - startTime
+    - weekday
+    type: object
+  models.NdsActivityInstance:
+    properties:
+      date:
+        type: string
+      duration:
         type: integer
       id:
+        type: string
+      ndsActivityType:
+        $ref: '#/definitions/models.NdsActivityType'
+      place:
+        type: string
+      startTime:
+        type: string
+    type: object
+  models.NdsActivityInstanceInput:
+    properties:
+      date:
+        type: string
+      duration:
+        type: integer
+      ndsActivityId:
+        type: string
+      ndsActivityTypeId:
         type: integer
       place:
         type: string
-      postCode:
+      startTime:
         type: string
-      stateId:
+    required:
+    - date
+    - ndsActivityId
+    - ndsActivityTypeId
+    type: object
+  models.NdsActivityType:
+    properties:
+      i18nName:
+        type: string
+      id:
         type: integer
+    type: object
+  models.NdsAttendance:
+    properties:
+      isCoach:
+        type: boolean
+      ndsActivityInstance:
+        $ref: '#/definitions/models.NdsActivityInstance'
+      ndsActivityInstanceID:
+        type: string
+      userID:
+        type: string
+    type: object
+  models.NdsAttendanceInput:
+    properties:
+      isCoach:
+        type: boolean
+      userID:
+        type: string
     type: object
   models.ResultInput:
     properties:
@@ -221,6 +297,8 @@ definitions:
         type: string
       id:
         type: string
+      isTraining:
+        type: boolean
       rank:
         type: string
       userFirstName:
@@ -239,17 +317,6 @@ definitions:
       id:
         type: integer
     type: object
-  models.State:
-    properties:
-      country:
-        $ref: '#/definitions/models.Country'
-      id:
-        type: integer
-      name:
-        type: string
-      short:
-        type: string
-    type: object
   models.Team:
     properties:
       clubId:
@@ -265,10 +332,16 @@ definitions:
         type: string
       birthDate:
         type: string
+      city:
+        type: string
       club:
         $ref: '#/definitions/models.Club'
       clubId:
         type: string
+      country:
+        $ref: '#/definitions/models.Country'
+      countryId:
+        type: integer
       firstName:
         type: string
       genderId:
@@ -285,10 +358,8 @@ definitions:
         type: integer
       oasi:
         type: string
-      place:
-        $ref: '#/definitions/models.Place'
-      placeId:
-        type: integer
+      postCode:
+        type: string
       primaryMail:
         type: string
       primaryPhone:
@@ -296,12 +367,14 @@ definitions:
     required:
     - address
     - birthDate
+    - city
+    - countryId
     - firstName
     - genderId
     - languageId
     - lastName
     - nationalityId
-    - placeId
+    - postCode
     - primaryMail
     - primaryPhone
     type: object
@@ -390,7 +463,7 @@ info:
     name: AGPL-3.0
     url: https://www.gnu.org/licenses/agpl-3.0.html
   title: Core Athletistics API
-  version: v0.1.2
+  version: v0.2.0
 paths:
   /club/{club_id}:
     get:
@@ -599,41 +672,6 @@ paths:
       summary: Get all languages.
       tags:
       - Data
-  /data/places:
-    get:
-      parameters:
-      - description: Country ID
-        in: query
-        name: country
-        required: true
-        type: integer
-      - description: State ID
-        in: query
-        name: state
-        required: true
-        type: integer
-      - description: Search query, postal code or name of the place
-        in: query
-        name: q
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.PlaceOut'
-            type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/res.Error'
-      security:
-      - ApiKeyAuth: []
-      summary: Searches for places.
-      tags:
-      - Data
   /data/places/countries:
     get:
       produces:
@@ -652,32 +690,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get all countries.
-      tags:
-      - Data
-  /data/places/states:
-    get:
-      parameters:
-      - description: Country ID
-        in: query
-        name: country
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.State'
-            type: array
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/res.Error'
-      security:
-      - ApiKeyAuth: []
-      summary: Get all states of a country.
       tags:
       - Data
   /data/sports:
@@ -928,6 +940,409 @@ paths:
       summary: Read personal bests of authenticated user.
       tags:
       - Personal results
+  /nds/activities:
+    post:
+      parameters:
+      - description: Activity data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.NdsActivityInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.UuidCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new activity and instantiate the activity once a week on the
+        defined weekday between start and end date.
+      tags:
+      - NDS Activity
+  /nds/activities/{activityId}:
+    get:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NdsActivity'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Read a specific activity.
+      tags:
+      - NDS Activity
+  /nds/activities/{activityId}/export/attendances:
+    get:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Export the attendances in CSV format ready for import into the NDS
+        database.
+      tags:
+      - NDS Export
+  /nds/activities/{activityId}/export/instances:
+    get:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Export the instances in CSV format ready for import into the NDS database.
+      tags:
+      - NDS Export
+  /nds/activities/{activityId}/export/users:
+    get:
+      parameters:
+      - description: Activity ID  (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Export the users in CSV format ready for import into the NDS database.
+      tags:
+      - NDS Export
+  /nds/activities/{activityId}/instances:
+    get:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NdsActivityInstance'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Lists all instances of a specific activity.
+      tags:
+      - NDS Instance
+    post:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      - description: Instance data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.NdsActivityInstanceInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.IdCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new instance for a specific activity.
+      tags:
+      - NDS Instance
+  /nds/activities/{activityId}/instances/{instanceId}:
+    delete:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      - description: Instance ID (UUID format)
+        in: path
+        name: instanceId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete an instance along with attendances for this instance.
+      tags:
+      - NDS Instance
+    get:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      - description: Instance ID (UUID format)
+        in: path
+        name: instanceId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NdsActivityInstance'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Read details of a specific instance.
+      tags:
+      - NDS Instance
+  /nds/activities/{activityId}/instances/{instanceId}/attendances:
+    get:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      - description: Instance ID (UUID format)
+        in: path
+        name: instanceId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NdsAttendance'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List all attendees for a specific activity instance.
+      tags:
+      - NDS Instance
+    put:
+      parameters:
+      - description: Activity ID (UUID format)
+        in: path
+        name: activityId
+        required: true
+        type: string
+      - description: Instance ID (UUID format)
+        in: path
+        name: instanceId
+        required: true
+        type: string
+      - description: List of attendees
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.NdsAttendanceInput'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update the list of attendees by first deleting the existing list, and
+        then adding the given list.
+      tags:
+      - NDS Instance
+  /nds/types:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NdsActivityType'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: List all available NDS activity types
+      tags:
+      - NDS Activity
   /results:
     get:
       parameters:
