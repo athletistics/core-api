@@ -28,4 +28,7 @@ func init() {
 	goseeder.Register(resultStaticTypeSeeder)
 	goseeder.Register(resultSeeder)
 	goseeder.Register(resultStaticSeeder)
+
+	goseeder.Register(ndsActivityTypeSeeder)
+	goseeder.Register(externalIdTypeSeeder)
 }

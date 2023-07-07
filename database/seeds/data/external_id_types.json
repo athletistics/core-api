@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "i18n_name": "externalIdType.nds"
+  },
+  {
+    "id": 2,
+    "i18n_name": "nds.externalIdType.swissAthletics"
+  },
+  {
+    "id": 3,
+    "i18n_name": "nds.externalIdType.ubsKidsCup"
+  }
+]

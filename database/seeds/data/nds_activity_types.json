@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "i18n_name": "nds.activityType.training",
+    "nds_name": "Training"
+  },
+  {
+    "id": 2,
+    "i18n_name": "nds.activityType.competition",
+    "nds_name": "Wettkampf"
+  }
+]
