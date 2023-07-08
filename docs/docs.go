@@ -792,6 +792,58 @@ const docTemplate = `{
             }
         },
         "/nds/activities": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NDS Activity"
+                ],
+                "summary": "List all activities for a specific team.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team id (UUID format)",
+                        "name": "teamId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NdsActivity"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -2259,6 +2311,7 @@ const docTemplate = `{
                 "place",
                 "startDate",
                 "startTime",
+                "teamId",
                 "weekday"
             ],
             "properties": {
@@ -2275,6 +2328,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "startTime": {
+                    "type": "string"
+                },
+                "teamId": {
                     "type": "string"
                 },
                 "weekday": {
@@ -2350,13 +2406,10 @@ const docTemplate = `{
                 "isCoach": {
                     "type": "boolean"
                 },
-                "ndsActivityInstance": {
-                    "$ref": "#/definitions/models.NdsActivityInstance"
-                },
-                "ndsActivityInstanceID": {
+                "ndsActivityInstanceId": {
                     "type": "string"
                 },
-                "userID": {
+                "userId": {
                     "type": "string"
                 }
             }
@@ -2367,7 +2420,7 @@ const docTemplate = `{
                 "isCoach": {
                     "type": "boolean"
                 },
-                "userID": {
+                "userId": {
                     "type": "string"
                 }
             }

@@ -158,6 +158,8 @@ definitions:
         type: string
       startTime:
         type: string
+      teamId:
+        type: string
       weekday:
         type: integer
     required:
@@ -166,6 +168,7 @@ definitions:
     - place
     - startDate
     - startTime
+    - teamId
     - weekday
     type: object
   models.NdsActivityInstance:
@@ -213,18 +216,16 @@ definitions:
     properties:
       isCoach:
         type: boolean
-      ndsActivityInstance:
-        $ref: '#/definitions/models.NdsActivityInstance'
-      ndsActivityInstanceID:
+      ndsActivityInstanceId:
         type: string
-      userID:
+      userId:
         type: string
     type: object
   models.NdsAttendanceInput:
     properties:
       isCoach:
         type: boolean
-      userID:
+      userId:
         type: string
     type: object
   models.ResultInput:
@@ -941,6 +942,39 @@ paths:
       tags:
       - Personal results
   /nds/activities:
+    get:
+      parameters:
+      - description: Team id (UUID format)
+        in: query
+        name: teamId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NdsActivity'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List all activities for a specific team.
+      tags:
+      - NDS Activity
     post:
       parameters:
       - description: Activity data

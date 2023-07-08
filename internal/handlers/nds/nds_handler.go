@@ -39,13 +39,13 @@ func GetTypes(c *fiber.Ctx) error {
 //	@Summary	List all activities for a specific team.
 //	@Tags		NDS Activity
 //	@Produce	json
-//	@Param		teamId	query		uuid.UUID	true	"Team id"
+//	@Param		teamId	query		string	true	"Team id (UUID format)"
 //	@Success	200		{object}	[]models.NdsActivity
 //	@Failure	400		{object}	res.Error
 //	@Failure	401		{object}	res.Error
 //	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
-//	@Router		/nds/activities [post]
+//	@Router		/nds/activities [get]
 func GetActivities(c *fiber.Ctx) error {
 	// decode requested team
 	teamId := c.Query(QueryTeamId)
