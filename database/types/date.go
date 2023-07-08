@@ -7,6 +7,7 @@ package types
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -65,10 +66,19 @@ func (Date) GormDataType() string {
 }
 
 func (d Date) MarshalJSON() ([]byte, error) {
-	return []byte(time.Time(d).Format(DateFormat)), nil
+	return []byte(fmt.Sprintf(`"%v"`, time.Time(d).Format(DateFormat))), nil
 
 }
 
 func (d *Date) UnmarshalJSON(b []byte) error {
-	return d.UnmarshalText(string(b))
+	if string(b) == "null" || string(b) == `""` {
+		return nil
+	}
+
+	var dateString string
+	if err := json.Unmarshal(b, &dateString); err != nil {
+		return err
+	}
+
+	return d.UnmarshalText(dateString)
 }

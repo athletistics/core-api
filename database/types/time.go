@@ -7,14 +7,15 @@ package types
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 )
 
 // TimeFormat is the format template according to https://pkg.go.dev/time#pkg-constants
-// The time package in Go 1.20 defines this constant (TimeOnly).
-const TimeFormat = "15:04:05"
-const NdsTimeFormat = "15:04"
+// The time package in Go 1.20 defines a similar constant (TimeOnly).
+const TimeFormat = "15:04"
+const DbTimeFormat = "15:04:05"
 
 type Time time.Time
 
@@ -28,15 +29,15 @@ func (t Time) T() time.Time {
 }
 
 func (t Time) ForNds() string {
-	return time.Time(t).Format(NdsTimeFormat)
+	return time.Time(t).Format(TimeFormat)
 }
 
 func (t *Time) Scan(value interface{}) error {
 	switch v := value.(type) {
 	case []byte:
-		return t.UnmarshalText(string(v))
+		return t.UnmarshalText(string(v), DbTimeFormat)
 	case string:
-		return t.UnmarshalText(v)
+		return t.UnmarshalText(v, DbTimeFormat)
 	case time.Time:
 		*t = Time(v)
 	case nil:
@@ -48,11 +49,11 @@ func (t *Time) Scan(value interface{}) error {
 }
 
 func (t Time) Value() (driver.Value, error) {
-	return driver.Value(time.Time(t).Format(TimeFormat)), nil
+	return driver.Value(time.Time(t).Format(DbTimeFormat)), nil
 }
 
-func (t *Time) UnmarshalText(value string) error {
-	paprsedTime, err := time.Parse(TimeFormat, value)
+func (t *Time) UnmarshalText(value string, format string) error {
+	paprsedTime, err := time.Parse(format, value)
 	if err != nil {
 		return err
 	}
@@ -65,9 +66,18 @@ func (Time) GormDataType() string {
 }
 
 func (t Time) MarshalJSON() ([]byte, error) {
-	return []byte(time.Time(t).Format(TimeFormat)), nil
+	return []byte(fmt.Sprintf(`"%v"`, time.Time(t).Format(TimeFormat))), nil
 }
 
 func (t *Time) UnmarshalJSON(b []byte) error {
-	return t.UnmarshalText(string(b))
+	if string(b) == "null" || string(b) == `""` {
+		return nil
+	}
+
+	var timeString string
+	if err := json.Unmarshal(b, &timeString); err != nil {
+		return err
+	}
+
+	return t.UnmarshalText(timeString, TimeFormat)
 }
