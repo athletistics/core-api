@@ -116,7 +116,7 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	// create the user on zitadel
-	if newUser.CreateLogin {
+	if newUser.WithLogin {
 		id, err := createUser(newUser)
 		newUser.ID = id
 		if err != nil {
@@ -177,6 +177,10 @@ func GetUser(c *fiber.Ctx) error {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
+
+	// users with logins are not valid UUIDs
+	_, err = uuid.Parse(targetUser.ID)
+	targetUser.WithLogin = err != nil
 
 	return c.JSON(targetUser)
 }
