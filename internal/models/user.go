@@ -35,7 +35,8 @@ type User struct {
 	NationalityID int        `json:"nationalityId" validate:"required"`
 	Nationality   Country    `json:"nationality"`
 	Teams         []Team     `gorm:"many2many:participants;" json:"-"`
-	WithLogin     bool       `json:"withLogin" gorm:"-" validate:"required"`
+	WithLogin     bool       `json:"withLogin" validate:"required"`
+	UserState     string     `json:"userState" gorm:"-"`
 }
 
 type UserShort struct {

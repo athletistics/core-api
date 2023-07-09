@@ -41,9 +41,9 @@ import (
 //	@schemes	https
 //	@BasePath	/api/v1
 
-//	@securityDefinitions.apikey	Zitadel JWT token
-//	@in							header
-//	@name						Authorization
+// @securityDefinitions.apikey	Zitadel JWT token
+// @in							header
+// @name						Authorization
 func main() {
 	database.ConnectDb()
 
@@ -74,6 +74,9 @@ func fiberSetup() {
 	// Create connection to the Zitadel Management API
 	helpers.InitMgmtClient()
 	defer helpers.CloseMgmtClient()
+
+	// Prepare the ID generator
+	helpers.InitIdGen()
 
 	// clean up key file, as it is no longer needed as file
 	if err := DeleteKeyFile(); err != nil {

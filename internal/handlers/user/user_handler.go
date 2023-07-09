@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
@@ -94,15 +93,10 @@ func GetEmergencyUsers(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/users [post]
 func CreateUser(c *fiber.Ctx) error {
+	db := database.DB
 	user := helpers.GetUser(c)
-	if !helpers.HasRoleOnParentClub(&user, helpers.RoleHeadCoach) {
-		helpers.LogSecurity("tried creating user (missing role)", helpers.GetUserId(c))
-		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
-	}
 
 	// check that requesting user is head coach
-	db := database.DB
-
 	if !helpers.HasRoleOnClub(&user, user.ClubID, helpers.RoleHeadCoach) {
 		helpers.LogSecurity("tried creating user (missing required role)", helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
@@ -115,7 +109,7 @@ func CreateUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
-	// create the user on zitadel
+	// create the user on zitadel if necessary. generate an ID otherwise
 	if newUser.WithLogin {
 		id, err := createUser(newUser)
 		newUser.ID = id
@@ -124,12 +118,26 @@ func CreateUser(c *fiber.Ctx) error {
 			return c.Status(http.StatusInternalServerError).JSON(res.ErrBadRequest.Err(err))
 		}
 	} else {
-		newUser.ID = uuid.New().String()
+		id, err := helpers.IdGen.NextID()
+		if err != nil {
+			helpers.LogError(err.Error(), helpers.GetUserId(c))
+			return c.Status(http.StatusInternalServerError).JSON(res.ErrBadRequest.Err(err))
+		}
+		newUser.ID = strconv.FormatUint(id, 10)
 	}
 
-	// create the user locally
-	newUser.ClubID = user.ClubID
-	err := db.Create(newUser).Error
+	err := db.Transaction(func(tx *gorm.DB) error {
+		// create the user locally
+		if err := tx.Create(newUser).Error; err != nil {
+			return err
+		}
+
+		// assign 'athlete' role on parent club
+		tx.Create(&models.Authorisation{AccessRoleID: models.AccessRoleIdAthlete, UserID: newUser.ID, ClubID: newUser.ClubID})
+
+		// commit
+		return nil
+	})
 	if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
@@ -178,9 +186,17 @@ func GetUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
-	// users with logins are not valid UUIDs
-	_, err = uuid.Parse(targetUser.ID)
-	targetUser.WithLogin = err != nil
+	// users with logins read the login state from Zitadel
+	if targetUser.WithLogin {
+		state, err := GetUserState(targetUser.ID)
+		if err != nil {
+			helpers.LogError(err.Error(), helpers.GetUserId(c))
+			return c.Status(http.StatusInternalServerError).JSON(res.ErrZitadel.Err(err))
+		}
+		targetUser.UserState = state
+	} else {
+		targetUser.UserState = UserStateNoLogin
+	}
 
 	return c.JSON(targetUser)
 }

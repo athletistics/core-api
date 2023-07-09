@@ -6,6 +6,12 @@ package models
 
 import "gorm.io/gorm"
 
+const (
+	AccessRoleIdAthlete   = 1
+	AccessRoleIdCoach     = 2
+	AccessRoleIdHeadCoach = 3
+)
+
 type AccessRole struct {
 	gorm.Model `json:"-"`
 	ID         int    `json:"id" gorm:"primaryKey;unique;autoIncrement"`

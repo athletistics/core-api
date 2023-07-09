@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Interface towards the Zitadel instance
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 20.06.2023
 
@@ -15,6 +15,8 @@ import (
 	"math/rand"
 	"strings"
 )
+
+const UserStateNoLogin = "USER_STATE_NO_LOGIN"
 
 func createUser(u *models.User) (string, error) {
 	userNameOk := false
@@ -58,6 +60,17 @@ func createUser(u *models.User) (string, error) {
 	}
 
 	return createRes.UserId, nil
+}
+
+func GetUserState(id string) (string, error) {
+	req := pb.GetUserByIDRequest{Id: id}
+	res, err := helpers.MgmtClient.GetUserByID(context.Background(), &req)
+
+	if err != nil {
+		return "", err
+	}
+
+	return res.User.State.String(), nil
 }
 
 func getGenderFromString(gender string) user.Gender {

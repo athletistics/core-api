@@ -11,6 +11,7 @@ import (
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
+	userHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/user"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"gorm.io/gorm"
@@ -40,6 +41,18 @@ func GetMe(c *fiber.Ctx) error {
 	} else if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB)
+	}
+
+	// users with logins read the login state from Zitadel
+	if me.WithLogin {
+		state, err := userHandler.GetUserState(me.ID)
+		if err != nil {
+			helpers.LogError(err.Error(), helpers.GetUserId(c))
+			return c.Status(http.StatusInternalServerError).JSON(res.ErrZitadel.Err(err))
+		}
+		me.UserState = state
+	} else {
+		me.UserState = userHandler.UserStateNoLogin
 	}
 
 	return c.JSON(me)
