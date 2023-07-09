@@ -145,7 +145,7 @@ func findUsersOfActivity(user *models.User, activityUuid uuid.UUID) ([]models.Us
 		return nil, res.ErrForbidden
 	}
 
-	if err := db.Where(&users).Preload("Nationality").Preload("Gender").Preload("Country").Preload("Language").Find(&users).Error; err != nil {
+	if err := db.Preload("Nationality").Preload("Gender").Preload("Country").Preload("Language").Find(&users, userIds).Error; err != nil {
 		return nil, res.NewErrorFromDb(err)
 	}
 

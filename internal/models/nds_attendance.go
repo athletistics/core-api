@@ -58,7 +58,7 @@ func (a *NdsAttendance) AsCsv(ndsUserIds map[string]string) string {
 
 	id, ok := ndsUserIds[a.UserID]
 	if !ok {
-		return ""
+		id = ""
 	}
 
 	return fmt.Sprintf("%v;%v;%v;%v;%v;%v;%v",
