@@ -248,6 +248,13 @@ definitions:
       userId:
         type: string
     type: object
+  models.ParticipantInOut:
+    properties:
+      isCoach:
+        type: boolean
+      userId:
+        type: string
+    type: object
   models.ResultInput:
     properties:
       categoryId:
@@ -477,6 +484,17 @@ definitions:
     properties:
       id:
         type: string
+    type: object
+  teamHandler.GetParticipants.response:
+    properties:
+      atletes:
+        items:
+          $ref: '#/definitions/models.UserShort'
+        type: array
+      coaches:
+        items:
+          $ref: '#/definitions/models.UserShort'
+        type: array
     type: object
 host: athletistics.kube.isc.heia-fr.ch
 info:
@@ -1697,9 +1715,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.UserShort'
-            type: array
+            $ref: '#/definitions/teamHandler.GetParticipants.response'
         "401":
           description: Unauthorized
           schema:
@@ -1726,7 +1742,7 @@ paths:
         required: true
         schema:
           items:
-            type: string
+            $ref: '#/definitions/models.ParticipantInOut'
           type: array
       responses:
         "200":

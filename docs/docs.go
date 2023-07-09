@@ -1900,10 +1900,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.UserShort"
-                            }
+                            "$ref": "#/definitions/teamHandler.GetParticipants.response"
                         }
                     },
                     "401": {
@@ -1946,7 +1943,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/models.ParticipantInOut"
                             }
                         }
                     }
@@ -2576,6 +2573,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ParticipantInOut": {
+            "type": "object",
+            "properties": {
+                "isCoach": {
+                    "type": "boolean"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ResultInput": {
             "type": "object",
             "required": [
@@ -2917,6 +2925,23 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string"
+                }
+            }
+        },
+        "teamHandler.GetParticipants.response": {
+            "type": "object",
+            "properties": {
+                "atletes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserShort"
+                    }
+                },
+                "coaches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserShort"
+                    }
                 }
             }
         }

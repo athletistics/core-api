@@ -17,3 +17,8 @@ type Participant struct {
 	CreatedAt time.Time
 	DeletedAt gorm.DeletedAt
 }
+
+type ParticipantInOut struct {
+	UserID  string `json:"userId"`
+	IsCoach bool   `json:"isCoach"`
+}

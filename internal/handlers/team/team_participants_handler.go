@@ -23,26 +23,42 @@ import (
 //	@Tags		Team
 //	@Produce	json
 //	@Param		team_id	path		string	true	"Team identifier"
-//	@Success	200		{object}	[]models.UserShort
+//	@Success	200		{object}	teamHandler.GetParticipants.response
 //	@Failure	401		{object}	res.Error
 //	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/teams/{team_id}/participants [get]
 func GetParticipants(c *fiber.Ctx) error {
+	type response struct {
+		Athletes []models.UserShort `json:"athletes"`
+		Coaches  []models.UserShort `json:"coaches"`
+	}
+
 	ok, team, err := canAccessTeam(c, []helpers.Role{helpers.RoleCoach, helpers.RoleHeadCoach})
 	if !ok {
 		return err
 	}
 
 	db := database.DB
-	var participants []models.UserShort
-	err = db.Model(&models.User{}).Joins("inner join participants on participants.user_id = users.id and participants.team_id = ?", team.ID).Find(&participants).Error
+	var athletes []models.UserShort
+	err = db.Model(&models.User{}).
+		Joins("INNER JOIN participants p ON p.user_id = users.id AND p.team_id = ? AND p.is_coach = FALSE", team.ID).
+		Find(&athletes).Error
 	if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
-	return c.JSON(participants)
+	var coaches []models.UserShort
+	err = db.Model(&models.User{}).
+		Joins("INNER JOIN participants p ON p.user_id = users.id AND p.team_id = ? AND p.is_coach = TRUE", team.ID).
+		Find(&coaches).Error
+	if err != nil {
+		helpers.LogError(err.Error(), helpers.GetUserId(c))
+		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+
+	return c.JSON(response{athletes, coaches})
 }
 
 // AddParticipants adds a list of participants to a team.
@@ -50,8 +66,8 @@ func GetParticipants(c *fiber.Ctx) error {
 //	@Summary	Add participants to a team
 //	@Tags		Team
 //	@Consumes	json
-//	@Param		team_id	path	string		true	"Team identifier"
-//	@Param		request	body	[]string	true	"Users to add"
+//	@Param		team_id	path	string						true	"Team identifier"
+//	@Param		request	body	[]models.ParticipantInOut	true	"Users to add"
 //	@Success	200
 //	@Failure	400	{object}	res.Error	"Bad user IDs, or user already added to team"
 //	@Failure	401	{object}	res.Error
@@ -59,18 +75,17 @@ func GetParticipants(c *fiber.Ctx) error {
 //	@Security	ApiKeyAuth
 //	@Router		/teams/{team_id}/participants [post]
 func AddParticipants(c *fiber.Ctx) error {
+	db := database.DB
 	ok, team, err := canAccessTeam(c, []helpers.Role{helpers.RoleHeadCoach})
 	if !ok {
 		return err
 	}
 
-	// extract all IDs, and check if they are valid UUIDs
-	userIds, ok, err := getUserIdsFromBody(c)
+	// extract all IDs, and check if they are in a valid format
+	participantsReq, userIds, ok, err := getUserIdsFromBody(c)
 	if !ok {
 		return err
 	}
-
-	db := database.DB
 
 	// get requested users
 	var users []models.User
@@ -90,8 +105,8 @@ func AddParticipants(c *fiber.Ctx) error {
 
 	// create necessary participants objects
 	participants := make([]models.Participant, len(users))
-	for i := 0; i < len(users); i++ {
-		participants[i] = models.Participant{UserID: users[i].ID, TeamID: team.ID, IsCoach: false}
+	for i, p := range participantsReq {
+		participants[i] = models.Participant{UserID: p.UserID, TeamID: team.ID, IsCoach: p.IsCoach}
 	}
 
 	// write objects to database
@@ -128,7 +143,7 @@ func RemoveParticipants(c *fiber.Ctx) error {
 	}
 
 	// extract all IDs, and check if they are valid UUIDs
-	userIds, ok, err := getUserIdsFromBody(c)
+	_, userIds, ok, err := getUserIdsFromBody(c)
 	if !ok {
 		return err
 	}
@@ -153,28 +168,30 @@ func RemoveParticipants(c *fiber.Ctx) error {
 // In case of any error, the function directly creates the response to the HTTP request.
 // Therefore, if the second result is "false", return the third parameter and exit the
 // calling function.
-func getUserIdsFromBody(c *fiber.Ctx) ([]string, bool, error) {
+func getUserIdsFromBody(c *fiber.Ctx) ([]models.ParticipantInOut, []string, bool, error) {
 	var err error
 
 	// parse the body
-	userIds := new([]string)
+	userIds := new([]models.ParticipantInOut)
 	if err = c.BodyParser(userIds); err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
-		return nil, false, c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
+		return nil, nil, false, c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 	}
 
 	// verify that IDs are numerical (base 10, 64 bit integer)
-	for i := 0; i < len(*userIds); i++ {
-		if _, err := strconv.ParseInt((*userIds)[i], 10, 64); err != nil {
+	userIdsStr := make([]string, len(*userIds))
+	for i, id := range *userIds {
+		if _, err = strconv.ParseInt(id.UserID, 10, 64); err != nil {
 			helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
-			return nil, false, c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
+			return nil, nil, false, c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
 		}
+		userIdsStr[i] = id.UserID
 	}
 
 	// no IDs, call is considered to be finished as nothing can be done.
 	if len(*userIds) == 0 {
-		return nil, false, c.SendStatus(http.StatusOK)
+		return nil, nil, false, c.SendStatus(http.StatusOK)
 	}
 
-	return *userIds, true, nil
+	return *userIds, userIdsStr, true, nil
 }
