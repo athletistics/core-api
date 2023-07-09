@@ -602,6 +602,126 @@ const docTemplate = `{
                 }
             }
         },
+        "/externalId/idTypes": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "External ID"
+                ],
+                "summary": "List all available ID types.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ExternalIdType"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/externalId/user": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "External ID"
+                ],
+                "summary": "List all external IDs of a specific user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internal User identifier",
+                        "name": "internalId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ExternalId"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "External ID"
+                ],
+                "summary": "Creates a new external ID. The internal ID must belong to a user.",
+                "parameters": [
+                    {
+                        "description": "External ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ExternalIdInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/me": {
             "get": {
                 "security": [
@@ -2138,6 +2258,9 @@ const docTemplate = `{
                 "code": {
                     "type": "string"
                 },
+                "codeIso3166": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2246,6 +2369,34 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.ExternalId": {
+            "type": "object",
+            "properties": {
+                "externalId": {
+                    "type": "string"
+                },
+                "externalIdTypeId": {
+                    "type": "integer"
+                },
+                "internalId": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ExternalIdInput": {
+            "type": "object",
+            "properties": {
+                "externalId": {
+                    "type": "string"
+                },
+                "externalIdTypeId": {
+                    "type": "integer"
+                },
+                "internalId": {
+                    "type": "string"
                 }
             }
         },
@@ -2579,7 +2730,6 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "required": [
-                "address",
                 "birthDate",
                 "city",
                 "countryId",
@@ -2589,8 +2739,8 @@ const docTemplate = `{
                 "lastName",
                 "nationalityId",
                 "postCode",
-                "primaryMail",
-                "primaryPhone"
+                "primaryPhone",
+                "withLogin"
             ],
             "properties": {
                 "address": {
@@ -2620,6 +2770,9 @@ const docTemplate = `{
                 "genderId": {
                     "type": "integer"
                 },
+                "houseNumber": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -2646,6 +2799,12 @@ const docTemplate = `{
                 },
                 "primaryPhone": {
                     "type": "string"
+                },
+                "userState": {
+                    "type": "string"
+                },
+                "withLogin": {
+                    "type": "boolean"
                 }
             }
         },

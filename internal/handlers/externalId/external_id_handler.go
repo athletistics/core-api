@@ -17,6 +17,17 @@ const (
 	QueryInternalId = "internalId"
 )
 
+// SelectExternalUserIds reads the list of all external IDs of a specific user.
+//
+//	@Summary	List all external IDs of a specific user.
+//	@Tags		External ID
+//	@Produce	json
+//	@Param		internalId	query		string	true	"Internal User identifier"
+//	@Success	200			{object}	[]models.ExternalId
+//	@Failure	401			{object}	res.Error
+//	@Failure	403			{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/externalId/user [get]
 func SelectExternalUserIds(c *fiber.Ctx) error {
 	// parse request
 	userId := c.Query(QueryInternalId)
@@ -26,6 +37,18 @@ func SelectExternalUserIds(c *fiber.Ctx) error {
 	return helpers.ProcessJsonResponse(c, data, err)
 }
 
+// CreateExternalUserId creates a new external ID. The internal ID must belong to a user.
+//
+//	@Summary	Creates a new external ID. The internal ID must belong to a user.
+//	@Tags		External ID
+//	@Consume	json
+//	@Produce	json
+//	@Param		request	body		models.ExternalIdInput	true	"External ID"
+//	@Success	200		{string}	string					"OK"
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/externalId/user [post]
 func CreateExternalUserId(c *fiber.Ctx) error {
 	// parse request
 	b := new(models.ExternalIdInput)
@@ -36,6 +59,14 @@ func CreateExternalUserId(c *fiber.Ctx) error {
 	return helpers.ProcessJsonResponse(c, nil, err)
 }
 
+// GetTypes lists all available ID types.
+//
+//	@Summary	List all available ID types.
+//	@Tags		External ID
+//	@Produce	json
+//	@Success	200	{object}	[]models.ExternalIdType
+//	@Security	ApiKeyAuth
+//	@Router		/externalId/idTypes [get]
 func GetTypes(c *fiber.Ctx) error {
 	db := database.DB
 

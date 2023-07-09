@@ -5,10 +5,10 @@
   },
   {
     "id": 2,
-    "i18n_name": "nds.externalIdType.swissAthletics"
+    "i18n_name": "externalIdType.swissAthletics"
   },
   {
     "id": 3,
-    "i18n_name": "nds.externalIdType.ubsKidsCup"
+    "i18n_name": "externalIdType.ubsKidsCup"
   }
 ]

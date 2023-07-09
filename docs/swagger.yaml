@@ -37,6 +37,8 @@ definitions:
     properties:
       code:
         type: string
+      codeIso3166:
+        type: string
       id:
         type: integer
       name:
@@ -110,6 +112,24 @@ definitions:
         type: string
       id:
         type: integer
+    type: object
+  models.ExternalId:
+    properties:
+      externalId:
+        type: string
+      externalIdTypeId:
+        type: integer
+      internalId:
+        type: string
+    type: object
+  models.ExternalIdInput:
+    properties:
+      externalId:
+        type: string
+      externalIdTypeId:
+        type: integer
+      internalId:
+        type: string
     type: object
   models.ExternalIdType:
     properties:
@@ -347,6 +367,8 @@ definitions:
         type: string
       genderId:
         type: integer
+      houseNumber:
+        type: string
       id:
         type: string
       languageId:
@@ -365,8 +387,11 @@ definitions:
         type: string
       primaryPhone:
         type: string
+      userState:
+        type: string
+      withLogin:
+        type: boolean
     required:
-    - address
     - birthDate
     - city
     - countryId
@@ -376,8 +401,8 @@ definitions:
     - lastName
     - nationalityId
     - postCode
-    - primaryMail
     - primaryPhone
+    - withLogin
     type: object
   models.UserEmergency:
     properties:
@@ -825,6 +850,80 @@ paths:
       summary: Create a new event
       tags:
       - Event
+  /externalId/idTypes:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ExternalIdType'
+            type: array
+      security:
+      - ApiKeyAuth: []
+      summary: List all available ID types.
+      tags:
+      - External ID
+  /externalId/user:
+    get:
+      parameters:
+      - description: Internal User identifier
+        in: query
+        name: internalId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ExternalId'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List all external IDs of a specific user.
+      tags:
+      - External ID
+    post:
+      parameters:
+      - description: External ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ExternalIdInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Creates a new external ID. The internal ID must belong to a user.
+      tags:
+      - External ID
   /me:
     get:
       produces:

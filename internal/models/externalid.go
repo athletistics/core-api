@@ -16,9 +16,9 @@ type ExternalId struct {
 	ExternalIdTypeID int            `json:"externalIdTypeId"`
 
 	// gorm.Model without ID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	CreatedAt time.Time      `json:"-"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
 type ExternalIdInput struct {
