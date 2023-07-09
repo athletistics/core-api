@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
 
@@ -28,9 +29,9 @@ type NdsAttendanceInput struct {
 
 // CSV utilities
 
-const NdsAttendanceCsvHeader = "PERSONENNUMMER;FUNKTION;DATUM;AKTIVITÄTSTYP;ZEIT;DAUER;ORT"
-const NdsAttendanceRoleCoach = "Teilnehmer/in"
-const NdsAttendanceRoleAthlete = "Leiter/in"
+const NdsAttendanceCsvHeader = "PERSONENNUMMER;FUNKTION;DATUM;AKTIVITAETSTYP;ZEIT;DAUER;ORT"
+const NdsAttendanceRoleAthlete = "Teilnehmer/in"
+const NdsAttendanceRoleCoach = "Leiter/in"
 
 func (a *NdsAttendance) AsCsv(ndsUserIds map[string]string) string {
 	var role string
@@ -40,16 +41,29 @@ func (a *NdsAttendance) AsCsv(ndsUserIds map[string]string) string {
 		role = NdsAttendanceRoleAthlete
 	}
 
+	t := ""
+	if a.NdsActivityInstance.StartTime != nil {
+		t = a.NdsActivityInstance.StartTime.ForNds()
+	}
+
+	d := ""
+	if a.NdsActivityInstance.Duration != nil {
+		d = strconv.Itoa(int(*a.NdsActivityInstance.Duration))
+	}
+
+	p := ""
+	if a.NdsActivityInstance.Place != nil {
+		p = *a.NdsActivityInstance.Place
+	}
+
 	id, ok := ndsUserIds[a.UserID]
 	if !ok {
 		return ""
 	}
 
-	return fmt.Sprintf("%v,%v,%v,%v,%v,%v,%v",
+	return fmt.Sprintf("%v;%v;%v;%v;%v;%v;%v",
 		id, role,
 		a.NdsActivityInstance.Date.ForNds(),
 		a.NdsActivityInstance.NdsActivityType.NdsName,
-		a.NdsActivityInstance.StartTime.ForNds(),
-		a.NdsActivityInstance.Duration,
-		a.NdsActivityInstance.Place)
+		t, d, p)
 }

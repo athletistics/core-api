@@ -11,4 +11,5 @@ type Gender struct {
 	ID          int `gorm:"primaryKey;unique;autoIncrement"`
 	ZitadelName string
 	I18nName    string
+	NdsName     string
 }

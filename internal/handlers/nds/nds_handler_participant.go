@@ -75,6 +75,9 @@ func setAttendances(user *models.User, activityId string, instanceId string, bod
 		}
 
 		// prepare entries to be added
+		if len(*body) == 0 {
+			return nil
+		}
 		attendances := make([]models.NdsAttendance, len(*body))
 		for i := 0; i < len(attendances); i++ {
 			attendances[i] = models.NdsAttendance{UserID: (*body)[i].UserID, NdsActivityInstanceID: *instanceUuid, IsCoach: (*body)[i].IsCoach}

@@ -72,9 +72,13 @@ func (u *User) AsCsv(ndsUserIds map[string]string) string {
 	if !ok {
 		id = ""
 	}
+	oasi := ""
+	if u.Oasi != nil {
+		oasi = *u.Oasi
+	}
 
-	return fmt.Sprintf("%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,%v,",
+	return fmt.Sprintf("%v;%v;%v;%v;%v;%v;%v;%v;%v;%v;%v;%v;%v;%v",
 		id, u.LastName, u.FirstName, u.BirthDate.Format(types.NdsDateFormat),
-		u.Gender.I18nName, u.Oasi, "", u.Nationality.Code, u.Language.Short,
-		u.Address, "", u.PostCode, u.City, u.Country.Code)
+		u.Gender.NdsName, oasi, "", u.Nationality.CodeIso3166, u.Language.Short,
+		u.Address, "", u.PostCode, u.City, u.Country.CodeIso3166)
 }

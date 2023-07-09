@@ -45,9 +45,14 @@ func exportAttendances(user *models.User, activityId string) (string, *res.Error
 		return "", errParam
 	}
 
+	instanceIds := make([]uuid.UUID, len(instances))
+	for i, obj := range instances {
+		instanceIds[i] = obj.ID
+	}
+
 	// read all attendances belonging to a given activity
 	var attendances []models.NdsAttendance
-	err = db.Where("activity_instance_id IN (?)", instances).Preload("NdsActivityInstance").Find(&attendances).Error
+	err = db.Where("nds_activity_instance_id IN (?)", instanceIds).Preload("NdsActivityInstance").Preload("NdsActivityInstance.NdsActivityType").Find(&attendances).Error
 	if err != nil {
 		return "", res.NewErrorFromDb(err)
 	}
@@ -106,6 +111,10 @@ func exportUsers(user *models.User, activityId string) (string, *res.Error) {
 func findUsersOfActivity(user *models.User, activityUuid uuid.UUID) ([]models.User, *res.Error) {
 	db := database.DB
 
+	if !helpers.HasRoleOnActivity(user, activityUuid, helpers.RoleCoach) {
+		return nil, res.ErrForbidden
+	}
+
 	// find team of activity
 	team := models.Team{}
 	err := db.Joins("inner join nds_activities a ON a.team_id = teams.id AND a.id = ?", activityUuid).First(&team).Error
@@ -115,18 +124,29 @@ func findUsersOfActivity(user *models.User, activityUuid uuid.UUID) ([]models.Us
 
 	// find distinct user IDs taking part in at least one activity
 	var users []models.User
-	db.Distinct("id").
-		Joins("INNER JOIN nds_attendance a ON a.user_id = user_id.id").
+	if err := db.Model(&models.User{}).Distinct("users.id").
+		Joins("INNER JOIN nds_attendances a ON a.user_id = users.id").
 		Joins("INNER JOIN nds_activity_instances i ON a.nds_activity_instance_id = i.id AND i.nds_activity_id = ?", activityUuid).
-		Scan(&users)
+		Scan(&users).Error; err != nil {
+		return nil, res.NewErrorFromDb(err)
+	}
+
+	userIds := make([]string, len(users))
+	for i := 0; i < len(users); i++ {
+		userIds[i] = users[i].ID
+	}
 
 	// find distinct users having a role on the club of the activity
 	var nbRecords int64
 	query := models.Authorisation{ClubID: team.ClubID}
-	db.Table("authorisations").Distinct("user_id").Where(&query).Where("user_id IN (?)", users).Count(&nbRecords)
+	db.Table("authorisations").Distinct("user_id").Where(&query).Where("user_id IN (?)", userIds).Count(&nbRecords)
 
 	if int64(len(users)) != nbRecords {
 		return nil, res.ErrForbidden
+	}
+
+	if err := db.Where(&users).Preload("Nationality").Preload("Gender").Preload("Country").Preload("Language").Find(&users).Error; err != nil {
+		return nil, res.NewErrorFromDb(err)
 	}
 
 	return users, nil

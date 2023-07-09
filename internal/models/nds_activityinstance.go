@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database/types"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type NdsActivityInstance struct {
@@ -43,5 +44,20 @@ const NdsActivityInstanceCsvHeader = "AKTIVITAETSTYP;DATUM;ZEIT;DAUER;ORT;FOKUS"
 const defaultFocus = "Physis"
 
 func (i *NdsActivityInstance) AsCsv() string {
-	return fmt.Sprintf("%v,%v,%v,%v,%v,%v", i.NdsActivityType.NdsName, i.StartTime.ForNds(), i.StartTime.ForNds(), i.Duration, i.Place, defaultFocus)
+	t := ""
+	if i.StartTime != nil {
+		t = i.StartTime.ForNds()
+	}
+
+	d := ""
+	if i.Duration != nil {
+		d = strconv.Itoa(int(*i.Duration))
+	}
+
+	p := ""
+	if i.Place != nil {
+		p = *i.Place
+	}
+
+	return fmt.Sprintf("%v;%v;%v;%v;%v;%v", i.NdsActivityType.NdsName, i.Date.ForNds(), t, d, p, defaultFocus)
 }
