@@ -17,7 +17,7 @@ type User struct {
 	ID            string    `gorm:"primaryKey;unique" json:"id"`
 	FirstName     string    `json:"firstName" validate:"required"`
 	LastName      string    `json:"lastName" validate:"required"`
-	PrimaryMail   string    `json:"primaryMail" validate:"required,email"`
+	PrimaryMail   string    `json:"primaryMail" validate:"email"`
 	PrimaryPhone  string    `json:"primaryPhone" validate:"required"`
 	LanguageID    int       `json:"languageId" validate:"required"`
 	Language      Language  `json:"-"`
@@ -27,7 +27,8 @@ type User struct {
 	Club          Club      `json:"club"`
 	Oasi          *string   `json:"oasi"`
 	BirthDate     time.Time `json:"birthDate" validate:"required"`
-	Address       string    `json:"address" validate:"required"`
+	Address       string    `json:"address"`
+	HouseNumber   string    `json:"houseNumber"`
 	PostCode      string    `json:"postCode" validate:"required"`
 	City          string    `json:"city" validate:"required"`
 	CountryID     int       `json:"countryId" validate:"required"`
@@ -35,6 +36,7 @@ type User struct {
 	NationalityID int       `json:"nationalityId" validate:"required"`
 	Nationality   Country   `json:"nationality"`
 	Teams         []Team    `gorm:"many2many:participants;" json:"-"`
+	CreateLogin   bool      `json:"createLogin" gorm:"-" validate:"required"`
 }
 
 type UserShort struct {

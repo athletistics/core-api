@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
@@ -115,16 +116,20 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	// create the user on zitadel
-	id, err := createUser(newUser)
-	if err != nil {
-		helpers.LogError(err.Error(), helpers.GetUserId(c))
-		return c.Status(http.StatusInternalServerError).JSON(res.ErrBadRequest.Err(err))
+	if newUser.CreateLogin {
+		id, err := createUser(newUser)
+		newUser.ID = id
+		if err != nil {
+			helpers.LogError(err.Error(), helpers.GetUserId(c))
+			return c.Status(http.StatusInternalServerError).JSON(res.ErrBadRequest.Err(err))
+		}
+	} else {
+		newUser.ID = uuid.New().String()
 	}
 
 	// create the user locally
-	newUser.ID = id
 	newUser.ClubID = user.ClubID
-	err = db.Create(newUser).Error
+	err := db.Create(newUser).Error
 	if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
