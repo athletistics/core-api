@@ -22,5 +22,5 @@ func TestTime_UnmarshalJSON(t *testing.T) {
 	err := d.UnmarshalJSON([]byte(dString))
 
 	assert.Nil(t, err)
-	assert.Equal(t, NewTime(12, 13, 14).T(), d.T())
+	assert.Equal(t, NewTime(12, 13, 00).T(), d.T())
 }

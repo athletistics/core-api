@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/database/types"
 	"gorm.io/gorm"
-	"time"
 )
 
 const TrainingTypeId = 4
@@ -60,7 +60,7 @@ type ResultString struct {
 	EventPlace     string           `json:"eventPlace" gorm:"-"`
 	EventOutdoor   bool             `json:"eventOutdoor" gorm:"-"`
 	IsTraining     bool             `json:"isTraining" gorm:"-"`
-	Date           time.Time        `json:"date" gorm:"-"`
+	Date           types.Date       `json:"date" gorm:"-"`
 	Value          decimal.Decimal  `json:"value"`
 	Wind           *decimal.Decimal `json:"wind"`
 	Rank           *string          `json:"rank"`
