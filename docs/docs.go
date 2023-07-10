@@ -2931,7 +2931,7 @@ const docTemplate = `{
         "teamHandler.GetParticipants.response": {
             "type": "object",
             "properties": {
-                "atletes": {
+                "athletes": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.UserShort"
