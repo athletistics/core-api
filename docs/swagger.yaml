@@ -507,7 +507,7 @@ info:
     name: AGPL-3.0
     url: https://www.gnu.org/licenses/agpl-3.0.html
   title: Core Athletistics API
-  version: v0.2.0
+  version: v0.3.0
 paths:
   /club/{club_id}:
     get:

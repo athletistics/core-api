@@ -63,8 +63,7 @@ func setAttendances(user *models.User, activityId string, instanceId string, bod
 		query := models.Authorisation{ClubID: team.ClubID}
 		db.Model(&models.Authorisation{}).Distinct("user_id").Where(&query).Where("user_id IN (?)", userIds).Count(&nbRecords)
 
-		// if the counted number is equal to the number of users to add, all users are related to the club,
-		// and thus they all can be added as attendees.
+		// if the counted number is equal to the number of users to add, all users are related to the club, and thus they all can be added as attendees.
 		if int64(len(*body)) != nbRecords {
 			return gorm.ErrInvalidTransaction
 		}
@@ -73,7 +72,6 @@ func setAttendances(user *models.User, activityId string, instanceId string, bod
 		if err := tx.Where(&models.NdsAttendance{NdsActivityInstanceID: *instanceUuid}).Unscoped().Delete(&models.NdsAttendance{}).Error; err != nil {
 			return err
 		}
-
 		// prepare entries to be added
 		if len(*body) == 0 {
 			return nil
