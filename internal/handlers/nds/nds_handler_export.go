@@ -5,6 +5,7 @@
 package ndsHandler
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -36,12 +37,14 @@ func exportAttendances(user *models.User, activityId string) (string, *res.Error
 
 	activityUuid, err := uuid.Parse(activityId)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return "", res.ErrBadRequest.Err(err)
 	}
 
 	// read all instances of a given activity
 	instances, errParam := selectInstances(user, activityId)
 	if errParam != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", errParam), user.ID)
 		return "", errParam
 	}
 
@@ -81,10 +84,12 @@ func exportUsers(user *models.User, activityId string) (string, *res.Error) {
 	// read distinct users and verify that the club owning the activity has permissions to read all users
 	activityUuid, err := uuid.Parse(activityId)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return "", res.ErrBadRequest.Err(err)
 	}
 
 	if !helpers.HasRoleOnActivity(user, activityUuid, helpers.RoleCoach) {
+		helpers.LogSecurity("tried exporting users", user.ID)
 		return "", res.ErrForbidden
 	}
 
@@ -112,6 +117,7 @@ func findUsersOfActivity(user *models.User, activityUuid uuid.UUID) ([]models.Us
 	db := database.DB
 
 	if !helpers.HasRoleOnActivity(user, activityUuid, helpers.RoleCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried finding users of activity %v", activityUuid), user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -142,6 +148,7 @@ func findUsersOfActivity(user *models.User, activityUuid uuid.UUID) ([]models.Us
 	db.Table("authorisations").Distinct("user_id").Where(&query).Where("user_id IN (?)", userIds).Count(&nbRecords)
 
 	if int64(len(users)) != nbRecords {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing users of activity %v", activityUuid), user.ID)
 		return nil, res.ErrForbidden
 	}
 

@@ -5,6 +5,7 @@
 package ndsHandler
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -32,11 +33,13 @@ func selectActivities(user *models.User, teamId string) ([]models.NdsActivity, *
 	// verify parameters
 	teamUuid, err := uuid.Parse(teamId)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
 	}
 
 	// find team and make sure the user can access said team
 	if !helpers.HasRoleOnTeam(user, teamUuid, helpers.RoleHeadCoach, helpers.RoleCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried reading activities of team  %v", teamId), user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -55,6 +58,7 @@ func selectActivity(user *models.User, activityId string) (*models.NdsActivity, 
 	// verify parameters
 	activityUuid, err := uuid.Parse(activityId)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
 	}
 
@@ -67,6 +71,7 @@ func selectActivity(user *models.User, activityId string) (*models.NdsActivity, 
 
 	// find corresponding team and make sure the user can access said team
 	if !helpers.HasRoleOnTeam(user, activity.TeamID, helpers.RoleHeadCoach, helpers.RoleCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried reading activity %v", activityUuid), user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -79,15 +84,18 @@ func createActivity(user *models.User, body *models.NdsActivityInput, parseErr e
 	db := database.DB
 
 	if parseErr != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", parseErr), user.ID)
 		return nil, res.ErrBadRequest.Err(parseErr)
 	}
 	if body.StartDate.T().After(body.EndDate.T()) {
+		helpers.LogInfo("bad request: start date is after end date", user.ID)
 		return nil, res.ErrBadRequest
 	}
 
 	// Search for target team. If target team does not exist, or the user has not enough permissions on said team,
 	// mark response as forbidden
 	if !helpers.HasRoleOnTeam(user, body.TeamID, helpers.RoleHeadCoach) {
+		helpers.LogSecurity("tried creating activity", user.ID)
 		return nil, res.ErrForbidden
 	}
 

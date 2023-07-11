@@ -5,6 +5,7 @@
 package userHandler
 
 import (
+	"fmt"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
@@ -17,6 +18,7 @@ func getRoles(user *models.User, targetUserId string) ([]models.Authorisation, *
 	db := database.DB
 	// make sure requesting user is head coach or coach
 	if !helpers.HasRoleOnParentClub(user, helpers.RoleHeadCoach, helpers.RoleCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried accessing roles of user %v", targetUserId), user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -32,14 +34,17 @@ func getRoles(user *models.User, targetUserId string) ([]models.Authorisation, *
 func addRole(user *models.User, targetUserId string, body *models.Authorisation, parseErr error) *res.Error {
 	db := database.DB
 	if parseErr != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", parseErr), user.ID)
 		return res.ErrBadRequest.Err(parseErr)
 	}
 	if body.UserID != targetUserId || body.ClubID != user.ClubID {
+		helpers.LogInfo("bad request: ambiguous data", user.ID)
 		return res.ErrBadRequest
 	}
 
 	// make sure requesting user is head coach
 	if !helpers.HasRoleOnParentClub(user, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried managing roles of user %v", targetUserId), user.ID)
 		return res.ErrForbidden
 	}
 
@@ -61,14 +66,17 @@ func addRole(user *models.User, targetUserId string, body *models.Authorisation,
 func removeRole(user *models.User, targetUserId string, body *models.Authorisation, parseErr error) *res.Error {
 	db := database.DB
 	if parseErr != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", parseErr), user.ID)
 		return res.ErrBadRequest.Err(parseErr)
 	}
 	if body.UserID != targetUserId || body.ClubID != user.ClubID {
+		helpers.LogInfo("bad request: ambiguous data", user.ID)
 		return res.ErrBadRequest
 	}
 
 	// make sure requesting user is head coach
 	if !helpers.HasRoleOnParentClub(user, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried managing roles of user %v", targetUserId), user.ID)
 		return res.ErrForbidden
 	}
 

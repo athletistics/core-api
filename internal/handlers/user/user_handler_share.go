@@ -6,6 +6,7 @@ package userHandler
 
 import (
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
@@ -27,6 +28,7 @@ func createShareCode(user *models.User, targetUserId string) (*models.UserShare,
 
 	// Make sure requesting user is head coach on target user's parent club
 	if !helpers.HasRoleOnClub(user, targetUser.ClubID, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried sharing user %v", targetUserId), user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -47,11 +49,13 @@ func redeemShareCode(user *models.User, code string) (*models.UserShort, *res.Er
 	// verify the code is in a valid format
 	codeUuid, err := uuid.Parse(code)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
 	}
 
 	// make sure user has required permissions
 	if !helpers.HasRoleOnParentClub(user, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried redeeming code %v", code), user.ID)
 		return nil, res.ErrForbidden
 	}
 

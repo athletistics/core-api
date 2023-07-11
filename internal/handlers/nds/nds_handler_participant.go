@@ -5,7 +5,9 @@
 package ndsHandler
 
 import (
+	"fmt"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"gorm.io/gorm"
@@ -19,6 +21,7 @@ func selectAttendances(user *models.User, activityId string, instanceId string) 
 	// verify parameters and access permission
 	_, instanceUuid, errParam := instanceExistsAndUserCanManage(user, activityId, instanceId)
 	if errParam != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", errParam), user.ID)
 		return nil, errParam
 	}
 
@@ -36,10 +39,12 @@ func setAttendances(user *models.User, activityId string, instanceId string, bod
 
 	// verify parameters and access permission
 	if parseError != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", parseError), user.ID)
 		return res.ErrBadRequest.Err(parseError)
 	}
 	activityUuid, instanceUuid, errParam := instanceExistsAndUserCanManage(user, activityId, instanceId)
 	if errParam != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", errParam), user.ID)
 		return errParam
 	}
 

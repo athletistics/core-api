@@ -5,6 +5,7 @@
 package ndsHandler
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database/types"
@@ -25,11 +26,13 @@ func selectInstances(user *models.User, activityId string) ([]models.NdsActivity
 	// verify parameters
 	activityUuid, err := uuid.Parse(activityId)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
 	}
 
 	// make sure the user is allowed to access instances of the activity
 	if !helpers.HasRoleOnActivity(user, activityUuid, helpers.RoleCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried reading activity instances from %v", activityId), user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -47,11 +50,13 @@ func selectInstance(user *models.User, activityId string, instanceId string) (*m
 	// verify parameters
 	uuids, err := parseUuids(activityId, instanceId)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
 	}
 
 	// make sure the user is allowed to access the instance of the activity
 	if !helpers.HasRoleOnActivity(user, uuids[0], helpers.RoleCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried reading activity instance %v", instanceId), user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -68,15 +73,18 @@ func createInstance(user *models.User, activityId string, body *models.NdsActivi
 
 	// verify parameters
 	if parseErr != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", parseErr), user.ID)
 		return nil, res.ErrBadRequest.Err(parseErr)
 	}
 	uuids, err := parseUuids(activityId)
 	if err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
 	}
 
 	// make sure the user is allowed to access the instance of the activity
 	if !helpers.HasRoleOnActivity(user, uuids[0], helpers.RoleCoach) {
+		helpers.LogSecurity("tried creating an instance", user.ID)
 		return nil, res.ErrForbidden
 	}
 
@@ -86,6 +94,7 @@ func createInstance(user *models.User, activityId string, body *models.NdsActivi
 		return nil, res.NewErrorFromDb(err)
 	}
 	if body.Date.T().Before(activity.StartTime.T()) || body.Date.T().After(activity.EndDate.T()) {
+		helpers.LogInfo("bad request: date out of range", user.ID)
 		return nil, res.ErrBadRequest
 	}
 
@@ -111,6 +120,7 @@ func deleteInstance(user *models.User, activityId string, instanceId string) *re
 	// verify parameters
 	_, instanceUuid, errParam := instanceExistsAndUserCanManage(user, activityId, instanceId)
 	if errParam != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", errParam), user.ID)
 		return errParam
 	}
 
