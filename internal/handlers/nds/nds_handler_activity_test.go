@@ -17,17 +17,19 @@ import (
 	"time"
 )
 
+var user = models.User{ID: "123"}
+
 func TestSelectActivities_BadParams(t *testing.T) {
-	_, err := selectActivities(nil, "")
+	_, err := selectActivities(&user, "")
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error, http.StatusBadRequest)
 
-	_, err = selectActivities(nil, "\"")
+	_, err = selectActivities(&user, "\"")
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error, http.StatusBadRequest)
 
 	id, _ := uuid.NewUUID()
-	_, err = selectActivities(nil, fmt.Sprintf("%vb", id))
+	_, err = selectActivities(&user, fmt.Sprintf("%vb", id))
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error, http.StatusBadRequest)
 }
@@ -41,7 +43,7 @@ func TestSelectActivities_Forbidden(t *testing.T) {
 	database.Mock.ExpectQuery(`SELECT .* FROM "authorisations"`).WillReturnRows(sqlmock.NewRows([]string{"club_id", "access_role_id"}))
 
 	id, _ := uuid.NewUUID()
-	_, err := selectActivities(nil, id.String())
+	_, err := selectActivities(&user, id.String())
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error, http.StatusForbidden)
 }
@@ -80,7 +82,7 @@ func TestSelectActivity(t *testing.T) {
 }
 
 func TestCreateActivity_BadParams(t *testing.T) {
-	_, err := createActivity(nil, nil, fmt.Errorf(""))
+	_, err := createActivity(&user, nil, fmt.Errorf(""))
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error, http.StatusBadRequest)
 }

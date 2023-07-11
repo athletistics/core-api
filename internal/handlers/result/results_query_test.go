@@ -34,7 +34,7 @@ func TestFindResults_User(t *testing.T) {
 	id := "id"
 
 	database.ConnectMockDB()
-	database.Mock.ExpectQuery(`SELECT .* "results"\."user_id" = \$2.*`).WillReturnRows(sqlmock.NewRows([]string{}))
+	database.Mock.ExpectQuery(`SELECT .* "results"\."user_id" = \$3.*`).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	r := &ResultQuery{UserID: &id}
 
@@ -49,7 +49,7 @@ func TestFindResults_Event(t *testing.T) {
 	user.ClubID = id
 
 	database.ConnectMockDB()
-	database.Mock.ExpectQuery(`SELECT .* FROM "results".*"results"\."event_id" = \$2.*`).WillReturnRows(sqlmock.NewRows([]string{}))
+	database.Mock.ExpectQuery(`SELECT .* FROM "results".*"results"\."event_id" = \$3.*`).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	r := &ResultQuery{EventID: &id}
 
@@ -63,7 +63,7 @@ func TestFindResults_EventType(t *testing.T) {
 	id := 1
 
 	database.ConnectMockDB()
-	database.Mock.ExpectQuery(`SELECT .* FROM "results".*inner join events.*events\.event_type_id = \$2.*`).WillReturnRows(sqlmock.NewRows([]string{}))
+	database.Mock.ExpectQuery(`SELECT .* FROM "results".*inner join events.*events\.event_type_id = \$3.*`).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	r := &ResultQuery{EventTypeID: &id}
 
@@ -78,7 +78,7 @@ func TestFindResults_Discipline(t *testing.T) {
 	user.ClubID = id
 
 	database.ConnectMockDB()
-	database.Mock.ExpectQuery(`SELECT .* FROM "results".*"results"\."discipline_id" = \$2.*`).WillReturnRows(sqlmock.NewRows([]string{}))
+	database.Mock.ExpectQuery(`SELECT.*FROM "results".*"results"\."discipline_id" = \$3.*`).WillReturnRows(sqlmock.NewRows([]string{}))
 
 	r := &ResultQuery{DisciplineID: &id}
 

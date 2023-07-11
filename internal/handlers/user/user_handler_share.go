@@ -70,13 +70,20 @@ func redeemShareCode(user *models.User, code string) (*models.UserShort, *res.Er
 		return nil, res.NewErrorFromDb(err)
 	}
 
-	// add the user to the requesting user's parent club as athlete
-	auth := models.Authorisation{
-		AccessRoleID: models.AccessRoleIdAthlete,
-		UserID:       share.UserID,
-		ClubID:       user.ClubID,
-	}
-	if err := db.Create(&auth).Error; err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+	err = db.Transaction(func(tx *gorm.DB) error {
+		// add the user to the requesting user's parent club as athlete
+		auth := models.Authorisation{AccessRoleID: models.AccessRoleIdAthlete, UserID: share.UserID, ClubID: user.ClubID}
+		if err := tx.Create(&auth).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Unscoped().Delete(&share).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
 		return nil, res.NewErrorFromDb(err)
 	}
 

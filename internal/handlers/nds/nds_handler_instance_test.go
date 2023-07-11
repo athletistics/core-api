@@ -18,7 +18,7 @@ import (
 )
 
 func TestSelectInstances_BadParam(t *testing.T) {
-	_, err := selectInstances(nil, "")
+	_, err := selectInstances(&user, "")
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error, http.StatusBadRequest)
@@ -32,7 +32,7 @@ func TestSelectInstances_Forbidden(t *testing.T) {
 
 	mockActivityAuthorisations(clubId, helpers.RoleAthlete)
 
-	_, err := selectInstances(nil, activityId.String())
+	_, err := selectInstances(&user, activityId.String())
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error, http.StatusForbidden)

@@ -74,6 +74,7 @@ func TestRedeemShareCode_Success(t *testing.T) {
 	database.Mock.ExpectBegin()
 	database.Mock.ExpectExec(`INSERT INTO "authorisations"`).WithArgs(models.AccessRoleIdAthlete, userId, clubId, AnyTime{}, AnyTime{}, nil).
 		WillReturnResult(sqlmock.NewResult(0, 1))
+	database.Mock.ExpectExec(`DELETE FROM "user_shares"`).WillReturnResult(sqlmock.NewResult(0, 1))
 	database.Mock.ExpectCommit()
 
 	// read user for return

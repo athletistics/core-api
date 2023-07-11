@@ -60,7 +60,7 @@ func TestAddRole(t *testing.T) {
 }
 
 func TestAddRole_AmbiguousBody(t *testing.T) {
-	err := addRole(nil, "", nil, fmt.Errorf(""))
+	err := addRole(&requestingUser, "", nil, fmt.Errorf(""))
 	assert.NotNil(t, err)
 	assert.Equal(t, http.StatusBadRequest, err.Error)
 
