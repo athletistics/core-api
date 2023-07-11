@@ -58,10 +58,7 @@ func setAttendances(user *models.User, activityId string, instanceId string, bod
 		}
 
 		// get list of all users to be added
-		userIds := make([]string, len(*body))
-		for i := 0; i < len(userIds); i++ {
-			userIds[i] = (*body)[i].UserID
-		}
+		userIds := getIdsInBody(body)
 
 		// count the number of users that have authorisations on the owner club of the activity instance
 		var nbRecords int64
@@ -97,4 +94,13 @@ func setAttendances(user *models.User, activityId string, instanceId string, bod
 	})
 
 	return res.NewErrorFromDb(err)
+}
+
+func getIdsInBody(body *[]models.NdsAttendanceInput) []string {
+	userIds := make([]string, len(*body))
+	for i := 0; i < len(userIds); i++ {
+		userIds[i] = (*body)[i].UserID
+	}
+
+	return userIds
 }
