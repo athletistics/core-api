@@ -19,6 +19,8 @@ import (
 
 const (
 	ParamUserId = "id"
+	QueryCode   = "code"
+	QueryUser   = "userId"
 )
 
 // GetUsers lists all users owned by the authenticated user's club.
@@ -199,4 +201,104 @@ func GetUser(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(targetUser)
+}
+
+// GetShareCode issues a single-use code allowing some other club to add the user to his club. The code is valid for 24 hours.
+//
+//	@Summary	Get a single-use code allowing some other club to add the user to his club. The code is valid for 24 hours.
+//	@Tags		User share
+//	@Produce	json
+//	@Param		userId	query		string	true	"User identifier"
+//	@Success	200	{object}	models.UserShare
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users/share [get]
+func GetShareCode(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
+	targetUserId := c.Query(QueryUser)
+
+	data, err := createShareCode(&user, targetUserId)
+	return helpers.ProcessJsonResponse(c, data, err)
+}
+
+// RedeemShareCode redeems a code and adds a user as athlete to the club.
+//
+//		@Summary	Add a user as athlete to the club using a share code.
+//		@Tags		User share
+//		@Consumes	json
+//	 	@Param 		code query string true
+//		@Success	200	{object}	models.UserShort
+//		@Failure	401	{object}	res.Error
+//		@Failure	403	{object}	res.Error	"Not enough permissions"
+//		@Failure	404	{object}	res.Error	"Invalid code"
+//		@Security	ApiKeyAuth
+//		@Router		/users/share [post]
+func RedeemShareCode(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
+	code := c.Query(QueryCode)
+
+	data, err := redeemShareCode(&user, code)
+	return helpers.ProcessJsonResponse(c, data, err)
+}
+
+// GetRoles lists all role of a specific user that the requesting user has permissions to read.
+//
+//		@Summary	Add an authorisation role to a specific user.
+//		@Tags		User auth
+//		@Produce	json
+//	 @Param userId query string true
+//		@Success	200	{object}	[]models.Authorisation
+//		@Failure	401	{object}	res.Error
+//		@Failure	403	{object}	res.Error	"Not enough permissions"
+//		@Security	ApiKeyAuth
+//		@Router		/users/{userId}/roles [post]
+func GetRoles(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
+	targetUserId := c.Params(ParamUserId)
+
+	data, err := getRoles(&user, targetUserId)
+	return helpers.ProcessJsonResponse(c, data, err)
+}
+
+// AddRole adds an authorisation role to a specific user.
+//
+//		@Summary	Add an authorisation role to a specific user.
+//		@Tags		User auth
+//		@Consume	json
+//	 @Param request body models.Authorisation true
+//		@Success	200	{string}	string
+//		@Failure	401	{object}	res.Error
+//		@Failure	403	{object}	res.Error	"Not enough permissions"
+//		@Security	ApiKeyAuth
+//		@Router		/users/{userId}/roles [post]
+func AddRole(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
+	b := new(models.Authorisation)
+	parseErr := c.BodyParser(b)
+	targetUserId := c.Params(ParamUserId)
+
+	err := addRole(&user, targetUserId, b, parseErr)
+	return helpers.ProcessJsonResponse(c, nil, err)
+}
+
+// RemoveRole returns details of a specific user.
+//
+//	@Summary	Remove an authorisation role from a specific user.
+//	@Tags		User auth
+//	@Produce	json
+//	 @Param request body models.Authorisation true
+//	@Success	200	{string}	string
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users/{userId}/roles [delete]
+func RemoveRole(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
+	b := new(models.Authorisation)
+	parseErr := c.BodyParser(b)
+	targetUserId := c.Params(ParamUserId)
+
+	err := removeRole(&user, targetUserId, b, parseErr)
+	return helpers.ProcessJsonResponse(c, nil, err)
 }

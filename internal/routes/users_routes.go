@@ -21,5 +21,13 @@ func SetupUsersRoutesTotpProtected(router fiber.Router) {
 
 	node.Get("/", userHandler.GetUsers)
 	node.Post("/", userHandler.CreateUser)
+	node.Post("/share", userHandler.RedeemShareCode)
+
 	node.Get(fmt.Sprintf("/:%v", userHandler.ParamUserId), userHandler.GetUser)
+
+	node.Get(fmt.Sprintf("/:%v/roles", userHandler.ParamUserId), userHandler.GetRoles)
+	node.Post(fmt.Sprintf("/:%v/roles", userHandler.ParamUserId), userHandler.AddRole)
+	node.Delete(fmt.Sprintf("/:%v/roles", userHandler.ParamUserId), userHandler.RemoveRole)
+
+	node.Get(fmt.Sprintf("/:%v/share", userHandler.ParamUserId), userHandler.GetShareCode)
 }

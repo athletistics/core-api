@@ -59,7 +59,7 @@ func ConnectDb() {
 	log.Println("running migrations")
 	if db.AutoMigrate(&models.AccessRole{}, &models.Authorisation{}, &models.Category{}, &models.Club{}, &models.Country{},
 		&models.Discipline{}, &models.Email{}, &models.Event{}, &models.EventType{}, &models.Participant{},
-		&models.Phone{}, &models.Result{}, &models.Sport{}, &models.Team{},
+		&models.Phone{}, &models.Result{}, &models.Sport{}, &models.Team{}, &models.UserShare{},
 		&models.User{}, &models.Language{}, &models.Gender{}, &models.ResultStatic{}, &models.ResultStaticType{},
 		// External IDs
 		&models.ExternalIdType{}, &models.ExternalId{},

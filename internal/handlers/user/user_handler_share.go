@@ -1,0 +1,81 @@
+// Brief   : Share users between clubs.
+// Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
+// Created : 11.07.2023
+
+package userHandler
+
+import (
+	"errors"
+	"github.com/google/uuid"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
+	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
+	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
+	"gorm.io/gorm"
+	"time"
+)
+
+// createShareCode creates a new entry in the UserShare table and returns the created object.
+// The object's ID can then be used to add the user on another club.
+func createShareCode(user *models.User, targetUserId string) (*models.UserShare, *res.Error) {
+	db := database.DB
+
+	targetUser := models.User{ID: targetUserId}
+	if err := db.First(&targetUser).Error; err != nil {
+		return nil, res.NewErrorFromDb(err)
+	}
+
+	// Make sure requesting user is head coach on target user's parent club
+	if !helpers.HasRoleOnClub(user, targetUser.ClubID, helpers.RoleHeadCoach) {
+		return nil, res.ErrForbidden
+	}
+
+	// Create and return share code
+	shareCode := models.UserShare{UserID: targetUser.ID}
+	if err := db.Create(&shareCode).Error; err != nil {
+		return nil, res.NewErrorFromDb(err)
+	}
+
+	return &shareCode, nil
+}
+
+// redeemShareCode adds a user to the requesting user's parent club based on a share code. If the user is already added
+// to the target club, the request is considered successful. The added user is returned.
+func redeemShareCode(user *models.User, code string) (*models.UserShort, *res.Error) {
+	db := database.DB
+
+	// verify the code is in a valid format
+	codeUuid, err := uuid.Parse(code)
+	if err != nil {
+		return nil, res.ErrBadRequest.Err(err)
+	}
+
+	// make sure user has required permissions
+	if !helpers.HasRoleOnParentClub(user, helpers.RoleHeadCoach) {
+		return nil, res.ErrForbidden
+	}
+
+	// find the corresponding user share
+	share := models.UserShare{ID: codeUuid}
+	yesterday := time.Now().AddDate(0, 0, -1)
+	if err := db.Where("created_at > ?", yesterday).First(&share).Error; err != nil {
+		return nil, res.NewErrorFromDb(err)
+	}
+
+	// add the user to the requesting user's parent club as athlete
+	auth := models.Authorisation{
+		AccessRoleID: models.AccessRoleIdAthlete,
+		UserID:       share.UserID,
+		ClubID:       user.ClubID,
+	}
+	if err := db.Create(&auth).Error; err != nil && !errors.Is(err, gorm.ErrDuplicatedKey) {
+		return nil, res.NewErrorFromDb(err)
+	}
+
+	// return the added user
+	var addedUser models.UserShort
+	if err := db.Model(&models.User{}).First(&addedUser, share.UserID).Error; err != nil {
+		return nil, res.NewErrorFromDb(err)
+	}
+	return &addedUser, nil
+}
