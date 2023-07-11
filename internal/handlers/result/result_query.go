@@ -32,8 +32,14 @@ func FindResults(query *ResultQuery, outModel interface{}, callingUser *models.U
 	var err error
 	db := database.DB
 
-	// join results with users, limiting the results to the users that belong to the requesting user's club
-	q := db.Model(&models.Result{}).Joins("inner join users ON users.id = results.user_id AND users.club_id = ?", callingUser.ClubID)
+	// join results with users, limiting the results to the users that belong to the requesting user's club and users
+	// that are shared with their club.
+	q := db.Model(&models.Result{}).
+		Joins("inner join users ON users.id = results.user_id AND users.id IN (?)",
+			db.Distinct("users.id").Table("users").
+				Joins(`LEFT JOIN authorisations a ON a.user_id = users.id`).
+				Where(`users.club_id = ? OR a.club_id = ?`, callingUser.ClubID, callingUser.ClubID),
+		)
 
 	// apply filters passed through the query argument
 	if query.UserID != nil {
@@ -103,19 +109,24 @@ func RunCreateQuery(c *fiber.Ctx, body *models.ResultInput) error {
 
 	// make sure user, event, and discipline can be used
 	u := models.User{ID: body.UserId}
-	if err := db.Where(&models.User{ClubID: user.ClubID}).First(&u).Error; err != nil {
+	if err := db.First(&u).Error; err != nil {
 		helpers.LogSecurity(fmt.Sprintf("tried using user id %v", body.UserId), helpers.GetUserId(c))
-		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
+	}
+
+	if !helpers.HasRoleOnOneOfTheClubs(&user, &u, helpers.RoleCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried using user id %v", body.UserId), helpers.GetUserId(c))
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	d := models.Discipline{ID: body.DisciplineID}
-	if err := db.Where("club_id IS NULL OR club_id = ?", u.ClubID).First(&d).Error; err != nil {
+	if err := db.Where("club_id IS NULL OR club_id = ?", user.ClubID).First(&d).Error; err != nil {
 		helpers.LogSecurity(fmt.Sprintf("tried using discipline %v", body.DisciplineID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 
 	e := models.Event{ID: body.EventID}
-	if err := db.Where("club_id IS NULL OR club_id = ?", u.ClubID).First(&e).Error; err != nil {
+	if err := db.Where("club_id IS NULL OR club_id = ?", user.ClubID).First(&e).Error; err != nil {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing using event %v", body.EventID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}

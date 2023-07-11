@@ -76,6 +76,7 @@ func GetParticipants(c *fiber.Ctx) error {
 //	@Router		/teams/{team_id}/participants [post]
 func AddParticipants(c *fiber.Ctx) error {
 	db := database.DB
+	user := helpers.GetUser(c)
 	ok, team, err := canAccessTeam(c, []helpers.Role{helpers.RoleHeadCoach})
 	if !ok {
 		return err
@@ -89,18 +90,19 @@ func AddParticipants(c *fiber.Ctx) error {
 
 	// get requested users
 	var users []models.User
-	err = db.Find(&users, userIds).Error
+	err = db.InnerJoins(`LEFT JOIN authorisations a ON a.user_id = users.id AND a.club_id = ? `, user.ClubID).
+		Where(`users.club_id = ? OR a.club_id = ?`, user.ClubID, user.ClubID).
+		Group("users.id"). // group to get distinct users
+		Find(&users, userIds).Error
 	if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
 	// check if all users are member of the head coach's club
-	for i := 0; i < len(users); i++ {
-		if users[i].ClubID != team.ClubID {
-			helpers.LogSecurity(fmt.Sprintf("tried modifying team members %v", team.ID), helpers.GetUserId(c))
-			return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
-		}
+	if len(userIds) != len(users) {
+		helpers.LogSecurity(fmt.Sprintf("adding participants failed: some users are not members of the club %v", team.ClubID), helpers.GetUserId(c))
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden.Err(err))
 	}
 
 	// create necessary participants objects

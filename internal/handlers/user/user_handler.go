@@ -5,7 +5,6 @@
 package userHandler
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
@@ -18,38 +17,74 @@ import (
 )
 
 const (
-	ParamUserId = "id"
-	QueryCode   = "code"
-	QueryUser   = "userId"
+	ParamUserId    = "id"
+	QueryCode      = "code"
+	QueryUser      = "userId"
+	QuerySeparated = "separated"
 )
 
-// GetUsers lists all users owned by the authenticated user's club.
+// GetUsers lists all users owned by the authenticated user's club, and shared with the club.
 //
 //	@Summary	List users
 //	@Tags		User info
 //	@Produce	json
-//	@Success	200	{object}	[]models.User
+//
+// @Param separated query boolean false "Flag defining if users are separated as 'owned by club' and 'shared' or not"
+//
+//	@Success	200	{object}	[]models.User "owned and shared users combined ('separated' flag omitted or false)"
+//	@Success	200	{object}	userHandler.GetUsers.usersSeparated "owned and shared users separated ('separated' flag true)"
 //	@Failure	401	{object}	res.Error
 //	@Failure	403	{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/users [get]
 func GetUsers(c *fiber.Ctx) error {
+	type usersSeparated struct {
+		Owned  []models.User `json:"owned"`
+		Shared []models.User `json:"shared"`
+	}
+
 	db := database.DB
 	user := helpers.GetUser(c)
+	separated := c.QueryBool(QuerySeparated)
 
 	if !helpers.HasRoleOnClub(&user, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		helpers.LogSecurity(fmt.Sprintf("tried accessing users of club %v", user.ClubID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
-	var users []models.User
-	err := db.Where(&models.User{ClubID: user.ClubID}).Find(&users).Error
-	if err != nil {
-		helpers.LogError(err.Error(), helpers.GetUserId(c))
-		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
-	}
+	if separated {
+		var usersOwned []models.User
+		err := db.Where(&models.User{ClubID: user.ClubID}).Find(&usersOwned).Error
+		if err != nil {
+			helpers.LogError(err.Error(), helpers.GetUserId(c))
+			return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+		}
 
-	return c.JSON(users)
+		// find all users with authorisation on the club, but not owned by the club
+		var usersShared []models.User
+		err = db.InnerJoins(`INNER JOIN authorisations a ON a.user_id = users.id AND a.club_id = ? `, user.ClubID).
+			Where(`users.club_id <> ?`, user.ClubID).
+			Group("users.id"). // group to get distinct users
+			Find(&usersShared).Error
+		if err != nil {
+			helpers.LogError(err.Error(), helpers.GetUserId(c))
+			return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+		}
+
+		return c.JSON(usersSeparated{usersOwned, usersShared})
+	} else {
+		var users []models.User
+		err := db.InnerJoins(`LEFT JOIN authorisations a ON a.user_id = users.id AND a.club_id = ? `, user.ClubID).
+			Where(`users.club_id = ? OR a.club_id = ?`, user.ClubID, user.ClubID).
+			Group("users.id"). // group to get distinct users
+			Find(&users).Error
+		if err != nil {
+			helpers.LogError(err.Error(), helpers.GetUserId(c))
+			return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+		}
+
+		return c.JSON(users)
+	}
 }
 
 // GetEmergencyUsers lists all users owned by the authenticated user's club, but only shows emergency information.
@@ -72,7 +107,11 @@ func GetEmergencyUsers(c *fiber.Ctx) error {
 	}
 
 	var users []models.UserEmergency
-	err := db.Model(&models.User{}).Where(&models.User{ClubID: user.ClubID}).Find(&users).Error
+	err := db.Model(&models.User{}).
+		InnerJoins(`LEFT JOIN authorisations a ON a.user_id = users.id AND a.club_id = ? `, user.ClubID).
+		Where(`users.club_id = ? OR a.club_id = ?`, user.ClubID, user.ClubID).
+		Group("users.id").
+		Find(&users).Error
 	if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
@@ -163,11 +202,6 @@ func GetUser(c *fiber.Ctx) error {
 	db := database.DB
 	user := helpers.GetUser(c)
 
-	if !helpers.HasRoleOnClub(&user, user.ClubID, helpers.RoleCoach, helpers.RoleHeadCoach) {
-		helpers.LogSecurity(fmt.Sprintf("tried reading user %v", user.ID), helpers.GetUserId(c))
-		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
-	}
-
 	// read the requested user id, and verify that it is a numeric string
 	userId := c.Params(ParamUserId)
 	if _, err := strconv.ParseInt(userId, 10, 64); err != nil {
@@ -177,15 +211,16 @@ func GetUser(c *fiber.Ctx) error {
 
 	// search the user
 	targetUser := models.User{ID: userId}
-	err := db.Where(&models.User{ClubID: user.ClubID}).
-		Preload("Nationality").Preload("Country").Preload("Club").
+	err := db.Preload("Nationality").Preload("Country").Preload("Club").
 		First(&targetUser).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		helpers.LogSecurity(fmt.Sprintf("tried accessing user %v", userId), helpers.GetUserId(c))
-		return c.Status(http.StatusForbidden).JSON(res.ErrForbiddenNotFound)
-	} else if err != nil {
+	if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	}
+
+	if !helpers.HasRoleOnOneOfTheClubs(&user, &targetUser, helpers.RoleCoach, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried reading user %v", user.ID), helpers.GetUserId(c))
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
 	// users with logins read the login state from Zitadel
