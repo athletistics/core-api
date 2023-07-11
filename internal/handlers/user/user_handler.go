@@ -29,12 +29,12 @@ const (
 //	@Tags		User info
 //	@Produce	json
 //
-// @Param separated query boolean false "Flag defining if users are separated as 'owned by club' and 'shared' or not"
+//	@Param		separated	query		boolean								false	"Flag defining if users are separated as 'owned by club' and 'shared' or not"
 //
-//	@Success	200	{object}	[]models.User "owned and shared users combined ('separated' flag omitted or false)"
-//	@Success	200	{object}	userHandler.GetUsers.usersSeparated "owned and shared users separated ('separated' flag true)"
-//	@Failure	401	{object}	res.Error
-//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Success	200			{object}	[]models.User						"owned and shared users combined ('separated' flag omitted or false)"
+//	@Success	200			{object}	userHandler.GetUsers.usersSeparated	"owned and shared users separated ('separated' flag true)"
+//	@Failure	401			{object}	res.Error
+//	@Failure	403			{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/users [get]
 func GetUsers(c *fiber.Ctx) error {

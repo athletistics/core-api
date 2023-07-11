@@ -2045,14 +2045,19 @@ const docTemplate = `{
                     "User info"
                 ],
                 "summary": "List users",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Flag defining if users are separated as 'owned by club' and 'shared' or not",
+                        "name": "separated",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "owned and shared users separated ('separated' flag true)",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.User"
-                            }
+                            "$ref": "#/definitions/userHandler.GetUsers.usersSeparated"
                         }
                     },
                     "401": {
@@ -3189,6 +3194,23 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.UserShort"
+                    }
+                }
+            }
+        },
+        "userHandler.GetUsers.usersSeparated": {
+            "type": "object",
+            "properties": {
+                "owned": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "shared": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
                     }
                 }
             }

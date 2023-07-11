@@ -510,6 +510,17 @@ definitions:
           $ref: '#/definitions/models.UserShort'
         type: array
     type: object
+  userHandler.GetUsers.usersSeparated:
+    properties:
+      owned:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      shared:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
 host: athletistics.kube.isc.heia-fr.ch
 info:
   contact:
@@ -1780,15 +1791,19 @@ paths:
       - Team
   /users:
     get:
+      parameters:
+      - description: Flag defining if users are separated as 'owned by club' and 'shared'
+          or not
+        in: query
+        name: separated
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: owned and shared users separated ('separated' flag true)
           schema:
-            items:
-              $ref: '#/definitions/models.User'
-            type: array
+            $ref: '#/definitions/userHandler.GetUsers.usersSeparated'
         "401":
           description: Unauthorized
           schema:
