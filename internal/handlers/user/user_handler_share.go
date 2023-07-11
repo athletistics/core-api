@@ -20,6 +20,10 @@ import (
 // The object's ID can then be used to add the user on another club.
 func createShareCode(user *models.User, targetUserId string) (*models.UserShare, *res.Error) {
 	db := database.DB
+	if len(targetUserId) == 0 {
+		helpers.LogInfo("bad request: missing user id", user.ID)
+		return nil, res.ErrBadRequest
+	}
 
 	targetUser := models.User{ID: targetUserId}
 	if err := db.First(&targetUser).Error; err != nil {
