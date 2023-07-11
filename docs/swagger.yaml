@@ -15,6 +15,15 @@ definitions:
       id:
         type: integer
     type: object
+  models.Authorisation:
+    properties:
+      accessRoleId:
+        type: integer
+      clubId:
+        type: string
+      userId:
+        type: string
+    type: object
   models.Category:
     properties:
       gender:
@@ -442,6 +451,11 @@ definitions:
       club:
         type: string
       role:
+        type: string
+    type: object
+  models.UserShare:
+    properties:
+      code:
         type: string
     type: object
   models.UserShort:
@@ -1842,6 +1856,90 @@ paths:
       summary: Get a user's details
       tags:
       - User info
+  /users/{userId}/roles:
+    delete:
+      parameters:
+      - description: Authorisation to remove
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Authorisation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove an authorisation role from a specific user.
+      tags:
+      - User auth
+    get:
+      parameters:
+      - description: Target user ID
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Authorisation'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Add an authorisation role to a specific user.
+      tags:
+      - User auth
+    post:
+      parameters:
+      - description: Authorisation to add
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Authorisation'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Add an authorisation role to a specific user.
+      tags:
+      - User auth
   /users/emergency:
     get:
       produces:
@@ -1866,6 +1964,64 @@ paths:
       summary: List users
       tags:
       - User info
+  /users/share:
+    get:
+      parameters:
+      - description: User identifier
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserShare'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a single-use code allowing some other club to add the user to his
+        club. The code is valid for 24 hours.
+      tags:
+      - User share
+    post:
+      parameters:
+      - description: Share code
+        in: query
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserShort'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+        "404":
+          description: Invalid code
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Add a user as athlete to the club using a share code.
+      tags:
+      - User share
 schemes:
 - https
 securityDefinitions:

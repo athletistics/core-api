@@ -209,9 +209,9 @@ func GetUser(c *fiber.Ctx) error {
 //	@Tags		User share
 //	@Produce	json
 //	@Param		userId	query		string	true	"User identifier"
-//	@Success	200	{object}	models.UserShare
-//	@Failure	401	{object}	res.Error
-//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Success	200		{object}	models.UserShare
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/users/share [get]
 func GetShareCode(c *fiber.Ctx) error {
@@ -224,16 +224,16 @@ func GetShareCode(c *fiber.Ctx) error {
 
 // RedeemShareCode redeems a code and adds a user as athlete to the club.
 //
-//		@Summary	Add a user as athlete to the club using a share code.
-//		@Tags		User share
-//		@Consumes	json
-//	 	@Param 		code query string true
-//		@Success	200	{object}	models.UserShort
-//		@Failure	401	{object}	res.Error
-//		@Failure	403	{object}	res.Error	"Not enough permissions"
-//		@Failure	404	{object}	res.Error	"Invalid code"
-//		@Security	ApiKeyAuth
-//		@Router		/users/share [post]
+//	@Summary	Add a user as athlete to the club using a share code.
+//	@Tags		User share
+//	@Consumes	json
+//	@Param		code	query		string	true	"Share code"
+//	@Success	200		{object}	models.UserShort
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Failure	404		{object}	res.Error	"Invalid code"
+//	@Security	ApiKeyAuth
+//	@Router		/users/share [post]
 func RedeemShareCode(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 	code := c.Query(QueryCode)
@@ -244,15 +244,15 @@ func RedeemShareCode(c *fiber.Ctx) error {
 
 // GetRoles lists all role of a specific user that the requesting user has permissions to read.
 //
-//		@Summary	Add an authorisation role to a specific user.
-//		@Tags		User auth
-//		@Produce	json
-//	 @Param userId query string true
-//		@Success	200	{object}	[]models.Authorisation
-//		@Failure	401	{object}	res.Error
-//		@Failure	403	{object}	res.Error	"Not enough permissions"
-//		@Security	ApiKeyAuth
-//		@Router		/users/{userId}/roles [post]
+//	@Summary	Add an authorisation role to a specific user.
+//	@Tags		User auth
+//	@Produce	json
+//	@Param		userId	query		string	true	"Target user ID"
+//	@Success	200		{object}	[]models.Authorisation
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users/{userId}/roles [get]
 func GetRoles(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 	targetUserId := c.Params(ParamUserId)
@@ -263,15 +263,15 @@ func GetRoles(c *fiber.Ctx) error {
 
 // AddRole adds an authorisation role to a specific user.
 //
-//		@Summary	Add an authorisation role to a specific user.
-//		@Tags		User auth
-//		@Consume	json
-//	 @Param request body models.Authorisation true
-//		@Success	200	{string}	string
-//		@Failure	401	{object}	res.Error
-//		@Failure	403	{object}	res.Error	"Not enough permissions"
-//		@Security	ApiKeyAuth
-//		@Router		/users/{userId}/roles [post]
+//	@Summary	Add an authorisation role to a specific user.
+//	@Tags		User auth
+//	@Consume	json
+//	@Param		request	body		models.Authorisation	true	"Authorisation to add"
+//	@Success	200		{string}	string
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users/{userId}/roles [post]
 func AddRole(c *fiber.Ctx) error {
 	user := helpers.GetUser(c)
 	b := new(models.Authorisation)
@@ -287,10 +287,10 @@ func AddRole(c *fiber.Ctx) error {
 //	@Summary	Remove an authorisation role from a specific user.
 //	@Tags		User auth
 //	@Produce	json
-//	 @Param request body models.Authorisation true
-//	@Success	200	{string}	string
-//	@Failure	401	{object}	res.Error
-//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Param		request	body		models.Authorisation	true	"Authorisation to remove"
+//	@Success	200		{string}	string
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/users/{userId}/roles [delete]
 func RemoveRole(c *fiber.Ctx) error {
