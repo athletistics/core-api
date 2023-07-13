@@ -2,14 +2,19 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: core-db-seeder
-  labels:
-    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-postgresql-core
 spec:
   template:
     spec:
       containers:
         - name: core-db-seeder
           image: registry.forge.hefr.ch/tb-athletistics/backend/seeder
+          resources:
+            limits:
+              cpu: "2"
+              memory: 512Mi
+            requests:
+              cpu: "2"
+              memory: 512Mi
           env:
             - name: INFISICAL_TOKEN
               valueFrom:
