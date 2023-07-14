@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: infisical
+  namespace: athletistics
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: athletistics-infisical.kube.isc.heia-fr.ch
+      http:
+        paths:
+          - backend:
+              service:
+                name: infisical
+                port:
+                  number: 3000
+            path: /
+            pathType: Prefix
+          - backend:
+              service:
+                name: infisical
+                port:
+                  number: 4000
+            path: /api
+            pathType: Prefix
+  tls:
+    - hosts:
+        - athletistics-infisical.kube.isc.heia-fr.ch

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: totpdb
+  namespace: athletistics
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: heketi-external
+  volumeMode: Filesystem
+  volumeName: pvc-92d3465a-6ce1-463b-83bc-438d8dd582f0
+status:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  phase: Bound

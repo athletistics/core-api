@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api
+  namespace: athletistics
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: athletistics.kube.isc.heia-fr.ch
+      http:
+        paths:
+          - backend:
+              service:
+                name: backend
+                port:
+                  number: 3000
+            path: /api/v1
+            pathType: Prefix
+          - backend:
+              service:
+                name: totp
+                port:
+                  number: 3000
+            path: /api/v1/totp
+            pathType: Prefix
+          - backend:
+              service:
+                name: strava
+                port:
+                  number: 3000
+            path: /api/v1/strava
+            pathType: Prefix
+  tls:
+    - hosts:
+        - athletistics.kube.isc.heia-fr.ch

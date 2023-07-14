@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-strava
+  name: strava
+  namespace: athletistics
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.deployment-athletistics-strava
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: '2023-07-14T12:01:10Z'
+      creationTimestamp: null
+      labels:
+        workload.user.cattle.io/workloadselector: apps.deployment-athletistics-strava
+      namespace: athletistics
+    spec:
+      containers:
+        - env:
+            - name: INFISICAL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: INFISICAL_TOKEN
+                  name: infisical-strava
+                  optional: false
+            - name: INFISICAL_API_URL
+              valueFrom:
+                secretKeyRef:
+                  key: INFISICAL_API_URL
+                  name: infisical-strava
+                  optional: false
+          image: registry.forge.hefr.ch/tb-athletistics/microservice-strava
+          imagePullPolicy: Always
+          name: container-0
+          ports:
+            - containerPort: 3000
+              name: strava
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+      imagePullSecrets:
+        - name: registry

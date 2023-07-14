@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: coredb
+  namespace: athletistics
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: heketi-external
+  volumeMode: Filesystem
+  volumeName: pvc-6655414b-161f-459e-b2ff-abb12e9aebb3
+status:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  phase: Bound

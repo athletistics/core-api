@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-postgres-strava
+  name: postgres-strava
+  namespace: athletistics
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.deployment-athletistics-postgres-strava
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        cattle.io/timestamp: '2023-06-15T08:41:51Z'
+      creationTimestamp: null
+      labels:
+        workload.user.cattle.io/workloadselector: apps.deployment-athletistics-postgres-strava
+      name: postgres-strava
+      namespace: athletistics
+    spec:
+      affinity: {}
+      containers:
+        - env:
+            - name: POSTGRES_USER
+              value: stravauser
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: PWD_STRAVA
+                  name: postgres
+                  optional: false
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          image: postgres:15.3
+          imagePullPolicy: Always
+          name: container-0
+          ports:
+            - containerPort: 5429
+              name: stravadb
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 400m
+              memory: 256Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: vol-3v6xw
+      volumes:
+        - name: vol-3v6xw
+          persistentVolumeClaim:
+            claimName: stravadb

@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    pv.kubernetes.io/bind-completed: 'yes'
+    pv.kubernetes.io/bound-by-controller: 'yes'
+    volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/glusterfs
+    volume.kubernetes.io/storage-provisioner: kubernetes.io/glusterfs
+  creationTimestamp: '2023-06-15T13:57:04Z'
+  finalizers:
+    - kubernetes.io/pvc-protection
+  managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:spec:
+          f:accessModes: {}
+          f:resources:
+            f:requests:
+              .: {}
+              f:storage: {}
+          f:storageClassName: {}
+          f:volumeMode: {}
+      manager: rancher
+      operation: Update
+      time: '2023-06-15T13:57:04Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:annotations:
+            .: {}
+            f:pv.kubernetes.io/bind-completed: {}
+            f:pv.kubernetes.io/bound-by-controller: {}
+            f:volume.beta.kubernetes.io/storage-provisioner: {}
+            f:volume.kubernetes.io/storage-provisioner: {}
+        f:spec:
+          f:volumeName: {}
+      manager: kube-controller-manager
+      operation: Update
+      time: '2023-06-15T13:57:15Z'
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:status:
+          f:accessModes: {}
+          f:capacity:
+            .: {}
+            f:storage: {}
+          f:phase: {}
+      manager: kube-controller-manager
+      operation: Update
+      subresource: status
+      time: '2023-06-15T13:57:15Z'
+  name: stravadb
+  namespace: athletistics
+  resourceVersion: '560171462'
+  uid: 2235a7b9-d5ac-49e4-8d66-70bb8ab2c8f9
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: heketi-external
+  volumeMode: Filesystem
+  volumeName: pvc-2235a7b9-d5ac-49e4-8d66-70bb8ab2c8f9
+status:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  phase: Bound

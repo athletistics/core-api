@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: strava
+  namespace: athletistics
+spec:
+  ports:
+    - name: strava
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-strava
+  sessionAffinity: None
+  type: ClusterIP

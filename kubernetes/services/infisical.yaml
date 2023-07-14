@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: infisical
+  namespace: athletistics
+spec:
+  ports:
+    - name: infisical-api
+      port: 4000
+      protocol: TCP
+      targetPort: 4000
+    - name: infisical-frontend
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical
+  sessionAffinity: None
+  type: ClusterIP

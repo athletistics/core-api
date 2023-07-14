@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-totp
+  namespace: athletistics
+spec:
+  ports:
+    - name: totpdb
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-postgres-totp
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

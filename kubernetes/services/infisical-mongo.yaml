@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: infisical-mongo
+  namespace: athletistics
+spec:
+  ports:
+    - name: mongo
+      port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical-mongo
+  sessionAffinity: None
+  type: ClusterIP

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical-mongo
+  name: infisical-mongo
+  namespace: athletistics
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical-mongo
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical-mongo
+      namespace: athletistics
+    spec:
+      containers:
+        - env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_INITDB_ROOT_USERNAME
+                  name: infisical-secrets
+                  optional: false
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_INITDB_ROOT_PASSWORD
+                  name: infisical-secrets
+                  optional: false
+          image: mongo
+          imagePullPolicy: Always
+          name: container-0
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - mountPath: /data/db
+              name: vol-rlhew
+      volumes:
+        - name: vol-rlhew
+          persistentVolumeClaim:
+            claimName: infisical-data

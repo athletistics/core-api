@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical
+  name: infisical
+  namespace: athletistics
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        cattle.io/timestamp: '2023-06-13T13:53:02Z'
+      creationTimestamp: null
+      labels:
+        workload.user.cattle.io/workloadselector: apps.deployment-athletistics-infisical
+      namespace: athletistics
+    spec:
+      containers:
+        - env:
+            - name: ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: ENCRYPTION_KEY
+                  name: infisical-secrets
+                  optional: false
+            - name: JWT_SIGNUP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: JWT_SIGNUP_SECRET
+                  name: infisical-secrets
+                  optional: false
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: JWT_REFRESH_SECRET
+                  name: infisical-secrets
+                  optional: false
+            - name: JWT_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: JWT_AUTH_SECRET
+                  name: infisical-secrets
+                  optional: false
+            - name: JWT_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: JWT_SERVICE_SECRET
+                  name: infisical-secrets
+                  optional: false
+            - name: MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_URL
+                  name: infisical-secrets
+                  optional: false
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_INITDB_ROOT_USERNAME
+                  name: infisical-secrets
+                  optional: false
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: MONGO_INITDB_ROOT_PASSWORD
+                  name: infisical-secrets
+                  optional: false
+            - name: SITE_URL
+              value: https://athletistics-infisical.kube.isc.heia-fr.ch
+          image: infisical/infisical:latest
+          imagePullPolicy: Always
+          name: container-0
+          ports:
+            - containerPort: 443
+              name: infisical
+              protocol: TCP
+            - containerPort: 4000
+              name: infisical-2
+              protocol: TCP
+            - containerPort: 3000
+              name: infisical-3
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
