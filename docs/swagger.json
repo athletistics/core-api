@@ -14,7 +14,7 @@
             "name": "AGPL-3.0",
             "url": "https://www.gnu.org/licenses/agpl-3.0.html"
         },
-        "version": "v0.3.0"
+        "version": "v1.0.0"
     },
     "host": "athletistics.kube.isc.heia-fr.ch",
     "basePath": "/api/v1",

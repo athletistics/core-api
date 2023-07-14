@@ -28,7 +28,7 @@ import (
 )
 
 //	@title			Core Athletistics API
-//	@version		v0.3.0
+//	@version		v1.0.0
 //	@description	API that manages the core Athletistics database containing athletes and their sports performances.
 
 //	@contact.name	API Support
