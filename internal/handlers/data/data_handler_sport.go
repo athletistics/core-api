@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Database readers for sports and event types
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 27.06.2023
 

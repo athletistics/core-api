@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Preparing all endpoints for the NDS management
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 06.07.2023
 

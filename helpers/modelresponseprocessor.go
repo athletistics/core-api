@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Choosing response status and sending fiber response based on the error state and the data.
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 06.07.2023
 

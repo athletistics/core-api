@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Event management handlers
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 21.06.2023
 

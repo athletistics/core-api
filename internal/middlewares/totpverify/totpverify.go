@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Middleware reading the state of the second factor authentication
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 18.06.2023
 

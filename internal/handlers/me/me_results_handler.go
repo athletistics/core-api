@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Result handlers for the authenticated user
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 22.06.2023
 

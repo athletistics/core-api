@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Middleware providing the user object as part of the fiber context
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 21.06.2023
 

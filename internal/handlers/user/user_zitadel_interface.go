@@ -1,4 +1,4 @@
-// Brief   : Interface towards the Zitadel instance
+// Brief   : Interface towards the Zitadel instance for managing users
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 20.06.2023
 

@@ -1,4 +1,3 @@
-// Brief   :
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 26.06.2023
 

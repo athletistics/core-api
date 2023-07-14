@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Management handlers for the authenticated user
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 18.06.2023
 

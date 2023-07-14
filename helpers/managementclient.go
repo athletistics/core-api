@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Connection towards the Zitadel Management API
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 20.06.2023
 

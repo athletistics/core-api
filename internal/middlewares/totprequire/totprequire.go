@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Middleware verifying that the second factor was verified recently
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 18.06.2023
 

@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Creating queries for reading results in the database
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 22.06.2023
 

@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Setting up results handlers
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 22.06.2023
 

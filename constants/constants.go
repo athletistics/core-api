@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Global config constants
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 18.06.2023
 

@@ -1,4 +1,4 @@
-// Brief   :
+// Brief   : Setting up all routes
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 18.06.2023
 
@@ -15,6 +15,7 @@ import (
 	"os"
 )
 
+// SetupRoutes connects all routers with fiber.
 func SetupRoutes(app *fiber.App) {
 	api := app.Group(fmt.Sprintf("/api/v%v", config.ApiVersion))
 
@@ -39,6 +40,7 @@ func SetupRoutes(app *fiber.App) {
 	routes.SetupNdsRoutes(api)
 }
 
+// SetupMonitor connects the monitor middleware and adds a basic authentication.
 func SetupMonitor(app *fiber.App) {
 	api := app.Group(fmt.Sprintf("/api/v%v/metrics", config.ApiVersion))
 
