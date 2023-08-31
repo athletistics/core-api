@@ -22,11 +22,11 @@ func updateUser(user *models.User, body *models.User, parseErr error) *res.Error
 	}
 
 	// verify permissions. requesting user must be coach or head coach of the user that is to be updated
-	userToModify := models.User{ID: body.ID}
-	if err := db.First(&userToModify).Error; err != nil {
+	userToModify := models.User{}
+	if err := db.First(&userToModify, body.ID).Error; err != nil {
 		return res.ErrDB.Err(err)
 	}
-	if !helpers.HasRoleOnParentClub(user, helpers.RoleCoach, helpers.RoleHeadCoach) {
+	if !helpers.HasRoleOnOneOfTheClubs(user, &userToModify, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		helpers.LogSecurity("tried updating user", user.ID)
 		return res.ErrForbidden
 	}
