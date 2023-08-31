@@ -42,6 +42,12 @@ func ResultFromInput(input *ResultInput) *Result {
 	}
 }
 
+func (r *Result) Update(update *ResultUpdateInput) {
+	r.Value = update.Value
+	r.Rank = update.Rank
+	r.Wind = update.Wind
+}
+
 type ResultString struct {
 	ID             uuid.UUID        `json:"id"`
 	User           User             `json:"-"`
@@ -94,4 +100,10 @@ type ResultInput struct {
 	Value        decimal.Decimal  `json:"value" validate:"required"`
 	Wind         *decimal.Decimal `json:"wind"`
 	Rank         *string          `json:"rank"`
+}
+
+type ResultUpdateInput struct {
+	Value decimal.Decimal  `json:"value" validate:"required"`
+	Wind  *decimal.Decimal `json:"wind"`
+	Rank  *string          `json:"rank"`
 }
