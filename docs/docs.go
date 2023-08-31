@@ -1828,6 +1828,112 @@ const docTemplate = `{
                 }
             }
         },
+        "/results/{resultId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Modify the values of a result, without updating event, user, and discipline.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Result UUID to modify",
+                        "name": "resultId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated result data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultUpdateInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultString"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Delete a specific result.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Result UUID to delete",
+                        "name": "resultId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/teams/{team_id}": {
             "get": {
                 "security": [
@@ -2192,7 +2298,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.UserShare"
+                            "type": "string"
                         }
                     },
                     "401": {
@@ -2270,11 +2376,72 @@ const docTemplate = `{
                     "User info"
                 ],
                 "summary": "Get a user's details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User share"
+                ],
+                "summary": "Update a user to a new state that is being passed in the body. Values that are not passed will be set to",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated user data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserShare"
                         }
                     },
                     "401": {
@@ -2923,6 +3090,9 @@ const docTemplate = `{
                 "disciplineName": {
                     "type": "string"
                 },
+                "eventId": {
+                    "type": "string"
+                },
                 "eventName": {
                     "type": "string"
                 },
@@ -2944,7 +3114,27 @@ const docTemplate = `{
                 "userFirstName": {
                     "type": "string"
                 },
+                "userId": {
+                    "type": "string"
+                },
                 "userLastName": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                },
+                "wind": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.ResultUpdateInput": {
+            "type": "object",
+            "required": [
+                "value"
+            ],
+            "properties": {
+                "rank": {
                     "type": "string"
                 },
                 "value": {
@@ -3227,7 +3417,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v1.0.0",
+	Version:          "v1.0.1",
 	Host:             "athletistics.kube.isc.heia-fr.ch",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"https"},

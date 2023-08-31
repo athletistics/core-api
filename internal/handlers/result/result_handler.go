@@ -15,6 +15,7 @@ import (
 )
 
 const QuerySportId = "sport"
+const ParamResultId = "resultId"
 
 // GetResults lists the result according to the query parameters.
 //
@@ -70,6 +71,49 @@ func CreateResult(c *fiber.Ctx) error {
 	}
 
 	return RunCreateQuery(c, body)
+}
+
+// UpdateResult modifies the values of a result, without updating event, user, and discipline.
+//
+//	@Summary	Modify the values of a result, without updating event, user, and discipline.
+//	@Tags		Results
+//	@Consume	json
+//	@Produce	json
+//	@Param		resultId	path		string						true	"Result UUID to modify"
+//	@Param		request		body		models.ResultUpdateInput	true	"Updated result data"
+//	@Success	200			{object}	models.ResultString
+//	@Failure	400			{object}	res.Error
+//	@Failure	401			{object}	res.Error
+//	@Failure	403			{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/results/{resultId} [put]
+func UpdateResult(c *fiber.Ctx) error {
+	b := new(models.ResultUpdateInput)
+	parseErr := c.BodyParser(b)
+	user := helpers.GetUser(c)
+
+	resultId := c.Params(ParamResultId)
+
+	result, err := updateResult(&user, resultId, b, parseErr)
+	return helpers.ProcessJsonResponse(c, result, err)
+}
+
+// DeleteResult deletes a specific result.
+//
+//	@Summary	Delete a specific result.
+//	@Tags		Results
+//	@Param		resultId	path		string	true	"Result UUID to delete"
+//	@Success	200			{string}	string
+//	@Failure	400			{object}	res.Error
+//	@Failure	401			{object}	res.Error
+//	@Failure	403			{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/results/{resultId} [delete]
+func DeleteResult(c *fiber.Ctx) error {
+	user := helpers.GetUser(c)
+	resultId := c.Params(ParamResultId)
+
+	return helpers.ProcessJsonResponse(c, nil, deleteResult(&user, resultId))
 }
 
 // GetBestResults lists the best result by discipline.

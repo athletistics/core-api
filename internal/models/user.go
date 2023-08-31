@@ -84,3 +84,19 @@ func (u *User) AsCsv(ndsUserIds map[string]string) string {
 		u.Gender.NdsName, oasi, "", u.Nationality.CodeIso3166, u.Language.Short,
 		u.Address, "", u.PostCode, u.City, u.Country.CodeIso3166)
 }
+
+func (u *User) Update(updatedU *User) {
+	u.FirstName = updatedU.FirstName
+	u.LastName = updatedU.LastName
+	u.PrimaryPhone = updatedU.PrimaryPhone
+	u.LanguageID = updatedU.LanguageID
+	u.GenderID = updatedU.GenderID
+	u.Oasi = updatedU.Oasi
+	u.BirthDate = updatedU.BirthDate
+	u.Address = updatedU.Address
+	u.HouseNumber = updatedU.HouseNumber
+	u.PostCode = updatedU.PostCode
+	u.City = updatedU.City
+	u.CountryID = updatedU.CountryID
+	u.NationalityID = updatedU.NationalityID
+}

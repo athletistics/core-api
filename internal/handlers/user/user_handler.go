@@ -192,9 +192,10 @@ func CreateUser(c *fiber.Ctx) error {
 //	@Summary	Get a user's details
 //	@Tags		User info
 //	@Produce	json
-//	@Success	200	{object}	models.User
-//	@Failure	401	{object}	res.Error
-//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Param		userId	path		string	true	"User ID"
+//	@Success	200		{object}	models.User
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/users/{userId} [get]
 func GetUser(c *fiber.Ctx) error {
@@ -238,13 +239,36 @@ func GetUser(c *fiber.Ctx) error {
 	return c.JSON(targetUser)
 }
 
+// UpdateUser updates a user to a new state that is being passed in the body. Values that are not passed will be set to
+// empty values in the database. Thus, the entire user must be sent at any time.
+//
+//	@Summary	Update a user to a new state that is being passed in the body. Values that are not passed will be set to
+//	            empty values in the database. Thus, the entire user must be sent at any time.
+//
+//	@Tags		User share
+//	@Produce	json
+//	@Param		userId	path		string		true	"User ID"
+//	@Param		request	body		models.User	true	"Updated user data"
+//	@Success	200		{object}	models.UserShare
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/users/{userId} [put]
+func UpdateUser(c *fiber.Ctx) error {
+	b := new(models.User)
+	parseErr := c.BodyParser(b)
+	user := helpers.GetUser(c)
+
+	return helpers.ProcessJsonResponse(c, nil, updateUser(&user, b, parseErr))
+}
+
 // GetShareCode issues a single-use code allowing some other club to add the user to his club. The code is valid for 24 hours.
 //
 //	@Summary	Get a single-use code allowing some other club to add the user to his club. The code is valid for 24 hours.
 //	@Tags		User share
 //	@Produce	json
 //	@Param		userId	query		string	true	"User identifier"
-//	@Success	200		{object}	models.UserShare
+//	@Success	200		{string}	string
 //	@Failure	401		{object}	res.Error
 //	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
