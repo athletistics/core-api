@@ -257,9 +257,10 @@ func GetUser(c *fiber.Ctx) error {
 func UpdateUser(c *fiber.Ctx) error {
 	b := new(models.User)
 	parseErr := c.BodyParser(b)
+	userId := c.Params(ParamUserId)
 	user := helpers.GetUser(c)
 
-	return helpers.ProcessJsonResponse(c, nil, updateUser(&user, b, parseErr))
+	return helpers.ProcessJsonResponse(c, nil, updateUser(&user, userId, b, parseErr))
 }
 
 // GetShareCode issues a single-use code allowing some other club to add the user to his club. The code is valid for 24 hours.

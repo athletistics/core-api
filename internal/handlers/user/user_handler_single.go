@@ -12,10 +12,13 @@ import (
 	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 )
 
-func updateUser(user *models.User, body *models.User, parseErr error) *res.Error {
+func updateUser(user *models.User, userId string, body *models.User, parseErr error) *res.Error {
 	db := database.DB
 
 	// verify parameters
+	if len(userId) == 0 {
+		return res.ErrBadRequest
+	}
 	if parseErr != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", parseErr), user.ID)
 		return res.ErrBadRequest.Err(parseErr)
@@ -23,7 +26,7 @@ func updateUser(user *models.User, body *models.User, parseErr error) *res.Error
 
 	// verify permissions. requesting user must be coach or head coach of the user that is to be updated
 	userToModify := models.User{}
-	if err := db.First(&userToModify, body.ID).Error; err != nil {
+	if err := db.First(&userToModify, userId).Error; err != nil {
 		return res.ErrDB.Err(err)
 	}
 	if !helpers.HasRoleOnOneOfTheClubs(user, &userToModify, helpers.RoleCoach, helpers.RoleHeadCoach) {
