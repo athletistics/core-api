@@ -45,7 +45,7 @@ func ResultFromInput(input *ResultInput) *Result {
 type ResultString struct {
 	ID             uuid.UUID        `json:"id"`
 	User           User             `json:"-"`
-	UserID         string           `json:"-"`
+	UserID         string           `json:"userId"`
 	UserFirstName  string           `json:"userFirstName" gorm:"-"`
 	UserLastName   string           `json:"userLastName" gorm:"-"`
 	Category       *Category        `json:"-"`
@@ -55,7 +55,7 @@ type ResultString struct {
 	DisciplineID   uuid.UUID        `gorm:"type:uuid" json:"disciplineId"`
 	DisciplineName string           `json:"disciplineName" gorm:"-"`
 	Event          Event            `json:"-"`
-	EventID        uuid.UUID        `gorm:"type:uuid" json:"-"`
+	EventID        uuid.UUID        `gorm:"type:uuid" json:"eventId"`
 	EventName      string           `json:"eventName" gorm:"-"`
 	EventPlace     string           `json:"eventPlace" gorm:"-"`
 	EventOutdoor   bool             `json:"eventOutdoor" gorm:"-"`
