@@ -326,6 +326,8 @@ definitions:
         type: string
       disciplineName:
         type: string
+      eventId:
+        type: string
       eventName:
         type: string
       eventOutdoor:
@@ -340,12 +342,25 @@ definitions:
         type: string
       userFirstName:
         type: string
+      userId:
+        type: string
       userLastName:
         type: string
       value:
         type: number
       wind:
         type: number
+    type: object
+  models.ResultUpdateInput:
+    properties:
+      rank:
+        type: string
+      value:
+        type: number
+      wind:
+        type: number
+    required:
+    - value
     type: object
   models.Sport:
     properties:
@@ -532,7 +547,7 @@ info:
     name: AGPL-3.0
     url: https://www.gnu.org/licenses/agpl-3.0.html
   title: Core Athletistics API
-  version: v0.3.0
+  version: v1.0.1
 paths:
   /club/{club_id}:
     get:
@@ -1594,6 +1609,73 @@ paths:
       summary: Create a new result.
       tags:
       - Results
+  /results/{resultId}:
+    delete:
+      parameters:
+      - description: Result UUID to delete
+        in: path
+        name: resultId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a specific result.
+      tags:
+      - Results
+    put:
+      parameters:
+      - description: Result UUID to modify
+        in: path
+        name: resultId
+        required: true
+        type: string
+      - description: Updated result data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResultUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResultString'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Modify the values of a result, without updating event, user, and discipline.
+      tags:
+      - Results
   /results/best:
     get:
       parameters:
@@ -1851,6 +1933,12 @@ paths:
       - User info
   /users/{userId}:
     get:
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1871,6 +1959,40 @@ paths:
       summary: Get a user's details
       tags:
       - User info
+    put:
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      - description: Updated user data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserShare'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Not enough permissions
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a user to a new state that is being passed in the body. Values
+        that are not passed will be set to
+      tags:
+      - User share
   /users/{userId}/roles:
     delete:
       parameters:
@@ -1993,7 +2115,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.UserShare'
+            type: string
         "401":
           description: Unauthorized
           schema:

@@ -193,9 +193,9 @@ func CreateUser(c *fiber.Ctx) error {
 //	@Tags		User info
 //	@Produce	json
 //	@Param		userId	path		string	true	"User ID"
-//	@Success	200	{object}	models.User
-//	@Failure	401	{object}	res.Error
-//	@Failure	403	{object}	res.Error	"Not enough permissions"
+//	@Success	200		{object}	models.User
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/users/{userId} [get]
 func GetUser(c *fiber.Ctx) error {
@@ -247,7 +247,7 @@ func GetUser(c *fiber.Ctx) error {
 //
 //	@Tags		User share
 //	@Produce	json
-//	@Param		userId	path		string	true	"User ID"
+//	@Param		userId	path		string		true	"User ID"
 //	@Param		request	body		models.User	true	"Updated user data"
 //	@Success	200		{object}	models.UserShare
 //	@Failure	401		{object}	res.Error

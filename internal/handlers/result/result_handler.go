@@ -79,12 +79,12 @@ func CreateResult(c *fiber.Ctx) error {
 //	@Tags		Results
 //	@Consume	json
 //	@Produce	json
-//	@Param 		resultId path		string true "Result UUID to modify"
-//	@Param		request	body		models.ResultUpdateInput	true	"Updated result data"
-//	@Success	200		{object}	models.ResultString
-//	@Failure	400		{object}	res.Error
-//	@Failure	401		{object}	res.Error
-//	@Failure	403		{object}	res.Error
+//	@Param		resultId	path		string						true	"Result UUID to modify"
+//	@Param		request		body		models.ResultUpdateInput	true	"Updated result data"
+//	@Success	200			{object}	models.ResultString
+//	@Failure	400			{object}	res.Error
+//	@Failure	401			{object}	res.Error
+//	@Failure	403			{object}	res.Error
 //	@Security	ApiKeyAuth
 //	@Router		/results/{resultId} [put]
 func UpdateResult(c *fiber.Ctx) error {
