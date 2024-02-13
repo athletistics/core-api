@@ -27,15 +27,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /build .
 ##
 ## STEP 2 - DEPLOY
 ##
-FROM alpine:3.18.2
+FROM alpine:3.19
 
 # Set destination for COPY
 WORKDIR /
-
-# Add packages required for environemnt variable injection
-RUN apk add --no-cache bash curl && curl -1sLf \
-'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash \
-&& apk add infisical=0.8.0
 
 # Copy binaries
 COPY --from=builder /build /build
@@ -44,4 +39,4 @@ COPY --from=builder /build /build
 EXPOSE 3000
 
 # Run
-CMD ["infisical", "run", "--", "/build"]
+CMD ["/build"]
