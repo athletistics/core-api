@@ -44,6 +44,10 @@ jobs:
         run: go test ./...
 
   build_publish_deploy:
+    name: Build, Publish, Deploy on ${{ matrix.env.namespace }}
+    needs: test
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
         env: [
@@ -52,16 +56,13 @@ jobs:
           {tag: stable, namespace: athletistics, condition: true}
         ]
 
-    name: Build, Publish, Deploy on ${{ matrix.env.namespace }}
-    needs: test
-    runs-on: ubuntu-latest
-    if: ${{ matrix.env.condition }}
-
     steps:
       - uses: ./.github/workflows/build-publish.yml
+        if: ${{ matrix.env.condition }}
         with:
           tag: ${{ matrix.env.tag }}
       - uses: ./.github/workflows/deploy.yml
+        if: ${{ matrix.env.condition }}
         with:
           namespace: ${{ matrix.env.namespace }}
 
@@ -69,6 +70,7 @@ jobs:
     name: Build and Publish ($tag)
     needs: test
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: ./.github/workflows/build-publish.yml
         with:
