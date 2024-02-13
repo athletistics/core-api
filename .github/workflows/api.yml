@@ -1,0 +1,75 @@
+name: Test, Build, Deploy
+
+on:
+  push
+
+jobs:
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        go-version: ['1.19']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+  test:
+    name: Test
+    needs: lint
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        go-version: [ '1.19' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Run tests
+        run: go test ./...
+
+  build_publish_deploy:
+    name: Build, Publish, Deploy on DEV
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{ matrix.env.condition }}
+
+    strategy:
+      matrix:
+        env: [
+          {tag: latest, namespace: athletistics-dev, condition: true}
+          {tag: staging, namespace: athletistics-staging, condition: true}
+          {tag: stable, namespace: athletistics, condition: true}
+        ]
+
+    steps:
+      - uses: ./.github/workflows/build-publish.yml
+        with:
+          tag: ${{ matrix.env.tag }}
+      - uses: ./.github/workflows/deploy.yml
+        with:
+          namespace: ${{ matrix.env.namespace }}
+
+  build_publish_tag:
+    name: Build and Publish ($tag)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/build-publish.yml
+        with:
+          tag: $tag
