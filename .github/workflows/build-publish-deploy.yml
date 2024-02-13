@@ -1,0 +1,28 @@
+name: "Build, Publish, Deploy"
+
+on:
+  workflow_call:
+    inputs:
+      condition:
+        type: string
+        required: true
+      tag:
+        type: string
+        required: true
+      namespace:
+        type: string
+        required: true
+
+jobs:
+  build_publish:
+    if: ${{ inputs.condition }}
+    uses: ./.github/workflows/build-publish.yml
+    with:
+      tag: ${{ inputs.tag }}
+
+
+  deploy:
+    needs: build_publish
+    uses: ./.github/workflows/deploy.yml
+    with:
+      namespace: ${{ inputs.namespace }}
