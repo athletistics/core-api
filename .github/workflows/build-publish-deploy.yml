@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       condition:
-        type: string
+        type: boolean
         required: true
       tag:
         type: string

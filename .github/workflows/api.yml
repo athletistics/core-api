@@ -50,9 +50,9 @@ jobs:
     strategy:
       matrix:
         env: [
-          {tag: latest, namespace: athletistics-dev, condition: true},
-          {tag: staging, namespace: athletistics-staging, condition: github.ref == 'refs/heads/staging'},
-          {tag: stable, namespace: athletistics, condition: github.ref == 'refs/heads/main'}
+          {tag: latest, namespace: athletistics-dev, condition: true },
+          {tag: staging, namespace: athletistics-staging, condition: "${{ github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main'}}" },
+          {tag: stable, namespace: athletistics, condition: "${{ github.ref == 'refs/heads/main'}}" }
         ]
 
     uses: ./.github/workflows/build-publish-deploy.yml
