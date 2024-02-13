@@ -52,8 +52,8 @@ jobs:
     strategy:
       matrix:
         env: [
-          {tag: latest, namespace: athletistics-dev, condition: true}
-          {tag: staging, namespace: athletistics-staging, condition: true}
+          {tag: latest, namespace: athletistics-dev, condition: true},
+          {tag: staging, namespace: athletistics-staging, condition: true},
           {tag: stable, namespace: athletistics, condition: true}
         ]
 
