@@ -47,7 +47,6 @@ jobs:
     name: Build, Publish, Deploy on DEV
     needs: test
     runs-on: ubuntu-latest
-    if: ${{ matrix.env.condition }}
 
     strategy:
       matrix:
@@ -56,6 +55,8 @@ jobs:
           {tag: staging, namespace: athletistics-staging, condition: true},
           {tag: stable, namespace: athletistics, condition: true}
         ]
+
+    if: ${{ matrix.env.condition }}
 
     steps:
       - uses: ./.github/workflows/build-publish.yml
