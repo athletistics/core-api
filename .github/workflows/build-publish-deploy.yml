@@ -17,6 +17,7 @@ jobs:
   build_publish:
     if: ${{ inputs.condition }}
     uses: ./.github/workflows/build-publish.yml
+    secrets: inherit
     with:
       tag: ${{ inputs.tag }}
 
@@ -24,5 +25,6 @@ jobs:
   deploy:
     needs: build_publish
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit
     with:
       namespace: ${{ inputs.namespace }}
