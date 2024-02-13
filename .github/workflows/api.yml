@@ -44,10 +44,6 @@ jobs:
         run: go test ./...
 
   build_publish_deploy:
-    name: Build, Publish, Deploy on DEV
-    needs: test
-    runs-on: ubuntu-latest
-
     strategy:
       matrix:
         env: [
@@ -56,6 +52,9 @@ jobs:
           {tag: stable, namespace: athletistics, condition: true}
         ]
 
+    name: Build, Publish, Deploy on ${{ matrix.env.namespace }}
+    needs: test
+    runs-on: ubuntu-latest
     if: ${{ matrix.env.condition }}
 
     steps:
