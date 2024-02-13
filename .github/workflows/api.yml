@@ -57,6 +57,9 @@ jobs:
         ]
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        if: ${{ matrix.env.condition }}
       - uses: ./.github/workflows/build-publish.yml
         if: ${{ matrix.env.condition }}
         with:
