@@ -12,8 +12,8 @@ jobs:
     name: Restart deployment
     runs-on: ubuntu-latest
     steps:
-      - name: Restart API deployment in namespace ${{ input.namespace }}
+      - name: Restart API deployment in namespace ${{ inputs.namespace }}
         uses: steebchen/kubectl@v2.0.0
         with:
           config: ${{ secrets.KUBE_CONFIG }}
-          command: -n ${{ input.namespace }} rollout restart deploy core-api
+          command: -n ${{ inputs.namespace }} rollout restart deploy core-api
