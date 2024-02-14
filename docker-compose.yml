@@ -7,7 +7,7 @@ services:
       dockerfile: dev.Dockerfile
     env_file:
       - .env
-#    command: "infisical run -- go run main.go --gseed"
+#    command: "infisical run --env=local --path=/core -- go run main.go --gseed"
     ports:
       - "3000:3000"
     volumes:
@@ -15,7 +15,7 @@ services:
     networks:
       - athletistics
   core-db:
-    image: registry.forge.hefr.ch/tb-athletistics/postgres-infisical
+    image: baeriswyln/postgres-infisical
     env_file:
       - .env
     ports:
