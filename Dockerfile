@@ -6,7 +6,7 @@
 ##
 ## STEP 1 - BUILD
 ##
-FROM golang:1.19-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
 # Set destination for COPY
 WORKDIR /app
