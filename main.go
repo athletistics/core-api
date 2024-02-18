@@ -41,9 +41,9 @@ import (
 //	@schemes	https
 //	@BasePath	/api/v1
 
-//	@securityDefinitions.apikey	Zitadel JWT token
-//	@in							header
-//	@name						Authorization
+// @securityDefinitions.apikey	Zitadel JWT token
+// @in							header
+// @name						Authorization
 func main() {
 	database.ConnectDb()
 
@@ -144,13 +144,21 @@ func useFiberLogger(app *fiber.App) *os.File {
 
 func useCors(app *fiber.App) {
 	switch os.Getenv("ENV") {
-	case constants.EnvDev:
-		// serve requests from anywhere in dev environments
+	case constants.EnvLocal:
+		// serve requests from anywhere in local environments
 		app.Use(cors.New())
-	default:
-		// default to secure configuration
+	case constants.EnvProd:
+		// secure production configuration
 		app.Use(cors.New(cors.Config{
-			AllowOrigins:     "https://athletistics.kube.isc.heia-fr.ch",
+			AllowOrigins:     "https://app.athletistics.ch",
+			AllowHeaders:     "",
+			AllowCredentials: false,
+			ExposeHeaders:    "",
+		}))
+	default:
+		// default to secure configuration under subdomain
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     fmt.Sprintf("https://%v.athletistics.ch", os.Getenv("ENV")),
 			AllowHeaders:     "",
 			AllowCredentials: false,
 			ExposeHeaders:    "",

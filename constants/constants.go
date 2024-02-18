@@ -16,6 +16,7 @@ const (
 )
 
 const (
-	EnvDev  = "dev"
-	EnvProd = "prod"
+	EnvLocal = "local"
+	EnvDev   = "dev"
+	EnvProd  = "prod"
 )
