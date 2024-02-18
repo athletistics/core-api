@@ -1,12 +1,12 @@
 [
   {
     "code": "SUI",
-    "codeIso3166": "CH",
+    "code_iso3166": "CH",
     "name": "Switzerland"
   },
   {
     "code": "GER",
-    "codeIso3166": "DE",
+    "code_iso3166": "DE",
     "name": "Germany"
   }
 ]
