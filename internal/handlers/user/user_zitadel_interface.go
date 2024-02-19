@@ -54,31 +54,46 @@ func createUser(user *models.User) (string, error) {
 
 	return createRes.UserId, nil
 }
+
+func createUserLogin(user *models.User) (int, *res.Error) {
+	// check if user already exists
+	_, err := GetUserState(user.ID)
+	if err != nil {
+		return http.StatusBadRequest, res.ErrBadRequest
+	}
+
+	username, err := genUsername(user)
+	if err != nil {
+		return http.StatusInternalServerError, res.ErrZitadel.Err(err)
 	}
 
 	// Create the user
-	createReq := pb.ImportHumanUserRequest{
-		UserName: userName,
-		Profile: &pb.ImportHumanUserRequest_Profile{
-			FirstName:         u.FirstName,
-			LastName:          u.LastName,
-			PreferredLanguage: u.Language.Short,
-			Gender:            getGenderFromString(u.Gender.ZitadelName),
+	gender := getGenderFromString(user.Gender.ZitadelName)
+	createReq := pbv2.AddHumanUserRequest{
+		UserId:   &user.ID,
+		Username: &username,
+		Profile: &pbv2.SetHumanProfile{
+			GivenName:         user.FirstName,
+			FamilyName:        user.LastName,
+			PreferredLanguage: &user.Language.Short,
+			Gender:            &gender,
 		},
-		Email: &pb.ImportHumanUserRequest_Email{
-			Email:           u.PrimaryMail,
-			IsEmailVerified: false,
+		Email: &pbv2.SetHumanEmail{
+			Email:        user.PrimaryMail,
+			Verification: &pbv2.SetHumanEmail_IsVerified{IsVerified: false},
 		},
-		PasswordChangeRequired: true,
+		PasswordType: &pbv2.AddHumanUserRequest_Password{
+			Password: &pbv2.Password{ChangeRequired: true},
+		},
 	}
 
-	createRes, err := helpers.MgmtClient.ImportHumanUser(context.Background(), &createReq)
+	_, err = helpers.UserClient.AddHumanUser(context.Background(), &createReq)
 
 	if err != nil {
-		return "", err
+		return http.StatusInternalServerError, res.ErrZitadel.Err(err)
 	}
 
-	return createRes.UserId, nil
+	return http.StatusOK, nil
 }
 
 func GetUserState(id string) (string, error) {

@@ -23,6 +23,8 @@ func SetupUsersRoutesTotpProtected(router fiber.Router) {
 	node.Get("/share", userHandler.GetShareCode)
 	node.Post("/share", userHandler.RedeemShareCode)
 
+	node.Post(fmt.Sprintf("/:%v/create-login", userHandler.ParamUserId), userHandler.CreateLogin)
+
 	node.Get(fmt.Sprintf("/:%v", userHandler.ParamUserId), userHandler.GetUser)
 	node.Put(fmt.Sprintf("/:%v", userHandler.ParamUserId), userHandler.UpdateUser)
 

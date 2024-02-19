@@ -200,26 +200,16 @@ func CreateUser(c *fiber.Ctx) error {
 //	@Router		/users/{userId} [get]
 func GetUser(c *fiber.Ctx) error {
 	// check that requesting user is coach/head coach
-	db := database.DB
 	user := helpers.GetUser(c)
 
-	// read the requested user id, and verify that it is a numeric string
+	// find the user
 	userId := c.Params(ParamUserId)
-	if _, err := strconv.ParseInt(userId, 10, 64); err != nil {
-		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
-		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
+	targetUser, httpStatus, err := getUser(user.ID, userId)
+	if httpStatus != http.StatusOK {
+		return c.Status(httpStatus).JSON(err)
 	}
 
-	// search the user
-	targetUser := models.User{ID: userId}
-	err := db.Preload("Nationality").Preload("Country").Preload("Club").
-		First(&targetUser).Error
-	if err != nil {
-		helpers.LogError(err.Error(), helpers.GetUserId(c))
-		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
-	}
-
-	if !helpers.HasRoleOnOneOfTheClubs(&user, &targetUser, helpers.RoleCoach, helpers.RoleHeadCoach) {
+	if !helpers.HasRoleOnOneOfTheClubs(&user, targetUser, helpers.RoleCoach, helpers.RoleHeadCoach) {
 		helpers.LogSecurity(fmt.Sprintf("tried reading user %v", user.ID), helpers.GetUserId(c))
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
@@ -300,6 +290,42 @@ func RedeemShareCode(c *fiber.Ctx) error {
 
 	data, err := redeemShareCode(&user, code)
 	return helpers.ProcessJsonResponse(c, data, err)
+}
+
+// CreateLogin asks Zitadel to initialize a login for a given user.
+//
+//	@Summary	Ask Zitadel to initialize a login for a given user.
+//	@Tags		User auth
+//	@Consumes	json
+//	@Param		userId	path		string		true	"User ID"
+//	@Success	200		{object}
+//	@Failure	400		{object}	res.Error	"The user already has a login"
+//	@Failure	401		{object}	res.Error
+//	@Failure	403		{object}	res.Error	"Forbidden"
+//	@Security	ApiKeyAuth
+//	@Router		/users/{userId}/create-login [post]
+func CreateLogin(c *fiber.Ctx) error {
+	userId := c.Params(ParamUserId)
+	user := helpers.GetUser(c)
+
+	// search the user
+	targetUser, httpStatus, err := getUser(user.ID, userId)
+	if httpStatus != http.StatusOK {
+		return c.Status(httpStatus).JSON(err)
+	}
+
+	if !helpers.HasRoleOnOneOfTheClubs(&user, targetUser, helpers.RoleHeadCoach) {
+		helpers.LogSecurity(fmt.Sprintf("tried creating a login for user %v", user.ID), helpers.GetUserId(c))
+		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
+	}
+
+	httpStatus, err = createUserLogin(targetUser)
+
+	if httpStatus != http.StatusOK {
+		return c.Status(httpStatus).JSON(err)
+	}
+
+	return c.SendStatus(http.StatusOK)
 }
 
 // GetRoles lists all role of a specific user that the requesting user has permissions to read.

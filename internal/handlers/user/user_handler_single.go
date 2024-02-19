@@ -10,7 +10,29 @@ import (
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
+	"net/http"
+	"strconv"
 )
+
+func getUser(requestingUserId string, userId string) (*models.User, int, *res.Error) {
+	// read the requested user id, and verify that it is a numeric string
+	if _, err := strconv.ParseInt(userId, 10, 64); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), requestingUserId)
+		return nil, http.StatusBadRequest, res.ErrBadRequest.Err(err)
+	}
+
+	// search the user
+	targetUser := models.User{ID: userId}
+	db := database.DB
+	err := db.Preload("Nationality").Preload("Country").Preload("Club").
+		First(&targetUser).Error
+	if err != nil {
+		helpers.LogError(err.Error(), requestingUserId)
+		return nil, http.StatusInternalServerError, res.ErrDB.Err(err)
+	}
+
+	return &targetUser, http.StatusOK, nil
+}
 
 func updateUser(user *models.User, userId string, body *models.User, parseErr error) *res.Error {
 	db := database.DB
