@@ -99,4 +99,8 @@ func (u *User) Update(updatedU *User) {
 	u.City = updatedU.City
 	u.CountryID = updatedU.CountryID
 	u.NationalityID = updatedU.NationalityID
+
+	if !u.WithLogin {
+		u.PrimaryMail = updatedU.PrimaryMail
+	}
 }

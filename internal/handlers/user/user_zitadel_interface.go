@@ -22,12 +22,20 @@ import (
 const UserStateNoLogin = "USER_STATE_NO_LOGIN"
 
 func createZitadelUser(user *models.User, userId *string) (string, int, *res.Error) {
+	if len(user.PrimaryMail) == 0 {
+		err := res.ErrBadRequest
+		err.Message = "Missing Email"
+		return "", http.StatusBadRequest, err
+	}
+
 	if userId != nil {
 		// check if user already exists
 		_, err := GetUserState(user.ID)
-		if err != nil {
+		if err == nil {
 			setUserLoginState(user.ID, true)
-			return "", http.StatusBadRequest, res.ErrBadRequest
+			err := res.ErrBadRequest
+			err.Message = "User already exists on Zitadel"
+			return "", http.StatusBadRequest, err
 		}
 	}
 
@@ -48,11 +56,7 @@ func createZitadelUser(user *models.User, userId *string) (string, int, *res.Err
 			Gender:            &gender,
 		},
 		Email: &pbv2.SetHumanEmail{
-			Email:        user.PrimaryMail,
-			Verification: &pbv2.SetHumanEmail_IsVerified{IsVerified: false},
-		},
-		PasswordType: &pbv2.AddHumanUserRequest_Password{
-			Password: &pbv2.Password{ChangeRequired: true},
+			Email: user.PrimaryMail,
 		},
 	}
 
