@@ -64,13 +64,13 @@ func New(config ...Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// get the auth header
 		authHeader, ok := c.GetReqHeaders()[AuthHeaderName]
-		if !ok {
+		if !ok || len(authHeader) < 1 {
 			helpers.LogSecurity("missing auth header", "")
 			return c.Status(http.StatusUnauthorized).JSON(res.ErrMissingAuth)
 		}
 
 		// split header into parts, as the token is prefixed with "Bearer "
-		authHeaderParts := strings.Fields(authHeader)
+		authHeaderParts := strings.Fields(authHeader[0])
 		if len(authHeaderParts) != AuthHeaderSplitLength {
 			helpers.LogSecurity("bad auth header", "")
 			return c.Status(http.StatusUnauthorized).JSON(res.ErrBadAuthHeader)

@@ -21,7 +21,7 @@ func New() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// get the auth header
 		authHeader, ok := c.GetReqHeaders()[AuthHeaderName]
-		if !ok {
+		if !ok || len(authHeader) < 1 {
 			c.Locals(constants.LocalsHasVerified2FA, false)
 			return c.Next()
 		}
@@ -33,7 +33,7 @@ func New() fiber.Handler {
 			c.Locals(constants.LocalsHas2FA, false)
 			return c.Next()
 		}
-		req.Header.Set(AuthHeaderName, authHeader)
+		req.Header.Set(AuthHeaderName, authHeader[0])
 		res, err := client.Do(req)
 
 		// mark 2FA as verified if response has OK code
