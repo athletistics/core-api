@@ -8,33 +8,52 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/zitadel/zitadel-go/v2/pkg/client/zitadel/management"
-	"github.com/zitadel/zitadel-go/v2/pkg/client/zitadel/user"
+	"github.com/zitadel/zitadel-go/v2/pkg/client/zitadel/user/v2beta"
+	pbv2 "github.com/zitadel/zitadel-go/v2/pkg/client/zitadel/user/v2beta"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
 	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
+	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"math/rand"
+	"net/http"
 	"strings"
 )
 
 const UserStateNoLogin = "USER_STATE_NO_LOGIN"
 
-func createUser(u *models.User) (string, error) {
-	userNameOk := false
-	var userName string
+func createUser(user *models.User) (string, error) {
+	username, err := genUsername(user)
+	if err != nil {
+		return "", err
+	}
 
-	cleanFirstName := strings.Join(strings.Fields(u.FirstName), "")
-	cleanLastName := strings.Join(strings.Fields(u.LastName), "")
+	// Create the user
+	gender := getGenderFromString(user.Gender.ZitadelName)
+	createReq := pbv2.AddHumanUserRequest{
+		Username: &username,
+		Profile: &pbv2.SetHumanProfile{
+			GivenName:         user.FirstName,
+			FamilyName:        user.LastName,
+			PreferredLanguage: &user.Language.Short,
+			Gender:            &gender,
+		},
+		Email: &pbv2.SetHumanEmail{
+			Email:        user.PrimaryMail,
+			Verification: &pbv2.SetHumanEmail_IsVerified{IsVerified: false},
+		},
+		PasswordType: &pbv2.AddHumanUserRequest_Password{
+			Password: &pbv2.Password{ChangeRequired: true},
+		},
+	}
 
-	for !userNameOk {
-		userName = fmt.Sprintf("%v%v_%v", cleanFirstName, cleanLastName, getRandStr(constants.UserSuffixLength))
-		req := pb.IsUserUniqueRequest{UserName: userName}
+	createRes, err := helpers.UserClient.AddHumanUser(context.Background(), &createReq)
 
-		res, err := helpers.MgmtClient.IsUserUnique(context.Background(), &req)
-		if err != nil {
-			return "", err
-		}
+	if err != nil {
+		return "", err
+	}
 
-		userNameOk = res.IsUnique
+	return createRes.UserId, nil
+}
 	}
 
 	// Create the user
@@ -64,13 +83,13 @@ func createUser(u *models.User) (string, error) {
 
 func GetUserState(id string) (string, error) {
 	req := pb.GetUserByIDRequest{Id: id}
-	res, err := helpers.MgmtClient.GetUserByID(context.Background(), &req)
+	response, err := helpers.MgmtClient.GetUserByID(context.Background(), &req)
 
 	if err != nil {
 		return "", err
 	}
 
-	return res.User.State.String(), nil
+	return response.User.State.String(), nil
 }
 
 func getGenderFromString(gender string) user.Gender {
@@ -84,6 +103,28 @@ func getGenderFromString(gender string) user.Gender {
 	default:
 		return user.Gender_GENDER_DIVERSE
 	}
+}
+
+func genUsername(user *models.User) (string, error) {
+	userNameOk := false
+	var userName string
+
+	cleanFirstName := strings.Join(strings.Fields(user.FirstName), "")
+	cleanLastName := strings.Join(strings.Fields(user.LastName), "")
+
+	for !userNameOk {
+		userName = fmt.Sprintf("%v%v_%v", cleanFirstName, cleanLastName, getRandStr(constants.UserSuffixLength))
+		req := pb.IsUserUniqueRequest{UserName: userName}
+
+		response, err := helpers.MgmtClient.IsUserUnique(context.Background(), &req)
+		if err != nil {
+			return "", err
+		}
+
+		userNameOk = response.IsUnique
+	}
+
+	return userName, nil
 }
 
 // source: https://golangdocs.com/generate-random-string-in-golang

@@ -72,8 +72,8 @@ func fiberSetup() {
 	}
 
 	// Create connection to the Zitadel Management API
-	helpers.InitMgmtClient()
-	defer helpers.CloseMgmtClient()
+	helpers.InitZitadelClients()
+	defer helpers.CloseZitadelClients()
 
 	// Prepare the ID generator
 	helpers.InitIdGen()
