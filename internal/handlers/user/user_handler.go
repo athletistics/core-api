@@ -152,11 +152,11 @@ func CreateUser(c *fiber.Ctx) error {
 
 	// create the user on zitadel if necessary. generate an ID otherwise
 	if newUser.WithLogin {
-		id, err := createUser(newUser)
+		id, code, err := createZitadelUser(newUser, nil)
 		newUser.ID = id
-		if err != nil {
-			helpers.LogError(err.Error(), helpers.GetUserId(c))
-			return c.Status(http.StatusInternalServerError).JSON(res.ErrBadRequest.Err(err))
+		if code != http.StatusOK {
+			helpers.LogError(err.String(), helpers.GetUserId(c))
+			return c.Status(code).JSON(err)
 		}
 	} else {
 		id, err := helpers.IdGen.NextID()
@@ -319,7 +319,7 @@ func CreateLogin(c *fiber.Ctx) error {
 		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
 	}
 
-	httpStatus, err = createUserLogin(targetUser)
+	_, httpStatus, err = createZitadelUser(targetUser, &targetUser.ID)
 
 	if httpStatus != http.StatusOK {
 		return c.Status(httpStatus).JSON(err)

@@ -64,3 +64,18 @@ func updateUser(user *models.User, userId string, body *models.User, parseErr er
 
 	return nil
 }
+
+func setUserLoginState(userId string, loginState bool) *res.Error {
+	db := database.DB
+	user := models.User{}
+	if err := db.First(&user, userId).Error; err != nil {
+		return res.ErrDB.Err(err)
+	}
+
+	user.WithLogin = loginState
+	if err := db.Save(&user).Error; err != nil {
+		return res.ErrDB.Err(err)
+	}
+
+	return nil
+}

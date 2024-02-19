@@ -21,15 +21,25 @@ import (
 
 const UserStateNoLogin = "USER_STATE_NO_LOGIN"
 
-func createUser(user *models.User) (string, error) {
+func createZitadelUser(user *models.User, userId *string) (string, int, *res.Error) {
+	if userId != nil {
+		// check if user already exists
+		_, err := GetUserState(user.ID)
+		if err != nil {
+			setUserLoginState(user.ID, true)
+			return "", http.StatusBadRequest, res.ErrBadRequest
+		}
+	}
+
 	username, err := genUsername(user)
 	if err != nil {
-		return "", err
+		return "", http.StatusInternalServerError, res.ErrZitadel.Err(err)
 	}
 
 	// Create the user
 	gender := getGenderFromString(user.Gender.ZitadelName)
 	createReq := pbv2.AddHumanUserRequest{
+		UserId:   userId,
 		Username: &username,
 		Profile: &pbv2.SetHumanProfile{
 			GivenName:         user.FirstName,
@@ -49,51 +59,14 @@ func createUser(user *models.User) (string, error) {
 	createRes, err := helpers.UserClient.AddHumanUser(context.Background(), &createReq)
 
 	if err != nil {
-		return "", err
+		return "", http.StatusInternalServerError, res.ErrZitadel.Err(err)
 	}
 
-	return createRes.UserId, nil
-}
-
-func createUserLogin(user *models.User) (int, *res.Error) {
-	// check if user already exists
-	_, err := GetUserState(user.ID)
-	if err != nil {
-		return http.StatusBadRequest, res.ErrBadRequest
+	if userId != nil {
+		_ = setUserLoginState(*userId, true)
 	}
 
-	username, err := genUsername(user)
-	if err != nil {
-		return http.StatusInternalServerError, res.ErrZitadel.Err(err)
-	}
-
-	// Create the user
-	gender := getGenderFromString(user.Gender.ZitadelName)
-	createReq := pbv2.AddHumanUserRequest{
-		UserId:   &user.ID,
-		Username: &username,
-		Profile: &pbv2.SetHumanProfile{
-			GivenName:         user.FirstName,
-			FamilyName:        user.LastName,
-			PreferredLanguage: &user.Language.Short,
-			Gender:            &gender,
-		},
-		Email: &pbv2.SetHumanEmail{
-			Email:        user.PrimaryMail,
-			Verification: &pbv2.SetHumanEmail_IsVerified{IsVerified: false},
-		},
-		PasswordType: &pbv2.AddHumanUserRequest_Password{
-			Password: &pbv2.Password{ChangeRequired: true},
-		},
-	}
-
-	_, err = helpers.UserClient.AddHumanUser(context.Background(), &createReq)
-
-	if err != nil {
-		return http.StatusInternalServerError, res.ErrZitadel.Err(err)
-	}
-
-	return http.StatusOK, nil
+	return createRes.UserId, http.StatusOK, nil
 }
 
 func GetUserState(id string) (string, error) {
