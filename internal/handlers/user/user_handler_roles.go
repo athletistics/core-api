@@ -6,10 +6,10 @@ package userHandler
 
 import (
 	"fmt"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
-	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
+	"github.com/athletistics/core-api/database"
+	"github.com/athletistics/core-api/helpers"
+	"github.com/athletistics/core-api/internal/models"
+	res "github.com/athletistics/core-api/internal/responses"
 )
 
 // getRoles returns all roles of the target user he possesses on the requesting user's parent club. The requesting

@@ -4,8 +4,8 @@
 package routes
 
 import (
+	dataHandler "github.com/athletistics/core-api/internal/handlers/data"
 	"github.com/gofiber/fiber/v2"
-	dataHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/data"
 )
 
 func SetupDataRoutes(router fiber.Router) {

@@ -4,8 +4,8 @@
 package routes
 
 import (
+	"github.com/athletistics/core-api/internal/handlers/externalId"
 	"github.com/gofiber/fiber/v2"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/externalId"
 )
 
 func SetupExternalIdRoutesTotpProtected(router fiber.Router) {

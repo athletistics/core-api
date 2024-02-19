@@ -4,8 +4,8 @@
 package routes
 
 import (
+	disciplineHandler "github.com/athletistics/core-api/internal/handlers/discipline"
 	"github.com/gofiber/fiber/v2"
-	disciplineHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/discipline"
 )
 
 func SetupDisciplinesRoutes(router fiber.Router) {

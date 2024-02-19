@@ -6,9 +6,9 @@ package helpers
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/constants"
+	"github.com/athletistics/core-api/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 )
 
 func GetUserId(c *fiber.Ctx) string {

@@ -7,11 +7,11 @@ package test
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/athletistics/core-api/constants"
+	"github.com/athletistics/core-api/database"
+	"github.com/athletistics/core-api/router"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/router"
 	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"

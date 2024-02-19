@@ -4,8 +4,8 @@
 package routes
 
 import (
+	meHandler "github.com/athletistics/core-api/internal/handlers/me"
 	"github.com/gofiber/fiber/v2"
-	meHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/me"
 )
 
 func SetupMeRoutes(router fiber.Router) {

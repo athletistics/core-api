@@ -6,9 +6,9 @@ package totpverify
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/config"
+	"github.com/athletistics/core-api/constants"
 	"github.com/gofiber/fiber/v2"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
 	"net/http"
 	"os"
 )

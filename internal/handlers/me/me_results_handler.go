@@ -6,13 +6,13 @@ package meHandler
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/constants"
+	"github.com/athletistics/core-api/database"
+	"github.com/athletistics/core-api/helpers"
+	resultHandler "github.com/athletistics/core-api/internal/handlers/result"
+	"github.com/athletistics/core-api/internal/models"
+	res "github.com/athletistics/core-api/internal/responses"
 	"github.com/gofiber/fiber/v2"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
-	resultHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/result"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
-	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"net/http"
 )
 

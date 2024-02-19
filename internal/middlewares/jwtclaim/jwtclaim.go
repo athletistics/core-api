@@ -6,11 +6,11 @@
 package jwtclaim
 
 import (
+	"github.com/athletistics/core-api/constants"
+	"github.com/athletistics/core-api/helpers"
+	res "github.com/athletistics/core-api/internal/responses"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
-	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"net/http"
 	"strings"
 )

@@ -6,12 +6,12 @@ package router
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/config"
+	"github.com/athletistics/core-api/internal/middlewares/totprequire"
+	"github.com/athletistics/core-api/internal/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/totprequire"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/routes"
 	"os"
 )
 

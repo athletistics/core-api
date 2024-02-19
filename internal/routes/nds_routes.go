@@ -5,8 +5,8 @@ package routes
 
 import (
 	"fmt"
+	ndsHandler "github.com/athletistics/core-api/internal/handlers/nds"
 	"github.com/gofiber/fiber/v2"
-	ndsHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/nds"
 )
 
 func SetupNdsRoutes(router fiber.Router) {

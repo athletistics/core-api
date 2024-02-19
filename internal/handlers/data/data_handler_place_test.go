@@ -6,8 +6,8 @@ package dataHandler
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/athletistics/core-api/database"
 	"github.com/stretchr/testify/assert"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
 	"testing"
 )
 

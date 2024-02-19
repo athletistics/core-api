@@ -5,9 +5,9 @@
 package helpers
 
 import (
+	"github.com/athletistics/core-api/database"
+	"github.com/athletistics/core-api/internal/models"
 	"github.com/google/uuid"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 )
 
 type Role int64

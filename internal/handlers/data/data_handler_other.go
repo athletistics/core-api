@@ -5,8 +5,8 @@
 package dataHandler
 
 import (
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
+	"github.com/athletistics/core-api/database"
+	"github.com/athletistics/core-api/internal/models"
 )
 
 func SelectIdTypes() ([]models.ExternalIdType, error) {

@@ -2,6 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/config"
+	"github.com/athletistics/core-api/constants"
+	"github.com/athletistics/core-api/database"
+	"github.com/athletistics/core-api/helpers"
+	"github.com/athletistics/core-api/internal/middlewares/jwtclaim"
+	"github.com/athletistics/core-api/internal/middlewares/totpverify"
+	"github.com/athletistics/core-api/internal/middlewares/userprovider"
+	"github.com/athletistics/core-api/router"
 	"github.com/baeriswyln/goseeder"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
@@ -10,21 +18,13 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/swagger"
 	http_mw "github.com/zitadel/zitadel-go/v2/pkg/api/middleware/http"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/config"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/constants"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/jwtclaim"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/totpverify"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/middlewares/userprovider"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/router"
 	"log"
 	"os"
 
 	"github.com/zitadel/zitadel-go/v2/pkg/client/middleware"
 
-	_ "gitlab.forge.hefr.ch/tb-athletistics/backend/database/seeds"
-	_ "gitlab.forge.hefr.ch/tb-athletistics/backend/docs"
+	_ "github.com/athletistics/core-api/database/seeds"
+	_ "github.com/athletistics/core-api/docs"
 )
 
 //	@title			Core Athletistics API

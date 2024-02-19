@@ -6,8 +6,8 @@ package models
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/database/types"
 	"github.com/google/uuid"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database/types"
 	"gorm.io/gorm"
 	"strconv"
 )

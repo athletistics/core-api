@@ -5,9 +5,9 @@
 package ndsHandler
 
 import (
+	"github.com/athletistics/core-api/helpers"
+	"github.com/athletistics/core-api/internal/models"
 	"github.com/gofiber/fiber/v2"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
 )
 
 const (

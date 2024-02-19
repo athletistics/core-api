@@ -5,8 +5,8 @@
 package helpers
 
 import (
+	res "github.com/athletistics/core-api/internal/responses"
 	"github.com/gofiber/fiber/v2"
-	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"net/http"
 )
 

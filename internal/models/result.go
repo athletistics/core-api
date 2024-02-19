@@ -6,9 +6,9 @@ package models
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/database/types"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database/types"
 	"gorm.io/gorm"
 )
 

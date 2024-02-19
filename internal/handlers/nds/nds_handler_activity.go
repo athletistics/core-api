@@ -6,11 +6,11 @@ package ndsHandler
 
 import (
 	"fmt"
+	"github.com/athletistics/core-api/database"
+	"github.com/athletistics/core-api/helpers"
+	"github.com/athletistics/core-api/internal/models"
+	res "github.com/athletistics/core-api/internal/responses"
 	"github.com/google/uuid"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/database"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/helpers"
-	"gitlab.forge.hefr.ch/tb-athletistics/backend/internal/models"
-	res "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/responses"
 	"gorm.io/gorm"
 )
 

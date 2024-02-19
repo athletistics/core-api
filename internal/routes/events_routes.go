@@ -4,8 +4,8 @@
 package routes
 
 import (
+	eventHandler "github.com/athletistics/core-api/internal/handlers/event"
 	"github.com/gofiber/fiber/v2"
-	eventHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/event"
 )
 
 func SetupEventsRoutes(router fiber.Router) {

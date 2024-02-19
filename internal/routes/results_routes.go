@@ -5,8 +5,8 @@ package routes
 
 import (
 	"fmt"
+	resultHandler "github.com/athletistics/core-api/internal/handlers/result"
 	"github.com/gofiber/fiber/v2"
-	resultHandler "gitlab.forge.hefr.ch/tb-athletistics/backend/internal/handlers/result"
 )
 
 func SetupResultsRoutes(router fiber.Router) {
