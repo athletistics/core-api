@@ -29,7 +29,7 @@ var authCols = []string{"user_id", "club_id", "access_role_id"}
 func TestCreateShareCode_Success(t *testing.T) {
 	database.ConnectMockDB()
 
-	database.Mock.ExpectQuery(`SELECT \* FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId).
+	database.Mock.ExpectQuery(`SELECT \* FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId, 1).
 		WillReturnRows(sqlmock.NewRows(userCols).AddRow(userId, clubId))
 	mockHasRoleOnParentClub(true)
 
@@ -45,7 +45,7 @@ func TestCreateShareCode_Success(t *testing.T) {
 func TestCreateShareCode_Forbidden(t *testing.T) {
 	database.ConnectMockDB()
 
-	database.Mock.ExpectQuery(`SELECT \* FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId).
+	database.Mock.ExpectQuery(`SELECT \* FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId, 1).
 		WillReturnRows(sqlmock.NewRows(userCols).AddRow(userId, clubId))
 	mockHasRoleOnParentClub(false)
 
@@ -57,7 +57,7 @@ func TestCreateShareCode_Forbidden(t *testing.T) {
 func TestCreateShareCode_UnknownUser(t *testing.T) {
 	database.ConnectMockDB()
 
-	database.Mock.ExpectQuery(`SELECT \* FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId).
+	database.Mock.ExpectQuery(`SELECT \* FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId, 1).
 		WillReturnRows(sqlmock.NewRows(userCols))
 
 	_, err := createShareCode(&requestingUser, userId)
@@ -67,7 +67,7 @@ func TestCreateShareCode_UnknownUser(t *testing.T) {
 
 func TestRedeemShareCode_Success(t *testing.T) {
 	mockHasRoleOnParentClub(true)
-	database.Mock.ExpectQuery(`SELECT \* FROM "user_shares" WHERE.*"user_shares"."id" = \$2`).WithArgs(AnyTime{}, code).
+	database.Mock.ExpectQuery(`SELECT \* FROM "user_shares" WHERE.*"user_shares"."id" = \$2`).WithArgs(AnyTime{}, code, 1).
 		WillReturnRows(sqlmock.NewRows(shareCols).AddRow(code, userId))
 
 	// auth creation
@@ -78,7 +78,7 @@ func TestRedeemShareCode_Success(t *testing.T) {
 	database.Mock.ExpectCommit()
 
 	// read user for return
-	database.Mock.ExpectQuery(`SELECT.*FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId).
+	database.Mock.ExpectQuery(`SELECT.*FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId, 1).
 		WillReturnRows(sqlmock.NewRows(userCols).AddRow(userId, clubId))
 
 	user, err := redeemShareCode(&requestingUser, code.String())
@@ -88,7 +88,7 @@ func TestRedeemShareCode_Success(t *testing.T) {
 
 func TestRedeemShareCode_SuccessDuplicate(t *testing.T) {
 	mockHasRoleOnParentClub(true)
-	database.Mock.ExpectQuery(`SELECT \* FROM "user_shares" WHERE.*"user_shares"."id" = \$2`).WithArgs(AnyTime{}, code).
+	database.Mock.ExpectQuery(`SELECT \* FROM "user_shares" WHERE.*"user_shares"."id" = \$2`).WithArgs(AnyTime{}, code, 1).
 		WillReturnRows(sqlmock.NewRows(shareCols).AddRow(code, userId))
 
 	// auth creation
@@ -97,7 +97,7 @@ func TestRedeemShareCode_SuccessDuplicate(t *testing.T) {
 	database.Mock.ExpectRollback()
 
 	// read user for return
-	database.Mock.ExpectQuery(`SELECT.*FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId).
+	database.Mock.ExpectQuery(`SELECT.*FROM "users" WHERE.*"users"."id" = \$1`).WithArgs(userId, 1).
 		WillReturnRows(sqlmock.NewRows(userCols).AddRow(userId, clubId))
 
 	user, err := redeemShareCode(&requestingUser, code.String())

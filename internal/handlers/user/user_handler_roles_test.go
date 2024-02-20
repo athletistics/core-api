@@ -48,7 +48,7 @@ func TestAddRole(t *testing.T) {
 	body := models.Authorisation{AccessRoleID: models.AccessRoleIdAthlete, UserID: userId, ClubID: requestingUser.ClubID}
 
 	mockHasRoleOnParentClub(true)
-	database.Mock.ExpectQuery(`SELECT \* FROM "users".*WHERE "users"."id" = \$1 AND "users"."club_id" = \$2`).
+	database.Mock.ExpectQuery(`SELECT \* FROM "users".*WHERE \("users"."id" = \$1 AND "users"."club_id" = \$2\)`).
 		WillReturnRows(sqlmock.NewRows(userCols).AddRow(userId, requestingUser.ClubID))
 
 	database.Mock.ExpectBegin()
@@ -92,7 +92,7 @@ func TestAddRole_Forbidden(t *testing.T) {
 	database.ConnectMockDB()
 
 	mockHasRoleOnParentClub(true)
-	database.Mock.ExpectQuery(`SELECT \* FROM "users".*WHERE "users"."id" = \$1 AND "users"."club_id" = \$2`).
+	database.Mock.ExpectQuery(`SELECT \* FROM "users".*WHERE \("users"."id" = \$1 AND "users"."club_id" = \$2\)`).
 		WillReturnError(gorm.ErrRecordNotFound)
 	err = addRole(&requestingUser, userId, &body, nil)
 	assert.NotNil(t, err)
