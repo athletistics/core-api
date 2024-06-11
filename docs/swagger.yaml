@@ -418,6 +418,10 @@ definitions:
         type: string
       primaryPhone:
         type: string
+      teams:
+        items:
+          $ref: '#/definitions/models.Team'
+        type: array
       userState:
         type: string
       withLogin:
@@ -445,6 +449,10 @@ definitions:
         type: string
       primaryPhone:
         type: string
+      teams:
+        items:
+          $ref: '#/definitions/models.Team'
+        type: array
     required:
     - firstName
     - lastName
@@ -483,6 +491,10 @@ definitions:
         type: string
       lastName:
         type: string
+      teams:
+        items:
+          $ref: '#/definitions/models.Team'
+        type: array
     required:
     - birthDate
     - firstName
@@ -547,7 +559,7 @@ info:
     name: AGPL-3.0
     url: https://www.gnu.org/licenses/agpl-3.0.html
   title: Core Athletistics API
-  version: v1.0.1
+  version: v1.1.2
 paths:
   /club/{club_id}:
     get:
@@ -1553,6 +1565,12 @@ paths:
         name: eventTypeID
         type: integer
       - in: query
+        name: pageIndex
+        type: integer
+      - in: query
+        name: pageSize
+        type: integer
+      - in: query
         name: userID
         type: string
       produces:
@@ -1693,6 +1711,12 @@ paths:
         type: string
       - in: query
         name: eventTypeID
+        type: integer
+      - in: query
+        name: pageIndex
+        type: integer
+      - in: query
+        name: pageSize
         type: integer
       - in: query
         name: userID
@@ -1993,6 +2017,34 @@ paths:
         that are not passed will be set to
       tags:
       - User share
+  /users/{userId}/create-login:
+    post:
+      parameters:
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: The user already has a login
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Ask Zitadel to initialize a login for a given user.
+      tags:
+      - User auth
   /users/{userId}/roles:
     delete:
       parameters:

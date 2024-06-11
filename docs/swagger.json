@@ -14,7 +14,7 @@
             "name": "AGPL-3.0",
             "url": "https://www.gnu.org/licenses/agpl-3.0.html"
         },
-        "version": "v1.0.1"
+        "version": "v1.1.2"
     },
     "host": "athletistics.kube.isc.heia-fr.ch",
     "basePath": "/api/v1",
@@ -1633,6 +1633,16 @@
                         "in": "query"
                     },
                     {
+                        "type": "integer",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
                         "type": "string",
                         "name": "userID",
                         "in": "query"
@@ -1752,6 +1762,16 @@
                     {
                         "type": "integer",
                         "name": "eventTypeID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "pageSize",
                         "in": "query"
                     },
                     {
@@ -2448,6 +2468,51 @@
                     },
                     "403": {
                         "description": "Not enough permissions",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{userId}/create-login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "User auth"
+                ],
+                "summary": "Ask Zitadel to initialize a login for a given user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "The user already has a login",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/res.Error"
                         }
@@ -3239,6 +3304,12 @@
                 "primaryPhone": {
                     "type": "string"
                 },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Team"
+                    }
+                },
                 "userState": {
                     "type": "string"
                 },
@@ -3266,6 +3337,12 @@
                 },
                 "primaryPhone": {
                     "type": "string"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Team"
+                    }
                 }
             }
         },
@@ -3324,6 +3401,12 @@
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "teams": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Team"
+                    }
                 }
             }
         },
