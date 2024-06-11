@@ -70,4 +70,4 @@ jobs:
     uses: ./.github/workflows/build-publish.yml
     secrets: inherit
     with:
-      tag: $tag
+      tag: ${{ github.ref_name }}
