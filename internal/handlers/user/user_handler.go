@@ -110,7 +110,7 @@ func GetEmergencyUsers(c *fiber.Ctx) error {
 	err := db.Model(&models.User{}).
 		InnerJoins(`LEFT JOIN authorisations a ON a.user_id = users.id AND a.club_id = ? `, user.ClubID).
 		Where(`users.club_id = ? OR a.club_id = ?`, user.ClubID, user.ClubID).
-		Group("users.id").
+		Group("users.id").Preload("Teams").
 		Find(&users).Error
 	if err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))

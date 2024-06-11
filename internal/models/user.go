@@ -44,6 +44,7 @@ type UserShort struct {
 	ID         string     `gorm:"primaryKey;unique" json:"id"`
 	FirstName  string     `json:"firstName" validate:"required"`
 	LastName   string     `json:"lastName" validate:"required"`
+	Teams      []Team     `gorm:"many2many:participants;joinForeignKey:UserId;" json:"teams"`
 	BirthDate  types.Date `json:"birthDate" validate:"required"`
 }
 
@@ -52,6 +53,7 @@ type UserEmergency struct {
 	ID           string `gorm:"primaryKey;unique" json:"id"`
 	FirstName    string `json:"firstName" validate:"required"`
 	LastName     string `json:"lastName" validate:"required"`
+	Teams        []Team `gorm:"many2many:participants;joinForeignKey:UserId;" json:"teams"`
 	PrimaryPhone string `json:"primaryPhone" validate:"required"`
 }
 
