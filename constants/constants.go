@@ -15,6 +15,11 @@ const (
 	TrainingEventTypeId  = 4
 )
 
+// defaults
+const (
+	DefaultPageSize = 25
+)
+
 const (
 	EnvLocal = "local"
 	EnvDev   = "dev"

@@ -23,12 +23,13 @@ type ResultQuery struct {
 	CategoryId   *int       `query:"categoryId"`
 	DisciplineID *uuid.UUID `query:"disciplineId"`
 	BestOnly     bool       `query:"bestOnly"`
+	helpers.Pagination
 }
 
 // FindResults searches for results in the database. This function does not perform any security checks.
 // The calling function must make sure that the query can be executed as given.
 // Only results of the requesting user's club are returned
-func FindResults(query *ResultQuery, outModel interface{}, callingUser *models.User) error {
+func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, callingUser *models.User) error {
 	var err error
 	db := database.DB
 
@@ -69,6 +70,10 @@ func FindResults(query *ResultQuery, outModel interface{}, callingUser *models.U
 		ascendingQ = db.Raw("WITH ranked AS (?) SELECT * FROM ranked WHERE rn = 1 AND is_descending = FALSE", ascendingQ)
 
 		q = db.Raw("(?) UNION (?)", descendingQ, ascendingQ)
+	} else {
+		// Pagination
+		q.Count(&page.Count)
+		q.Scopes(helpers.Paginate(&query.Pagination, page))
 	}
 
 	err = q.Preload("User").Preload("Discipline").Preload("Event").Preload("Category").Find(outModel).Error
@@ -85,16 +90,20 @@ func FindResults(query *ResultQuery, outModel interface{}, callingUser *models.U
 func RunQuery(c *fiber.Ctx, q *ResultQuery) error {
 	user := helpers.GetUser(c)
 
-	var results []models.ResultString
-	if err := FindResults(q, &results, &user); err != nil {
+	var results res.Paginated[models.ResultString]
+	if err := FindResults(q, &results.Page, &results.Data, &user); err != nil {
 		helpers.LogError(err.Error(), helpers.GetUserId(c))
 		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
 	}
 
-	for i := 0; i < len(results); i++ {
-		results[i].Prepare()
+	for i := 0; i < len(results.Data); i++ {
+		results.Data[i].Prepare()
 	}
-	return c.JSON(results)
+	if q.BestOnly {
+		return c.JSON(results.Data)
+	} else {
+		return c.JSON(results)
+	}
 }
 
 func RunCreateQuery(c *fiber.Ctx, body *models.ResultInput) error {

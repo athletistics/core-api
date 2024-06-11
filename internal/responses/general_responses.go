@@ -16,3 +16,13 @@ type IdCreated struct {
 type IntIdCreated struct {
 	Id int64 `json:"id"`
 }
+
+type Page struct {
+	PageIndex int   `json:"page_index"`
+	Count     int64 `json:"count"`
+}
+
+type Paginated[D any] struct {
+	Page
+	Data []D `json:"data"`
+}
