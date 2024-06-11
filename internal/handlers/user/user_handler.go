@@ -54,7 +54,7 @@ func GetUsers(c *fiber.Ctx) error {
 
 	if separated {
 		var usersOwned []models.User
-		err := db.Where(&models.User{ClubID: user.ClubID}).Find(&usersOwned).Error
+		err := db.Where(&models.User{ClubID: user.ClubID}).Preload("Teams").Find(&usersOwned).Error
 		if err != nil {
 			helpers.LogError(err.Error(), helpers.GetUserId(c))
 			return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
@@ -64,7 +64,7 @@ func GetUsers(c *fiber.Ctx) error {
 		var usersShared []models.User
 		err = db.InnerJoins(`INNER JOIN authorisations a ON a.user_id = users.id AND a.club_id = ? `, user.ClubID).
 			Where(`users.club_id <> ?`, user.ClubID).
-			Group("users.id"). // group to get distinct users
+			Group("users.id").Preload("Teams"). // group to get distinct users
 			Find(&usersShared).Error
 		if err != nil {
 			helpers.LogError(err.Error(), helpers.GetUserId(c))
@@ -76,7 +76,7 @@ func GetUsers(c *fiber.Ctx) error {
 		var users []models.User
 		err := db.InnerJoins(`LEFT JOIN authorisations a ON a.user_id = users.id AND a.club_id = ? `, user.ClubID).
 			Where(`users.club_id = ? OR a.club_id = ?`, user.ClubID, user.ClubID).
-			Group("users.id"). // group to get distinct users
+			Group("users.id").Preload("Teams"). // group to get distinct users
 			Find(&users).Error
 		if err != nil {
 			helpers.LogError(err.Error(), helpers.GetUserId(c))

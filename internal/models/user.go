@@ -34,7 +34,7 @@ type User struct {
 	Country       Country    `json:"country"`
 	NationalityID int        `json:"nationalityId" validate:"required"`
 	Nationality   Country    `json:"nationality"`
-	Teams         []Team     `gorm:"many2many:participants;" json:"-"`
+	Teams         []Team     `gorm:"many2many:participants;joinForeignKey:UserId;" json:"teams"`
 	WithLogin     bool       `json:"withLogin" validate:"required"`
 	UserState     string     `json:"userState" gorm:"-"`
 }
