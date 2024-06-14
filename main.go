@@ -6,6 +6,7 @@ import (
 	"github.com/athletistics/core-api/constants"
 	"github.com/athletistics/core-api/database"
 	"github.com/athletistics/core-api/helpers"
+	"github.com/athletistics/core-api/internal/middlewares/contextprovider"
 	"github.com/athletistics/core-api/internal/middlewares/jwtclaim"
 	"github.com/athletistics/core-api/internal/middlewares/totpverify"
 	"github.com/athletistics/core-api/internal/middlewares/userprovider"
@@ -101,6 +102,9 @@ func fiberSetup() {
 
 	// extract user id from JWT token
 	app.Use(jwtclaim.New())
+
+	// load the requesting users's context
+	app.Use(contextprovider.New())
 
 	// extract user from db using id that was previously extracted
 	app.Use(userprovider.New())

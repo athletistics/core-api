@@ -15,6 +15,9 @@ func GetUserId(c *fiber.Ctx) string {
 	return fmt.Sprintf("%v", c.Locals(constants.LocalsUserId))
 }
 
+// GetUser reads the user from fiber's context
+//
+// Deprecated: use UserContext instead.
 func GetUser(c *fiber.Ctx) models.User {
 	return c.Locals(constants.LocalsUser).(models.User)
 }

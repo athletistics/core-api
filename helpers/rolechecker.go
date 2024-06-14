@@ -1,6 +1,8 @@
 // Brief   : Checking roles of a user
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 20.06.2023
+//
+// Deprecated: use UserContext() instead.
 
 package helpers
 
@@ -12,25 +14,9 @@ import (
 
 type Role int64
 
-const (
-	RoleAthlete Role = iota
-	RoleCoach
-	RoleHeadCoach
-)
-
-func (r Role) String() string {
-	switch r {
-	case RoleAthlete:
-		return "athlete"
-	case RoleCoach:
-		return "coach"
-	case RoleHeadCoach:
-		return "head_coach"
-	}
-	return "unknown"
-}
-
 // HasRoleOnClub checks if the requesting user has at least one of the specified roles on the specified club.
+//
+// Deprecated: use UserContext() instead.
 func HasRoleOnClub(user *models.User, clubId uuid.UUID, roles ...Role) bool {
 	if len(roles) == 0 || user == nil {
 		return false
@@ -52,17 +38,22 @@ func HasRoleOnClub(user *models.User, clubId uuid.UUID, roles ...Role) bool {
 	return false
 }
 
+// Deprecated: use UserContext() instead.
 func HasRoleOnParentClub(user *models.User, roles ...Role) bool {
 	return HasRoleOnClub(user, user.ClubID, roles...)
 }
 
 // HasAnyRoleOnParentClub returns true if the user has any role on his parent club.
 // Short for HasAnyRoleOnClub(c, helperse.GetUser(c).ClubID)
+//
+// Deprecated: use UserContext() instead.
 func HasAnyRoleOnParentClub(user *models.User) bool {
 	return HasAnyRoleOnClub(user, user.ClubID)
 }
 
 // HasAnyRoleOnClub checks if the requesting user has any role on the specificed club.
+//
+// Deprecated: use UserContext() instead.
 func HasAnyRoleOnClub(user *models.User, clubId uuid.UUID) bool {
 	if user == nil {
 		return false
@@ -77,6 +68,8 @@ func HasAnyRoleOnClub(user *models.User, clubId uuid.UUID) bool {
 }
 
 // HasRoleOnTeam is similar to HasRoleOnClub, but checks the roles for the club of a specific team.
+//
+// Deprecated: use UserContext() instead.
 func HasRoleOnTeam(user *models.User, teamId uuid.UUID, roles ...Role) bool {
 	db := database.DB
 
@@ -88,6 +81,8 @@ func HasRoleOnTeam(user *models.User, teamId uuid.UUID, roles ...Role) bool {
 }
 
 // HasRoleOnActivity is similar to HasRoleOnClub, but checks the roles for the club of a specific team.
+//
+// Deprecated: use UserContext() instead.
 func HasRoleOnActivity(user *models.User, activityId uuid.UUID, roles ...Role) bool {
 	db := database.DB
 
@@ -105,6 +100,8 @@ func HasRoleOnActivity(user *models.User, activityId uuid.UUID, roles ...Role) b
 // HasRoleOnOneOfTheClubs checks for overlapping in the source and target user club authorisations. The function
 // returns true if either the source user has one of the required roles on the target user's parent club, or one of
 // the target user's authorised clubs (any access role).
+//
+// Deprecated: use UserContext() instead.
 func HasRoleOnOneOfTheClubs(user *models.User, targetUser *models.User, roles ...Role) bool {
 	db := database.DB
 
