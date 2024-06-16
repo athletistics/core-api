@@ -42,7 +42,7 @@ func GetEvents(c *fiber.Ctx) error {
 	var events []models.EventShort
 	err := db.Model(&models.Event{}).
 		Where("club_id IS NULL").
-		Or(&models.Event{ClubID: &user.ClubID}).Find(&events).Error
+		Or(&models.Event{ClubID: &user.ClubID}).Order("date desc").Find(&events).Error
 
 	if err != nil {
 		h.LogError(err.Error(), h.GetUserId(c))

@@ -40,7 +40,8 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 			db.Distinct("users.id").Table("users").
 				Joins(`LEFT JOIN authorisations a ON a.user_id = users.id`).
 				Where(`users.club_id = ? OR a.club_id = ?`, callingUser.ClubID, callingUser.ClubID),
-		)
+		).
+		Joins("LEFT JOIN events ON events.id = results.event_id")
 
 	// apply filters passed through the query argument
 	if query.UserID != nil {
@@ -75,6 +76,8 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 		q.Count(&page.Count)
 		q.Scopes(helpers.Paginate(&query.Pagination, page))
 	}
+
+	q.Order("events.date desc")
 
 	err = q.Preload("User").Preload("Discipline").Preload("Event").Preload("Category").Find(outModel).Error
 	if err != nil {
