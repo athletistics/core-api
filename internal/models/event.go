@@ -5,6 +5,7 @@
 package models
 
 import (
+	"fmt"
 	"github.com/athletistics/core-api/database/types"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -22,6 +23,18 @@ type Event struct {
 	Date          types.Date
 	IsHomologated bool
 	IsOutdoor     bool `gorm:"default:true"`
+}
+
+func (e *Event) GetOwningClub(db *gorm.DB) (uuid.UUID, error) {
+	if err := db.First(e).Error; err != nil {
+		return uuid.Nil, err
+	}
+
+	if e.ClubID == nil {
+		return uuid.Nil, fmt.Errorf(`event "%s" has no owning club`, e.ID)
+	}
+
+	return *e.ClubID, nil
 }
 
 // OUTPUT FORMATS used for sending data to the client

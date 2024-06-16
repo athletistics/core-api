@@ -4,6 +4,7 @@
 package routes
 
 import (
+	"fmt"
 	eventHandler "github.com/athletistics/core-api/internal/handlers/event"
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,4 +19,6 @@ func SetupEventsRoutesTotpProtected(router fiber.Router) {
 	node := router.Group("/events")
 
 	node.Post("/", eventHandler.CreateEvent)
+	node.Put(fmt.Sprintf("/:%v", eventHandler.ParamEventId), eventHandler.UpdateEvent)
+	node.Delete(fmt.Sprintf("/:%v", eventHandler.ParamEventId), eventHandler.DeleteEvent)
 }

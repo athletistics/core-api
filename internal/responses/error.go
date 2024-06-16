@@ -37,6 +37,11 @@ var (
 	ErrParticipantsExist = NewError(http.StatusBadRequest, 1000, "Some atheltes are already part of the team", "")
 )
 
+// Event errors
+var (
+	ErrEventHasResults = NewError(http.StatusBadRequest, 2000, "Results are registered for this event.", "")
+)
+
 type Error struct {
 	Error         int    `json:"error" validate:"required"`
 	ErrorSubCode  int    `json:"subCode"`

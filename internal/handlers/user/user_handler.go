@@ -31,7 +31,7 @@ const (
 //
 //	@Param		separated	query		boolean								false	"Flag defining if users are separated as 'owned by club' and 'shared' or not"
 //
-//	@Success	200			{array}	    models.User						"owned and shared users combined ('separated' flag omitted or false)"
+//	@Success	200			{array}		models.User							"owned and shared users combined ('separated' flag omitted or false)"
 //	@Success	200			{object}	userHandler.GetUsers.usersSeparated	"owned and shared users separated ('separated' flag true)"
 //	@Failure	401			{object}	res.Error
 //	@Failure	403			{object}	res.Error	"Not enough permissions"
@@ -92,7 +92,7 @@ func GetUsers(c *fiber.Ctx) error {
 //	@Summary	List users
 //	@Tags		User info
 //	@Produce	json
-//	@Success	200	{array}	    models.UserEmergency
+//	@Success	200	{array}		models.UserEmergency
 //	@Failure	401	{object}	res.Error
 //	@Failure	403	{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
@@ -299,9 +299,9 @@ func RedeemShareCode(c *fiber.Ctx) error {
 //	@Consumes	json
 //	@Param		userId	path	string	true	"User ID"
 //	@Success	200
-//	@Failure	400		{object}	res.Error	"The user already has a login"
-//	@Failure	401		{object}	res.Error
-//	@Failure	403		{object}	res.Error	"Forbidden"
+//	@Failure	400	{object}	res.Error	"The user already has a login"
+//	@Failure	401	{object}	res.Error
+//	@Failure	403	{object}	res.Error	"Forbidden"
 //	@Security	ApiKeyAuth
 //	@Router		/users/{userId}/create-login [post]
 func CreateLogin(c *fiber.Ctx) error {
@@ -334,7 +334,7 @@ func CreateLogin(c *fiber.Ctx) error {
 //	@Tags		User auth
 //	@Produce	json
 //	@Param		userId	query		string	true	"Target user ID"
-//	@Success	200		{array}	    models.Authorisation
+//	@Success	200		{array}		models.Authorisation
 //	@Failure	401		{object}	res.Error
 //	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth

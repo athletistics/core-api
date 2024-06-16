@@ -23,7 +23,7 @@ type Result struct {
 	Category     *Category
 	DisciplineID uuid.UUID `gorm:"type:uuid"`
 	Discipline   Discipline
-	EventID      uuid.UUID `gorm:"type:uuid"`
+	EventID      uuid.UUID `gorm:"type:uuid;constraint:OnDelete:CASCADE"`
 	Event        Event
 	Value        decimal.Decimal  `gorm:"type:decimal(8,3)"`
 	Wind         *decimal.Decimal `gorm:"type:decimal(2,1)"`

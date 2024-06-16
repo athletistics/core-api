@@ -12,6 +12,7 @@ import (
 	"github.com/athletistics/core-api/internal/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 	"net/http"
 	"os"
 )
@@ -58,7 +59,7 @@ const (
 )
 
 type ClubOwned interface {
-	GetOwningClub() uuid.UUID
+	GetOwningClub(*gorm.DB) (uuid.UUID, error)
 }
 
 type TwoFAState struct {
@@ -132,7 +133,12 @@ func (c *Context) HasRoleOnParentClub(roles ...Role) bool {
 }
 
 func (c *Context) HasRoleOnClubOwned(target ClubOwned, roles ...Role) bool {
-	return c.HasRoleOnClub(target.GetOwningClub(), roles...)
+	id, err := target.GetOwningClub(database.DB)
+	if err != nil {
+		return false
+	}
+
+	return c.HasRoleOnClub(id, roles...)
 }
 
 // -------------------
