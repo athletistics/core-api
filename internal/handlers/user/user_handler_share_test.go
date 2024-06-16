@@ -135,7 +135,7 @@ func mockHasRoleOnParentClub(success bool) {
 		database.Mock.ExpectQuery(`SELECT \* FROM "authorisations"`).
 			WillReturnRows(sqlmock.NewRows(authCols).AddRow(requestingUser.ID, clubId, int(helpers.RoleHeadCoach)))
 		database.Mock.ExpectQuery(`SELECT .* FROM "access_roles"`).
-			WillReturnRows(sqlmock.NewRows([]string{"id", "i18n_name"}).AddRow(2, helpers.RoleHeadCoach.String()))
+			WillReturnRows(sqlmock.NewRows([]string{"id", "i18n_name"}).AddRow(models.AccessRoleIdHeadCoach, helpers.RoleHeadCoach.String()))
 	} else {
 		database.Mock.ExpectQuery(`SELECT \* FROM "authorisations"`).
 			WillReturnRows(sqlmock.NewRows(authCols))

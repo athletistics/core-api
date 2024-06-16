@@ -40,6 +40,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
+      - name: Clean cache
+        run: go clean -testcache
       - name: Run tests
         run: go test ./...
 
