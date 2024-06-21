@@ -13,6 +13,9 @@ func SetupResultsRoutes(router fiber.Router) {
 	node := router.Group("/results")
 
 	node.Get("/static", resultHandler.GetStaticResults)
+	node.Post("/training", resultHandler.CreatePersonalTrainingResult)
+	node.Put(fmt.Sprintf("/training/:%v", resultHandler.ParamResultId), resultHandler.UpdatePersonalTrainingResult)
+	node.Delete(fmt.Sprintf("/training/:%v", resultHandler.ParamResultId), resultHandler.DeletePersonalTrainingResult)
 }
 
 func SetupResultsRoutesTotpProtected(router fiber.Router) {

@@ -180,3 +180,69 @@ func GetStaticResults(c *fiber.Ctx) error {
 		Types:   types,
 	})
 }
+
+// CreatePersonalTrainingResult creates a new training result for the requesting user.
+//
+//	@Summary	Create a new result.
+//	@Tags		Results
+//	@Consume	json
+//	@Produce	json
+//	@Param		request	body		models.ResultTrainingInput	true	"Result data"
+//	@Success	200		{object}	res.UuidCreated
+//	@Failure	400		{object}	res.Error
+//	@Failure	401		{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/results/training/ [post]
+func CreatePersonalTrainingResult(c *fiber.Ctx) error {
+	body := new(models.ResultTrainingInput)
+	ctx := helpers.LoadContext(c)
+	if err := c.BodyParser(body); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), ctx.User().ID)
+		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
+	}
+
+	return helpers.ProcessJsonResponse(c, nil, createTrainingResult(ctx, body))
+}
+
+// UpdatePersonalTrainingResult modifies the values of a result, without updating user and discipline.
+//
+//	@Summary	Modify the values of a result, without updating event, user, and discipline.
+//	@Tags		Results
+//	@Consume	json
+//	@Produce	json
+//	@Param		resultId	path		string						true	"Result UUID to modify"
+//	@Param		request		body		models.ResultTrainingInput	true	"Updated result data"
+//	@Success	200			{object}	models.ResultString
+//	@Failure	400			{object}	res.Error
+//	@Failure	401			{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/results/training/{resultId} [put]
+func UpdatePersonalTrainingResult(c *fiber.Ctx) error {
+	body := new(models.ResultTrainingInput)
+	ctx := helpers.LoadContext(c)
+	resultId := c.Query(ParamResultId)
+
+	if err := c.BodyParser(body); err != nil {
+		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), ctx.User().ID)
+		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
+	}
+
+	return helpers.ProcessJsonResponse(c, nil, updateTrainingResult(ctx, resultId, body))
+}
+
+// DeletePersonalTrainingResult deletes a specific training result.
+//
+//	@Summary	Delete a specific result.
+//	@Tags		Results
+//	@Param		resultId	path		string	true	"Result UUID to delete"
+//	@Success	200			{string}	string
+//	@Failure	400			{object}	res.Error
+//	@Failure	401			{object}	res.Error
+//	@Security	ApiKeyAuth
+//	@Router		/results/training/{resultId} [delete]
+func DeletePersonalTrainingResult(c *fiber.Ctx) error {
+	ctx := helpers.LoadContext(c)
+	resultId := c.Query(ParamResultId)
+
+	return helpers.ProcessJsonResponse(c, nil, deleteTrainingResult(ctx, resultId))
+}

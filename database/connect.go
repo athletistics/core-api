@@ -61,6 +61,7 @@ func ConnectDb() {
 		&models.Discipline{}, &models.Email{}, &models.Event{}, &models.EventType{}, &models.Participant{},
 		&models.Phone{}, &models.Result{}, &models.Sport{}, &models.Team{}, &models.UserShare{},
 		&models.User{}, &models.Language{}, &models.Gender{}, &models.ResultStatic{}, &models.ResultStaticType{},
+		&models.ResultTraining{},
 		// External IDs
 		&models.ExternalIdType{}, &models.ExternalId{},
 		// NDS models

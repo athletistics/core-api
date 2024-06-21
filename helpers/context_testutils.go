@@ -11,6 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateContext creates a user requesting context that MUST ONLY BE USED IN TESTING FUNCTIONS!
+// THIS FUNCTION IS NOT AVAILABLE IN PRODUCTION!
 func CreateContext(u models.User, authByClub map[uuid.UUID]map[Role]bool, state TwoFAState) *Context {
 	return &Context{user: &u, authByClub: authByClub, twoFA: state}
 }
