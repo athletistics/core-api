@@ -35,17 +35,19 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 
 	// join results with users, limiting the results to the users that belong to the requesting user's club and users
 	// that are shared with their club.
-	q := db.Model(&models.Result{}).
+	q := db.Model(&models.Result{}).Select("results.id, results.created_at, results.updated_at, results.deleted_at, results.user_id, results.discipline_id, events.date as date, results.value, results.wind, results.rank, results.event_id, results.category_id, false is_personal_training_result").
 		Joins("inner join users ON users.id = results.user_id AND users.id IN (?)",
 			db.Distinct("users.id").Table("users").
 				Joins(`LEFT JOIN authorisations a ON a.user_id = users.id`).
 				Where(`users.club_id = ? OR a.club_id = ?`, callingUser.ClubID, callingUser.ClubID),
 		).
 		Joins("LEFT JOIN events ON events.id = results.event_id")
+	qPers := db.Model(&models.ResultTraining{}).Select("result_trainings.*, NULL as wind, NULL as rank, NULL as event_id, NULL as  category_id, true is_personal_training_result")
 
 	// apply filters passed through the query argument
 	if query.UserID != nil {
 		q.Where(&models.Result{UserID: *query.UserID})
+		qPers.Where(&models.Result{UserID: *query.UserID})
 	}
 
 	if query.EventID != nil {
@@ -58,6 +60,7 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 
 	if query.DisciplineID != nil {
 		q.Where(&models.Result{DisciplineID: *query.DisciplineID})
+		qPers.Where(&models.Result{DisciplineID: *query.DisciplineID})
 	}
 
 	// get best results by discipline
@@ -73,7 +76,17 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 		q = db.Raw("(?) UNION (?)", descendingQ, ascendingQ)
 	} else {
 		// Pagination
-		q.Count(&page.Count)
+		var count int64 = 0
+		var countPers int64 = 0
+		q.Count(&count)
+		qPers.Count(&countPers)
+
+		page.Count = count + countPers
+
+		if query.UserID != nil {
+			q = db.Raw("(?) UNION (?)", q, qPers)
+		}
+
 		q.Scopes(helpers.Paginate(&query.Pagination, page))
 	}
 

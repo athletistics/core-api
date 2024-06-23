@@ -49,37 +49,39 @@ func (r *Result) Update(update *ResultUpdateInput) {
 }
 
 type ResultString struct {
-	ID             uuid.UUID        `json:"id"`
-	User           User             `json:"-"`
-	UserID         string           `json:"userId"`
-	UserFirstName  string           `json:"userFirstName" gorm:"-"`
-	UserLastName   string           `json:"userLastName" gorm:"-"`
-	Category       *Category        `json:"-"`
-	CategoryID     uuid.UUID        `gorm:"type:uuid" json:"-"`
-	CategoryName   string           `json:"categoryName" gorm:"-"`
-	Discipline     Discipline       `json:"-"`
-	DisciplineID   uuid.UUID        `gorm:"type:uuid" json:"disciplineId"`
-	DisciplineName string           `json:"disciplineName" gorm:"-"`
-	Event          Event            `json:"-"`
-	EventID        uuid.UUID        `gorm:"type:uuid" json:"eventId"`
-	EventName      string           `json:"eventName" gorm:"-"`
-	EventPlace     string           `json:"eventPlace" gorm:"-"`
-	EventOutdoor   bool             `json:"eventOutdoor" gorm:"-"`
-	IsTraining     bool             `json:"isTraining" gorm:"-"`
-	Date           types.Date       `json:"date" gorm:"-"`
-	Value          decimal.Decimal  `json:"value"`
-	Wind           *decimal.Decimal `json:"wind"`
-	Rank           *string          `json:"rank"`
+	ID                       uuid.UUID        `json:"id"`
+	User                     User             `json:"-"`
+	UserID                   string           `json:"userId"`
+	UserFirstName            string           `json:"userFirstName" gorm:"-"`
+	UserLastName             string           `json:"userLastName" gorm:"-"`
+	Category                 *Category        `json:"-"`
+	CategoryID               uuid.UUID        `gorm:"type:uuid" json:"-"`
+	CategoryName             string           `json:"categoryName" gorm:"-"`
+	Discipline               Discipline       `json:"-"`
+	DisciplineID             uuid.UUID        `gorm:"type:uuid" json:"disciplineId"`
+	DisciplineName           string           `json:"disciplineName" gorm:"-"`
+	Event                    *Event           `json:"-"`
+	EventID                  uuid.UUID        `gorm:"type:uuid" json:"eventId"`
+	EventName                string           `json:"eventName" gorm:"-"`
+	EventPlace               string           `json:"eventPlace" gorm:"-"`
+	EventOutdoor             bool             `json:"eventOutdoor" gorm:"-"`
+	IsTraining               bool             `json:"isTraining" gorm:"-"`
+	IsPersonalTrainingResult bool             `json:"isPersonalTrainingResult"`
+	Date                     types.Date       `json:"date"`
+	Value                    decimal.Decimal  `json:"value"`
+	Wind                     *decimal.Decimal `json:"wind"`
+	Rank                     *string          `json:"rank"`
 }
 
 func (r *ResultString) Prepare() {
 	r.UserFirstName = r.User.FirstName
 	r.UserLastName = r.User.LastName
-	r.EventName = r.Event.Name
-	r.EventPlace = r.Event.Place
-	r.EventOutdoor = r.Event.IsOutdoor
-	r.Date = r.Event.Date
-	r.IsTraining = r.Event.EventTypeID == TrainingTypeId
+	if r.Event != nil {
+		r.EventName = r.Event.Name
+		r.EventPlace = r.Event.Place
+		r.EventOutdoor = r.Event.IsOutdoor
+		r.IsTraining = r.Event.EventTypeID == TrainingTypeId
+	}
 
 	if r.Discipline.I18nName != nil {
 		r.DisciplineName = *r.Discipline.I18nName
