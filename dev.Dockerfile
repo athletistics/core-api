@@ -7,12 +7,11 @@ RUN apk add --no-cache bash curl && curl -1sLf \
 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash \
 && apk add infisical
 
-# Install "hot-reloading" moudle
-RUN go install github.com/air-verse/air@latest
-
 COPY go.mod go.sum ./
 RUN go mod download
 
+COPY . ./
+
 EXPOSE 3000
 
-CMD ["sh", "-c",  "infisical run --env=${ENV} --path=/core -- air -c .air.toml"]
+CMD ["sh", "-c",  "infisical run --env=${ENV} --path=/core -- go run ."]

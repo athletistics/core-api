@@ -5,15 +5,23 @@ services:
     build:
       context: .
       dockerfile: dev.Dockerfile
+    #    command: "infisical run --env=local --path=/core -- go run main.go --gseed"
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          ignore:
+            - ./tmp
+            - ./**/*.log
     env_file:
       - .env
-#    command: "infisical run --env=local --path=/core -- go run main.go --gseed"
     ports:
       - "3000:3000"
-    volumes:
-      - ./:/app
     networks:
       - athletistics
+    depends_on:
+      core-db:
+        condition: service_healthy
   core-db:
     image: baeriswyln/postgres-infisical
     env_file:
@@ -24,6 +32,11 @@ services:
       - postgres-db-core:/var/lib/postgresql/data
     networks:
       - athletistics
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U core"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   athletistics:
