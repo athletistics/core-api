@@ -220,7 +220,7 @@ func CreatePersonalTrainingResult(c *fiber.Ctx) error {
 func UpdatePersonalTrainingResult(c *fiber.Ctx) error {
 	body := new(models.ResultTrainingInput)
 	ctx := helpers.LoadContext(c)
-	resultId := c.Query(ParamResultId)
+	resultId := c.Params(ParamResultId)
 
 	if err := c.BodyParser(body); err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), ctx.User().ID)
@@ -242,7 +242,7 @@ func UpdatePersonalTrainingResult(c *fiber.Ctx) error {
 //	@Router		/results/training/{resultId} [delete]
 func DeletePersonalTrainingResult(c *fiber.Ctx) error {
 	ctx := helpers.LoadContext(c)
-	resultId := c.Query(ParamResultId)
+	resultId := c.Params(ParamResultId)
 
 	return helpers.ProcessJsonResponse(c, nil, deleteTrainingResult(ctx, resultId))
 }
