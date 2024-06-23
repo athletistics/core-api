@@ -40,7 +40,7 @@ func updateResult(user *models.User, resultId string, body *models.ResultUpdateI
 		return nil, res.ErrDB.Err(err)
 	}
 	var updatedResult models.ResultString
-	if err := db.Model(&models.Result{}).
+	if err := db.Model(&models.Result{}).Select("results.*, false is_personal_training_result").
 		Where(`results.id = ?`, resultToModify.ID).
 		Preload("User").Preload("Discipline").Preload("Event").Preload("Category").
 		First(&updatedResult).Error; err != nil {
