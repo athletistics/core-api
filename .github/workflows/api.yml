@@ -43,7 +43,7 @@ jobs:
       - name: Clean cache
         run: go clean -testcache
       - name: Run tests
-        run: go test ./...
+        run: go test -tags testing ./...
 
   build_publish_deploy:
     name: Build, Publish, Deploy on ${{ matrix.env.namespace }}
