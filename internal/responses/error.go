@@ -2,7 +2,7 @@
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 17.06.2023
 
-//nolint:gomnd
+//nolint:mnd
 package res
 
 import (

@@ -1,6 +1,7 @@
 // Author  : Nicolas Baeriswyl <nicolasfabrice.baeriswyl@edu.hefr.ch>
 // Created : 16.06.2024
 
+// nolint:all
 package eventHandler
 
 import (

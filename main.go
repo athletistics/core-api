@@ -49,7 +49,7 @@ func main() {
 	database.ConnectDb()
 
 	// prepare logger
-	f, err := os.OpenFile("./core-api.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644) //nolint:gomnd
+	f, err := os.OpenFile("./core-api.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644) //nolint:mnd
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -136,7 +136,7 @@ func mountDocs(app *fiber.App) {
 // the log includes the endpoint as well as the response code and the request duration
 func useFiberLogger(app *fiber.App) *os.File {
 	// prepare the logger, and add a requestid to each request
-	file, err := os.OpenFile("./request.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644) //nolint:gomnd
+	file, err := os.OpenFile("./request.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644) //nolint:mnd
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -171,10 +171,10 @@ func useCors(app *fiber.App) {
 }
 
 func CreateKeyFile() error {
-	if err := os.WriteFile(os.Getenv("ZITADEL_MGMT_KEY_PATH"), []byte(os.Getenv("ZITADEL_MGMT_API_KEY")), 0755); err != nil { //nolint:gomnd
+	if err := os.WriteFile(os.Getenv("ZITADEL_MGMT_KEY_PATH"), []byte(os.Getenv("ZITADEL_MGMT_API_KEY")), 0755); err != nil { //nolint:mnd
 		return err
 	}
-	return os.WriteFile(middleware.OSKeyPath(), []byte(os.Getenv("ZITADEL_API_KEY")), 0755) //nolint:gomnd
+	return os.WriteFile(middleware.OSKeyPath(), []byte(os.Getenv("ZITADEL_API_KEY")), 0755) //nolint:mnd
 }
 
 func DeleteKeyFile() error {

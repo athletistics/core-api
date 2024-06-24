@@ -12,6 +12,7 @@ import (
 	res "github.com/athletistics/core-api/internal/responses"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
@@ -45,23 +46,7 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 	qPers := db.Model(&models.ResultTraining{}).Select("result_trainings.*, NULL as wind, NULL as rank, NULL as event_id, NULL as  category_id, true is_personal_training_result")
 
 	// apply filters passed through the query argument
-	if query.UserID != nil {
-		q.Where(&models.Result{UserID: *query.UserID})
-		qPers.Where(&models.Result{UserID: *query.UserID})
-	}
-
-	if query.EventID != nil {
-		q.Where(&models.Result{EventID: *query.EventID})
-	}
-
-	if query.EventTypeID != nil {
-		q.Joins("inner join events ON events.id = results.event_id AND events.event_type_id = ?", *query.EventTypeID)
-	}
-
-	if query.DisciplineID != nil {
-		q.Where(&models.Result{DisciplineID: *query.DisciplineID})
-		qPers.Where(&models.Result{DisciplineID: *query.DisciplineID})
-	}
+	applyQueryFilters(query, q, qPers)
 
 	// get best results by discipline
 	if query.BestOnly {
@@ -164,4 +149,24 @@ func RunCreateQuery(c *fiber.Ctx, body *models.ResultInput) error {
 	}
 
 	return c.JSON(res.UuidCreated{Id: result.ID})
+}
+
+func applyQueryFilters(query *ResultQuery, q *gorm.DB, qPers *gorm.DB) {
+	if query.UserID != nil {
+		q.Where(&models.Result{UserID: *query.UserID})
+		qPers.Where(&models.Result{UserID: *query.UserID})
+	}
+
+	if query.EventID != nil {
+		q.Where(&models.Result{EventID: *query.EventID})
+	}
+
+	if query.EventTypeID != nil {
+		q.Joins("inner join events ON events.id = results.event_id AND events.event_type_id = ?", *query.EventTypeID)
+	}
+
+	if query.DisciplineID != nil {
+		q.Where(&models.Result{DisciplineID: *query.DisciplineID})
+		qPers.Where(&models.Result{DisciplineID: *query.DisciplineID})
+	}
 }
