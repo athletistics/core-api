@@ -1968,6 +1968,147 @@ const docTemplate = `{
                 }
             }
         },
+        "/results/training/": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Create a new result.",
+                "parameters": [
+                    {
+                        "description": "Result data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultTrainingInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/res.UuidCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/results/training/{resultId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Modify the values of a result, without updating event, user, and discipline.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Result UUID to modify",
+                        "name": "resultId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated result data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultTrainingInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ResultString"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Results"
+                ],
+                "summary": "Delete a specific result.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Result UUID to delete",
+                        "name": "resultId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/res.Error"
+                        }
+                    }
+                }
+            }
+        },
         "/results/{resultId}": {
             "put": {
                 "security": [
@@ -3290,10 +3431,16 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "isPersonalTrainingResult": {
+                    "type": "boolean"
+                },
                 "isTraining": {
                     "type": "boolean"
                 },
                 "rank": {
+                    "type": "string"
+                },
+                "userBirthDate": {
                     "type": "string"
                 },
                 "userFirstName": {
@@ -3309,6 +3456,25 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "wind": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.ResultTrainingInput": {
+            "type": "object",
+            "required": [
+                "date",
+                "disciplineId",
+                "value"
+            ],
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "disciplineId": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "number"
                 }
             }
@@ -3620,7 +3786,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "v1.1.2",
+	Version:          "v1.1.3",
 	Host:             "athletistics.kube.isc.heia-fr.ch",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"https"},

@@ -336,9 +336,13 @@ definitions:
         type: string
       id:
         type: string
+      isPersonalTrainingResult:
+        type: boolean
       isTraining:
         type: boolean
       rank:
+        type: string
+      userBirthDate:
         type: string
       userFirstName:
         type: string
@@ -350,6 +354,19 @@ definitions:
         type: number
       wind:
         type: number
+    type: object
+  models.ResultTrainingInput:
+    properties:
+      date:
+        type: string
+      disciplineId:
+        type: string
+      value:
+        type: number
+    required:
+    - date
+    - disciplineId
+    - value
     type: object
   models.ResultUpdateInput:
     properties:
@@ -559,7 +576,7 @@ info:
     name: AGPL-3.0
     url: https://www.gnu.org/licenses/agpl-3.0.html
   title: Core Athletistics API
-  version: v1.1.2
+  version: v1.1.3
 paths:
   /club/{club_id}:
     get:
@@ -1843,6 +1860,94 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get static results
+      tags:
+      - Results
+  /results/training/:
+    post:
+      parameters:
+      - description: Result data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResultTrainingInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/res.UuidCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new result.
+      tags:
+      - Results
+  /results/training/{resultId}:
+    delete:
+      parameters:
+      - description: Result UUID to delete
+        in: path
+        name: resultId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a specific result.
+      tags:
+      - Results
+    put:
+      parameters:
+      - description: Result UUID to modify
+        in: path
+        name: resultId
+        required: true
+        type: string
+      - description: Updated result data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ResultTrainingInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ResultString'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/res.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/res.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Modify the values of a result, without updating event, user, and discipline.
       tags:
       - Results
   /teams/{team_id}:
