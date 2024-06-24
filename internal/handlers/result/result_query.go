@@ -70,12 +70,13 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 
 		if query.UserID != nil {
 			q = db.Raw("(?) UNION (?)", q, qPers)
+			q = db.Table("(?)", q)
 		}
 
 		q.Scopes(helpers.Paginate(&query.Pagination, page))
 	}
 
-	q.Order("events.date desc")
+	q.Order("date desc")
 
 	err = q.Preload("User").Preload("Discipline").Preload("Event").Preload("Category").Find(outModel).Error
 	if err != nil {
