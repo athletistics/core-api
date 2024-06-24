@@ -54,6 +54,7 @@ type ResultString struct {
 	UserID                   string           `json:"userId"`
 	UserFirstName            string           `json:"userFirstName" gorm:"-"`
 	UserLastName             string           `json:"userLastName" gorm:"-"`
+	UserBirthDate            types.Date       `json:"userBirthDate" gorm:"-"`
 	Category                 *Category        `json:"-"`
 	CategoryID               uuid.UUID        `gorm:"type:uuid" json:"-"`
 	CategoryName             string           `json:"categoryName" gorm:"-"`
@@ -76,6 +77,8 @@ type ResultString struct {
 func (r *ResultString) Prepare() {
 	r.UserFirstName = r.User.FirstName
 	r.UserLastName = r.User.LastName
+	r.UserBirthDate = r.User.BirthDate
+
 	if r.Event != nil {
 		r.EventName = r.Event.Name
 		r.EventPlace = r.Event.Place
