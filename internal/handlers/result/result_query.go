@@ -50,7 +50,7 @@ func FindResults(query *ResultQuery, page *res.Page, outModel interface{}, calli
 
 	// get best results by discipline
 	if query.BestOnly {
-		q.Select("results.*, disciplines.is_descending").Joins("inner join disciplines ON disciplines.id = results.discipline_id")
+		q.Select("results.*, date, disciplines.is_descending").Joins("inner join disciplines ON disciplines.id = results.discipline_id")
 
 		descendingQ := db.Table("(?) as d", q).Select("*, ROW_NUMBER() OVER (PARTITION BY d.discipline_id ORDER BY d.value DESC) as rn")
 		descendingQ = db.Raw("WITH ranked AS (?) SELECT * FROM ranked WHERE rn = 1 AND is_descending = TRUE", descendingQ)
