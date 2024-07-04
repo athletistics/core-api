@@ -4,6 +4,7 @@
 package routes
 
 import (
+	"fmt"
 	disciplineHandler "github.com/athletistics/core-api/internal/handlers/discipline"
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,5 +18,7 @@ func SetupDisciplinesRoutes(router fiber.Router) {
 func SetupDisciplinesRoutesTotpProtected(router fiber.Router) {
 	node := router.Group("/disciplines")
 
-	node.Post("/", disciplineHandler.CreateDisciplines)
+	node.Post("/", disciplineHandler.CreateDiscipline)
+	node.Put(fmt.Sprintf("/:%v}", disciplineHandler.ParamDisciplineId), disciplineHandler.UpdateDiscipline)
+	node.Delete(fmt.Sprintf("/:%v}", disciplineHandler.ParamDisciplineId), disciplineHandler.DeleteDiscipline)
 }

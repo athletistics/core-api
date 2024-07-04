@@ -5,15 +5,15 @@
 package disciplineHandler
 
 import (
-	"errors"
-	"fmt"
-	"github.com/athletistics/core-api/database"
-	"github.com/athletistics/core-api/helpers"
+	h "github.com/athletistics/core-api/helpers"
 	"github.com/athletistics/core-api/internal/models"
 	res "github.com/athletistics/core-api/internal/responses"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
-	"net/http"
+)
+
+const (
+	ParamForce        = "force"
+	ParamDisciplineId = "id"
 )
 
 // GetDisciplines lists all global disciplines as well as the club's custom disciplines.
@@ -27,32 +27,18 @@ import (
 //	@Security	ApiKeyAuth
 //	@Router		/disciplines [get]
 func GetDisciplines(c *fiber.Ctx) error {
-	user := helpers.GetUser(c)
-	if !helpers.HasAnyRoleOnParentClub(&user) {
-		helpers.LogSecurity("tried accessing disciplines", helpers.GetUserId(c))
-		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
-	}
+	ctx := h.UserContext(c)
 
-	db := database.DB
-	var disciplines []models.DisciplineShort
-	err := db.Model(&models.Discipline{}).
-		Where("club_id IS NULL and sport_id = (?)", db.Table("clubs").Select("sport_id").Where("id = ?", user.ClubID)).
-		Or(&models.Discipline{ClubID: &user.ClubID}).Find(&disciplines).Error
+	disciplines, err := getDisciplines(ctx)
 
 	if err != nil {
-		helpers.LogError(err.Error(), helpers.GetUserId(c))
-		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
-	}
-
-	for i := 0; i < len(disciplines); i++ {
-		isOfficial := disciplines[i].ClubId == nil
-		disciplines[i].IsOfficial = &isOfficial
+		return c.Status(err.Error).JSON(err)
 	}
 
 	return c.JSON(disciplines)
 }
 
-// CreateDisciplines creates a new custom club.
+// CreateDiscipline creates a new custom club discipline.
 //
 //	@Summary	Create a new discipline
 //	@Tags		Discipline
@@ -65,41 +51,80 @@ func GetDisciplines(c *fiber.Ctx) error {
 //	@Failure	403		{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
 //	@Router		/disciplines [post]
-func CreateDisciplines(c *fiber.Ctx) error {
-	user := helpers.GetUser(c)
-	if !helpers.HasRoleOnParentClub(&user, helpers.RoleCoach) {
-		return c.Status(http.StatusForbidden).JSON(res.ErrForbidden)
-	}
+func CreateDiscipline(c *fiber.Ctx) error {
+	ctx := h.UserContext(c)
 
 	// read input body
 	reqBody := new(models.DisciplineInput)
-	if err := c.BodyParser(reqBody); err != nil {
-		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), helpers.GetUserId(c))
-		return c.Status(http.StatusBadRequest).JSON(res.ErrBadRequest.Err(err))
-	}
+	parseErr := c.BodyParser(reqBody)
 
-	// get sport id of parent club
-	db := database.DB
-	club := models.Club{ID: helpers.GetUser(c).ClubID}
-	if err := db.First(&club).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		return c.Status(http.StatusNotFound).JSON(res.ErrNotFound)
-	} else if err != nil {
-		helpers.LogError(err.Error(), helpers.GetUserId(c))
-		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
-	}
+	id, err := createDiscipline(ctx, reqBody, parseErr)
 
-	// write to database
-	discipline := models.Discipline{
-		SportID:      club.SportID,
-		ClubID:       &club.ID,
-		CustomName:   &reqBody.CustomName,
-		IsDescending: reqBody.IsDescending,
-	}
-	if err := db.Create(&discipline).Error; err != nil {
-		helpers.LogError(err.Error(), helpers.GetUserId(c))
-		return c.Status(http.StatusInternalServerError).JSON(res.ErrDB.Err(err))
+	if err != nil {
+		return c.Status(err.Error).JSON(err)
 	}
 
 	// return id of new discipline
-	return c.JSON(res.UuidCreated{Id: discipline.ID})
+	return c.JSON(res.UuidCreated{Id: *id})
+}
+
+// UpdateDiscipline updates a specific discipline.
+//
+//	@Summary	Update a discipline. Can only be done on disciplines owned by the requesting user's club.
+//	@Tags		Discipline
+//	@Consumes	json
+//	@Param		request			body		models.DisciplineInput	true	"Discipline data"
+//	@Param		disciplineId	path		uuid.UUID				true	"Discipline ID"
+//	@Success	200				{string}	OK
+//	@Failure	400				{object}	res.Error
+//	@Failure	401				{object}	res.Error
+//	@Failure	403				{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/disciplines [post]
+func UpdateDiscipline(c *fiber.Ctx) error {
+	ctx := h.UserContext(c)
+
+	// read path parameter
+	disciplineId := c.Params(ParamDisciplineId)
+
+	// read input body
+	reqBody := new(models.DisciplineInput)
+	parseErr := c.BodyParser(reqBody)
+
+	err := updateDiscipline(ctx, disciplineId, reqBody, parseErr)
+
+	if err != nil {
+		return c.Status(err.Error).JSON(err)
+	}
+
+	// return id of new discipline
+	return c.SendStatus(fiber.StatusOK)
+}
+
+// DeleteDiscipline deletes a club discipline.
+//
+//	@Summary	Delete a specific discipline. Can only be done on disciplines owned by the requesting user's club.
+//	@Tags		Discipline
+//	@Param		disciplineId	path		uuid.UUID	true	"Discipline ID"
+//	@Success	200				{string}	OK
+//	@Failure	400				{object}	res.Error
+//	@Failure	401				{object}	res.Error
+//	@Failure	403				{object}	res.Error	"Not enough permissions"
+//	@Security	ApiKeyAuth
+//	@Router		/disciplines/{disciplineId} [delete]
+func DeleteDiscipline(c *fiber.Ctx) error {
+	ctx := h.UserContext(c)
+
+	// read path parameter
+	disciplineId := c.Params(ParamDisciplineId)
+	force := c.QueryBool(ParamForce, false)
+
+	err := deleteDiscipline(ctx, disciplineId, force)
+
+	if err != nil {
+		return c.Status(err.Error).JSON(err)
+	}
+
+	// return id of new discipline
+	return c.SendStatus(fiber.StatusOK)
 }

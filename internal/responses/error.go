@@ -42,6 +42,11 @@ var (
 	ErrEventHasResults = NewError(http.StatusBadRequest, 2000, "Results are registered for this event.", "")
 )
 
+// Discipline errors
+var (
+	ErrDisciplineHasResults = NewError(http.StatusBadRequest, 3000, "Discipline cannot be deleted, as results are registered for this discipline.", "")
+)
+
 type Error struct {
 	Error         int    `json:"error" validate:"required"`
 	ErrorSubCode  int    `json:"subCode"`
