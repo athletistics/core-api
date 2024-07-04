@@ -55,6 +55,8 @@ func redeemShareCode(user *models.User, code string) (*models.UserShort, *res.Er
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
+	} else if codeUuid == uuid.Nil {
+		return nil, res.ErrBadRequest
 	}
 
 	// make sure user has required permissions

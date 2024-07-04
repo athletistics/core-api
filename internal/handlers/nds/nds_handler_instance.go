@@ -28,6 +28,8 @@ func selectInstances(user *models.User, activityId string) ([]models.NdsActivity
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
+	} else if activityUuid == uuid.Nil {
+		return nil, res.ErrBadRequest.Err(err)
 	}
 
 	// make sure the user is allowed to access instances of the activity
@@ -179,7 +181,10 @@ func parseUuids(rawIds ...string) ([]uuid.UUID, error) {
 		parsedId, err := uuid.Parse(rawIds[i])
 		if err != nil {
 			return nil, err
+		} else if parsedId == uuid.Nil {
+			return nil, fmt.Errorf("")
 		}
+
 		ids[i] = parsedId
 	}
 

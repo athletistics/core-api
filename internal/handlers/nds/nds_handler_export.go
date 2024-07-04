@@ -39,6 +39,8 @@ func exportAttendances(user *models.User, activityId string) (string, *res.Error
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return "", res.ErrBadRequest.Err(err)
+	} else if activityUuid == uuid.Nil {
+		return "", res.ErrBadRequest.Err(err)
 	}
 
 	// read all instances of a given activity
@@ -85,6 +87,8 @@ func exportUsers(user *models.User, activityId string) (string, *res.Error) {
 	activityUuid, err := uuid.Parse(activityId)
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
+		return "", res.ErrBadRequest.Err(err)
+	} else if activityUuid == uuid.Nil {
 		return "", res.ErrBadRequest.Err(err)
 	}
 

@@ -35,6 +35,8 @@ func selectActivities(user *models.User, teamId string) ([]models.NdsActivity, *
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
 		return nil, res.ErrBadRequest.Err(err)
+	} else if teamUuid == uuid.Nil {
+		return nil, res.ErrBadRequest.Err(err)
 	}
 
 	// find team and make sure the user can access said team
@@ -59,6 +61,8 @@ func selectActivity(user *models.User, activityId string) (*models.NdsActivity, 
 	activityUuid, err := uuid.Parse(activityId)
 	if err != nil {
 		helpers.LogInfo(fmt.Sprintf("bad request: %v", err), user.ID)
+		return nil, res.ErrBadRequest.Err(err)
+	} else if activityUuid == uuid.Nil {
 		return nil, res.ErrBadRequest.Err(err)
 	}
 

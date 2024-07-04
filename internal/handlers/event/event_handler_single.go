@@ -23,6 +23,8 @@ func permissionCheck(ctx *h.Context, eventId string) (models.Event, *res.Error) 
 	if err != nil {
 		h.LogInfo(fmt.Sprintf("bad request: %v", err), ctx.User().ID)
 		return event, res.ErrBadRequest.Err(err)
+	} else if eventUuid == uuid.Nil {
+		return event, res.ErrBadRequest.Err(err)
 	}
 	event.ID = eventUuid
 

@@ -23,7 +23,10 @@ func updateResult(user *models.User, resultId string, body *models.ResultUpdateI
 	if uuidErr != nil {
 		h.LogInfo(fmt.Sprintf("bad request: %v", uuidErr), user.ID)
 		return nil, res.ErrBadRequest.Err(uuidErr)
+	} else if resultUuid == uuid.Nil {
+		return nil, res.ErrBadRequest
 	}
+
 	if parseErr != nil {
 		h.LogInfo(fmt.Sprintf("bad request: %v", parseErr), user.ID)
 		return nil, res.ErrBadRequest.Err(parseErr)
@@ -60,6 +63,8 @@ func deleteResult(user *models.User, resultId string) *res.Error {
 	if uuidErr != nil {
 		h.LogInfo(fmt.Sprintf("bad request: %v", uuidErr), user.ID)
 		return res.ErrBadRequest.Err(uuidErr)
+	} else if resultUuid == uuid.Nil {
+		return res.ErrBadRequest
 	}
 
 	// verify permissions. requesting user must be coach of the result's user
@@ -99,6 +104,8 @@ func updateTrainingResult(ctx *h.Context, resultId string, body *models.ResultTr
 	resultUuid, uuidErr := uuid.Parse(resultId)
 	if uuidErr != nil {
 		return res.ErrBadRequest.Err(uuidErr)
+	} else if resultUuid == uuid.Nil {
+		return res.ErrBadRequest
 	}
 
 	result := &models.ResultTraining{ID: resultUuid}
@@ -132,6 +139,8 @@ func deleteTrainingResult(ctx *h.Context, resultId string) *res.Error {
 	resultUuid, uuidErr := uuid.Parse(resultId)
 	if uuidErr != nil {
 		return res.ErrBadRequest.Err(uuidErr)
+	} else if resultUuid == uuid.Nil {
+		return res.ErrBadRequest
 	}
 
 	result := &models.ResultTraining{ID: resultUuid}
