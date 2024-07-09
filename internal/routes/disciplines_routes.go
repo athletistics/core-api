@@ -19,6 +19,6 @@ func SetupDisciplinesRoutesTotpProtected(router fiber.Router) {
 	node := router.Group("/disciplines")
 
 	node.Post("/", disciplineHandler.CreateDiscipline)
-	node.Put(fmt.Sprintf("/:%v}", disciplineHandler.ParamDisciplineId), disciplineHandler.UpdateDiscipline)
-	node.Delete(fmt.Sprintf("/:%v}", disciplineHandler.ParamDisciplineId), disciplineHandler.DeleteDiscipline)
+	node.Put(fmt.Sprintf("/:%v", disciplineHandler.ParamDisciplineId), disciplineHandler.UpdateDiscipline)
+	node.Delete(fmt.Sprintf("/:%v", disciplineHandler.ParamDisciplineId), disciplineHandler.DeleteDiscipline)
 }

@@ -156,6 +156,8 @@ func deleteDiscipline(ctx *h.Context, disciplineId string, force bool) *res.Erro
 			if err := tx.Unscoped().Where("discipline_id = ?", id).Delete(&models.ResultStatic{}).Error; err != nil {
 				return err
 			}
+		} else if countDisciplineDependencies(id, tx) != 0 {
+			return gorm.ErrForeignKeyViolated
 		}
 
 		if err := tx.Unscoped().Delete(discipline).Error; err != nil {
@@ -174,4 +176,15 @@ func deleteDiscipline(ctx *h.Context, disciplineId string, force bool) *res.Erro
 	}
 
 	return nil
+}
+
+func countDisciplineDependencies(id uuid.UUID, db *gorm.DB) int64 {
+	var countResult int64
+	var countResultTraining int64
+	var countResultStatic int64
+	db.Model(&models.Result{}).Where("discipline_id = ?", id).Count(&countResult)
+	db.Model(&models.ResultTraining{}).Where("discipline_id = ?", id).Count(&countResultTraining)
+	db.Model(&models.ResultStatic{}).Where("discipline_id = ?", id).Count(&countResultStatic)
+
+	return countResult + countResultTraining + countResultStatic
 }

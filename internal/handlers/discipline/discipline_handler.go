@@ -80,7 +80,7 @@ func CreateDiscipline(c *fiber.Ctx) error {
 //	@Failure	401				{object}	res.Error
 //	@Failure	403				{object}	res.Error	"Not enough permissions"
 //	@Security	ApiKeyAuth
-//	@Router		/disciplines [post]
+//	@Router		/disciplines/{disciplineId} [put]
 func UpdateDiscipline(c *fiber.Ctx) error {
 	ctx := h.UserContext(c)
 
