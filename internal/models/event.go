@@ -46,6 +46,7 @@ type EventShort struct {
 	Name          string     `json:"name"`
 	Place         string     `json:"place"`
 	Date          types.Date `json:"date"`
+	ClubID        *uuid.UUID `json:"clubId"`
 	IsHomologated bool       `json:"isHomologated"`
 	IsOutdoor     bool       `json:"isOutdoor"`
 }

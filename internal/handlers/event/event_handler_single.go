@@ -5,12 +5,14 @@
 package eventHandler
 
 import (
+	"errors"
 	"fmt"
 	"github.com/athletistics/core-api/database"
 	h "github.com/athletistics/core-api/helpers"
 	"github.com/athletistics/core-api/internal/models"
 	res "github.com/athletistics/core-api/internal/responses"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 func permissionCheck(ctx *h.Context, eventId string) (models.Event, *res.Error) {
@@ -66,26 +68,41 @@ func updateEvent(ctx *h.Context, eventId string, body *models.EventInput, parseE
 
 func deleteEvent(ctx *h.Context, eventId string, force bool) *res.Error {
 	db := database.DB
-	event, err := permissionCheck(ctx, eventId)
+	event, errPermissions := permissionCheck(ctx, eventId)
+	if errPermissions != nil {
+		return errPermissions
+	}
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		// Make sure the event can be deleted. If the event has results, force must be true.
+		var count int64
+		if err := tx.Model(&models.Result{}).Where("event_id = ?", event.ID).Count(&count).Error; err != nil {
+			return err
+		}
+
+		if count > 0 && !force {
+			return gorm.ErrForeignKeyViolated
+		}
+
+		if err := tx.Unscoped().Where("event_id = ?", event.ID).Delete(&models.Result{}).Error; err != nil {
+			return err
+		}
+
+		// Delete
+		if err := tx.Unscoped().Delete(&event).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
 	if err != nil {
-		return err
-	}
-
-	// Make sure the event can be deleted. If the event has results, force must be true.
-	var count int64
-	result := models.Result{EventID: event.ID}
-	if err := db.Model(&result).Where(&result).Count(&count).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res.ErrNotFound
+		} else if errors.Is(err, gorm.ErrForeignKeyViolated) {
+			return res.ErrEventHasResults
+		}
 		return res.ErrDB.Err(err)
 	}
-
-	if count > 0 && !force {
-		return res.ErrEventHasResults
-	}
-
-	// Delete
-	if err := db.Unscoped().Delete(&event).Error; err != nil {
-		return res.ErrDB.Err(err)
-	}
-
 	return nil
 }
