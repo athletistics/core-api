@@ -107,8 +107,10 @@ func TestDeleteEvent_Unauthorized(t *testing.T) {
 func TestDeleteEvent_HasChildren(t *testing.T) {
 	ctx, _, _, eventId := getAuthorizedContext()
 
-	database.Mock.ExpectQuery(`SELECT count\(\*\) FROM "results".* WHERE "results"."event_id" = \$1.*`).
+	database.Mock.ExpectBegin()
+	database.Mock.ExpectQuery(`SELECT count\(\*\) FROM "results".* WHERE event_id = \$1.*`).
 		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(8))
+	database.Mock.ExpectRollback()
 	err := deleteEvent(ctx, eventId.String(), false)
 
 	assert.NotNil(t, err)
